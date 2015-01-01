@@ -23,14 +23,14 @@ pimatic-plugin-MySensors
 
 Pimatic plugin supporting MySensors as controller. (http://mysensors.org/)
 
-###for Controllers
+### Controllers
 * node-id to be fixed in Sensors/Actuator code.
 
 * Support for following sensors
-  1) Temperature and Humidity  ( http://mysensors.org/build/humidity)
-  2) more to be add.. :)
+** Temperature and Humidity  ( http://mysensors.org/build/humidity)
+** more to be add.. :)
 
-###for Gateways
+### Gateways
    Gateway usign 
    using  https://github.com/mysensors/Raspberry
 
