@@ -1,11 +1,16 @@
-{ "name": "pimatic-plugin-template",
-  "description": "The plugin description",
-  "author": "Your Name <you@example.com> (http://your-website)",
-  "main": "my-plugin",
+{ "name": "pimatic-MySensors",
+  "description": "MySensors Plugin for pimatic",
+  "author": "Dheeraj Khajuria <Dheeraj.Khajuria@gmail.com> ",
+  "main": "MySensors",
   "files": [
-    "my-plugin.coffee",
+    "MySensors.coffee",
+    "serialport.coffee",
+    "board.coffee",
     "README.md",
-    "my-plugin-config-schema.coffee"
+    "device-config-schema.coffee",
+    "MySensors-config-schema.coffee",
+    "test-MySensors.coffee",
+    "icon.svg"
   ],
   "version": "0.8.0",
   "homepage": "http://your-plugin-website",
@@ -14,8 +19,16 @@
     "type": "git",
     "url": "git://github.com/pimatic/pimatic-plugin-template.git"
   },
-  "configSchema": "my-plugin-config-schema.coffee",
+  "configSchema": "MySensors-config-schema.coffee",
+  "icon": "icon.svg",
+  "keywords": [
+    "pimatic",
+    "MySensors"
+  ],
   "dependencies": {
+    "bluebird": "~2.2.2",
+    "serialport": "~1.4.5"
+
   },
   "peerDependencies": {
     "pimatic": "0.8.*"
