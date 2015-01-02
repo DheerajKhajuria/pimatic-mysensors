@@ -11,6 +11,8 @@
     "MySensors-config-schema.coffee",
     "test-MySensors.coffee",
     "icon.svg"
+    "README.md",
+    "MySensors-config-schema.coffee"
   ],
   "version": "0.8.0",
   "homepage": "http://your-plugin-website",
@@ -28,7 +30,14 @@
   "dependencies": {
     "bluebird": "~2.2.2",
     "serialport": "~1.4.5"
-
+  },
+  "devDependencies": {
+    "coffee-script-redux": "~2.0.0-beta8",
+    "colors": "^0.6.2",
+    "gulp": "~3.8.6",
+    "gulp-coffee": "~2.1.1",
+    "gulp-plumber": "~0.6.4",
+    "gulp-watch": "~0.6.9"
   },
   "peerDependencies": {
     "pimatic": "0.8.*"

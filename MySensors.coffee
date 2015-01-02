@@ -46,11 +46,11 @@ module.exports = (env) ->
           for sensorid in @config.sensorid
             if result.sensor is sensorid
               if result.type is 0
-                console.log "temp" , result.value 
+                #env.logger.info  "temp" , result.value 
                 @_temperatue = result.value
                 @emit "temperature", @_temperatue
               if result.type is 1
-                console.log "humidity" , result.value
+                #env.logger.info  "humidity" , result.value
                 @_humidity = result.value
                 @emit "humidity", @_humidity
       )
