@@ -10,7 +10,7 @@
     "device-config-schema.coffee",
     "MySensors-config-schema.coffee",
     "test-MySensors.coffee",
-    "icon.svg"
+    "icon.svg",
     "README.md",
     "MySensors-config-schema.coffee"
   ],
@@ -19,7 +19,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git://github.com/pimatic/pimatic-plugin-template.git"
+    "url": "git://github.com/DheerajKhajuria/pimatic-MySensors.git"
   },
   "configSchema": "MySensors-config-schema.coffee",
   "icon": "icon.svg",

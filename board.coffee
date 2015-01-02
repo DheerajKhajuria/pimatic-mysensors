@@ -172,7 +172,7 @@ class Board extends events.EventEmitter
     
     switch command
       when C_PRESENTATION
-        env.logger.info  "Presented Node : ", datas
+        console.log  "Presented Node : ", datas
       when C_SET
         result = {}            
         result = {
