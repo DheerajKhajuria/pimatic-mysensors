@@ -3,12 +3,6 @@ pimatic-plugin-MySensors
 
 > Note:  beta version 
 
-Screenshots
------------
-[![Screenshot 1][screen1_thumb]](http://www.pimatic.org/screens/screen1.png) 
-
-[screen1_thumb]: http://www.pimatic.org/screens/screen1_thumb.png
-
 Pimatic plugin supporting MySensors as controller. (http://mysensors.org/)
 
 Controllers
