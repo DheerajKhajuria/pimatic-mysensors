@@ -29,10 +29,10 @@ Gateways
     
   * Serial Gateway (http://mysensors.org/build/serial_gateway)
 
- Pimatic Configuration changes   
- -----------------------------
+Pimatic Configuration changes   
+-----------------------------
 
-## Configuration
+### Configuration
 
 You can load the plugin by editing your config.json to include:
 ```
@@ -48,7 +48,7 @@ You can load the plugin by editing your config.json to include:
 ```
 in the plugins section. 
 
-## Devices
+### Devices
 
 * Temperature and Humidity
 
