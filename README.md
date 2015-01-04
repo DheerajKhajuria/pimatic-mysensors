@@ -10,6 +10,7 @@ Pimatic plugin supporting MySensors as controller. (http://mysensors.org/)
 
   Support for following sensors
   * Temperature and Humidity  ( http://mysensors.org/build/humidity)
+  * motion ( http://mysensors.org/build/motion )
   * more to be add.. :)
 
 ### Gateways
@@ -29,6 +30,7 @@ You can load the plugin by editing your config.json to include:
 {
       "plugin": "MySensors",
       "driver": "serialport",
+      "protocols": "1.4.1",
       "driverOptions": {
       "serialDevice": "/dev/ttyMySensorsGateway", # #'/dev/ttyUSBx' if using serial Gateway
       "baudrate": 115200
@@ -39,22 +41,32 @@ in the plugins section.
 
 * Devices
 
+Temperature and Humidity
+
 Devices must be added manually to the device section of your pimatic config.
 
 This is the basic sensor with only temperature and humidity
 ```
-{
-      "id": "10",  # node ID
-      "name": "DHT",
+ {
+      "id": "DHT11",
+      "name": "DHT11",
       "class": "MySensorsDHT",
-      "protocols": "1.4.1",
+      "nodeid": 10,
       "sensorid": [
-        0,  # sensor IDs
+        0,
         1
-      ],
-      "subtypeid": [
-        0,  #V_TEMP	0	Temperature
-        1   #V_HUM	1	Humidity
       ]
-}
+    }
+```
+ Motion sensor PIR 
+ 
+```
+    {
+      "id": "PIR",
+      "name": "PIR",
+      "class": "MySensorsPIR",
+      "nodeid": 10,
+      "sensorid": 2,
+      "resetTime": 8000
+    },
 ```
