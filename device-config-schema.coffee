@@ -5,23 +5,31 @@ module.exports = {
     type: "object"
     extensions: ["xLink"]
     properties:
-      protocols:
-        description: "Polling interval for the readings, should be greater then 2"
-        type: "string"
-        default: "1.4.1"
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
       sensorid:
-        description: "Polling interval for the readings, should be greater then 2"
+        description: "This is the child-sensor-ids that uniquely identifies one attached sensor"
         type: "array"
         default: []
         format: "table"
         items:
           type: "number"
-      subtypeid:
-        description: "Polling interval for the readings, should be greater then 2"
-        type: "array"
-        default: []
-        format: "table"
-        items:
-          type: "number"
+    },
+  MySensorsPIR: {
+    title: "MySensorsPIR config options"
+    type: "object"
+    extensions: ["xLink"]
+    properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
+      sensorid:
+        description: "This is the child-sensor-id that uniquely identifies one attached sensor"
+        type: "number"
+      resetTime:
+        description: "Time after that the PIR presence value is reset to absent"
+        type: "number"
+        default: 6000
     }
 }
