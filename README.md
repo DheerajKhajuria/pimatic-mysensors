@@ -7,9 +7,12 @@ Screenshots
 -----------
 [![Screenshot 1][screen1_thumb]](http://www.pimatic.org/screens/screen1.png) 
 
+[screen1_thumb]: http://www.pimatic.org/screens/screen1_thumb.png
+
 Pimatic plugin supporting MySensors as controller. (http://mysensors.org/)
 
-### Controllers
+Controllers
+-----------
   node-id to be fixed in Sensors/Actuator code.
 
   Support for following sensors
@@ -17,7 +20,8 @@ Pimatic plugin supporting MySensors as controller. (http://mysensors.org/)
   * motion ( http://mysensors.org/build/motion )
   * more to be add.. :)
 
-### Gateways
+Gateways
+--------- 
   Gateway can be anything from for arduino serial gateway or Raspberry pi 
    
   * NRF24L01+ connected to  raspberry pi SPI. (using  https://github.com/mysensors/Raspberry )
@@ -25,9 +29,10 @@ Pimatic plugin supporting MySensors as controller. (http://mysensors.org/)
     
   * Serial Gateway (http://mysensors.org/build/serial_gateway)
 
-### Pimatic Configuration changes   
+ Pimatic Configuration changes   
+ -----------------------------
 
-* Configuration
+## Configuration
 
 You can load the plugin by editing your config.json to include:
 ```
@@ -43,9 +48,9 @@ You can load the plugin by editing your config.json to include:
 ```
 in the plugins section. 
 
-* Devices
+## Devices
 
-Temperature and Humidity
+* Temperature and Humidity
 
 Devices must be added manually to the device section of your pimatic config.
 
@@ -62,7 +67,7 @@ This is the basic sensor with only temperature and humidity
       ]
     }
 ```
- Motion sensor PIR 
+* Motion sensor PIR 
  
 ```
     {
