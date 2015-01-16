@@ -45,6 +45,8 @@ module.exports = (env) ->
   assert = env.require 'cassert'
   Board = require('./board')
 
+  Promise.promisifyAll(Board.prototype)
+
   class MySensors extends env.plugins.Plugin
 
     init: (app, @framework, @config) =>
@@ -63,7 +65,13 @@ module.exports = (env) ->
       @framework.deviceManager.registerDeviceClass("MySensorsPIR", {
         configDef: deviceConfigDef.MySensorsPIR, 
         createCallback: (config) => new MySensorsPIR(config, @board)
+      })   
+
+      @framework.deviceManager.registerDeviceClass("MySensorsSwitch", {
+        configDef: deviceConfigDef.MySensorsSwitch, 
+        createCallback: (config) => new MySensorsSwitch(config, @board)
       })    
+       
 
   class MySensorsDHT extends env.devices.TemperatureSensor
 
@@ -129,6 +137,35 @@ module.exports = (env) ->
 
     getPresence: -> Promise.resolve @_presence
 
+
+  class MySensorsSwitch extends env.devices.PowerSwitch
+
+    constructor: (@config, @board) ->
+      @id = config.id
+      @name = config.name
+      #@_state = lastState?.state?.value
+
+      @board.on('rfValue', (result) =>
+        env.logger.info "MySensorSwitch" , result
+        if result.sender is @config.nodeid and result.type is V_LIGHT and result.sensor is @config.sensorid 
+          state = (if parseInt(result.value) is 1 then on else off)
+          @_setState(state)
+        )
+      super()
+
+    changeStateTo: (state) ->     
+      env.logger.info "MySensorSwitch-changeStateTo", state
+      assert state is on or state is off
+      if state is true then _state = 1  else _state = 0       
+      datas = 
+      { 
+        "destination": @config.nodeid, "sensor": @config.sensorid, 
+        "type"  : V_LIGHT, "value" : _state  
+      } 
+      @board._rfWrite(datas).then ( () =>
+        @_setState(state)
+      )
+  
   # ###Finally
   # Create a instance of my plugin
   mySensors = new MySensors

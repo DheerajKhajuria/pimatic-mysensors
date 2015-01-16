@@ -2,8 +2,6 @@ Promise = require 'bluebird'
 assert = require 'assert'
 events = require 'events'
 
-settled = (promise) -> Promise.settle([promise])
-
 
 FIRMWARE_BLOCK_SIZE = 16
 BROADCAST_ADDRESS   = 255
@@ -113,7 +111,7 @@ class Board extends events.EventEmitter
     #@on('ready', => @setupWatchdog())
 
   connect: (timeout = 20000, retries = 3) -> 
-    # Stop watchdog if its running and close current connection
+    # Stop watchdog if its running/ and close current connection
     return @pendingConnect = @driver.connect(timeout, retries)
 
   disconnect: ->
@@ -145,5 +143,17 @@ class Board extends events.EventEmitter
           "value" : rawpayload
         } 
         @emit "rfValue", result
+
+  _rfWrite: (datas) ->
+    console.log "_rfWrite", datas 
+    data = @_encode(datas.destination,datas.sensor,C_SET,1,datas.type,datas.value)
+    @driver.write(data) 
+   
+  _encode: (destination, sensor, command, acknowledge, type, payload) ->
+    msg = destination.toString(10) + ";" + sensor.toString(10) + ";" + command.toString(10) + ";" + acknowledge.toString(10) + ";" + type.toString(10) + ";";
+    msg += payload
+    msg += '\n'
+    console.log msg
+    return msg.toString();  
 
 module.exports = Board

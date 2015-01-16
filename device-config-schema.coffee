@@ -31,5 +31,17 @@ module.exports = {
         description: "Time after that the PIR presence value is reset to absent"
         type: "number"
         default: 6000
-    }
+    },
+  MySensorsSwitch: {
+    title: "MySensorsSwitch config options"
+    type: "object"
+    extensions: ["xLink"]
+    properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
+      sensorid:
+        description: "This is the child-sensor-id that uniquely identifies one attached sensor"
+        type: "number"
+    }  
 }
