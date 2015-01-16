@@ -12,6 +12,7 @@ Controllers
   Support for following sensors
   * Temperature and Humidity  ( http://mysensors.org/build/humidity)
   * motion ( http://mysensors.org/build/motion )
+  * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * more to be add.. :)
 
 Gateways
@@ -71,5 +72,16 @@ This is the basic sensor with only temperature and humidity
       "nodeid": 10,
       "sensorid": 2,
       "resetTime": 8000
+    },
+```
+* Relay-Actuator 
+ 
+```
+ {
+      "id": "Switch",
+      "name": "Switch",
+      "class": "MySensorsSwitch",
+      "nodeid": 10,
+      "sensorid": 1
     },
 ```
