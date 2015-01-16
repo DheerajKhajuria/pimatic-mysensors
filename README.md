@@ -5,14 +5,17 @@ pimatic-plugin-MySensors
 
 Pimatic plugin supporting MySensors as controller. (http://mysensors.org/)
 
-### Controllers
+Controllers
+-----------
   node-id to be fixed in Sensors/Actuator code.
 
   Support for following sensors
   * Temperature and Humidity  ( http://mysensors.org/build/humidity)
+  * motion ( http://mysensors.org/build/motion )
   * more to be add.. :)
 
-### Gateways
+Gateways
+--------- 
   Gateway can be anything from for arduino serial gateway or Raspberry pi 
    
   * NRF24L01+ connected to  raspberry pi SPI. (using  https://github.com/mysensors/Raspberry )
@@ -20,15 +23,17 @@ Pimatic plugin supporting MySensors as controller. (http://mysensors.org/)
     
   * Serial Gateway (http://mysensors.org/build/serial_gateway)
 
-### Pimatic Configuration changes   
+Pimatic Configuration changes   
+-----------------------------
 
-* Configuration
+### Configuration
 
 You can load the plugin by editing your config.json to include:
 ```
 {
       "plugin": "MySensors",
       "driver": "serialport",
+      "protocols": "1.4.1",
       "driverOptions": {
       "serialDevice": "/dev/ttyMySensorsGateway", # #'/dev/ttyUSBx' if using serial Gateway
       "baudrate": 115200
@@ -37,24 +42,34 @@ You can load the plugin by editing your config.json to include:
 ```
 in the plugins section. 
 
-* Devices
+### Devices
+
+* Temperature and Humidity
 
 Devices must be added manually to the device section of your pimatic config.
 
 This is the basic sensor with only temperature and humidity
 ```
-{
-      "id": "10",  # node ID
-      "name": "DHT",
+ {
+      "id": "DHT11",
+      "name": "DHT11",
       "class": "MySensorsDHT",
-      "protocols": "1.4.1",
+      "nodeid": 10,
       "sensorid": [
-        0,  # sensor IDs
+        0,
         1
-      ],
-      "subtypeid": [
-        0,  #V_TEMP	0	Temperature
-        1   #V_HUM	1	Humidity
       ]
-}
+    }
+```
+* Motion sensor PIR 
+ 
+```
+    {
+      "id": "PIR",
+      "name": "PIR",
+      "class": "MySensorsPIR",
+      "nodeid": 10,
+      "sensorid": 2,
+      "resetTime": 8000
+    },
 ```
