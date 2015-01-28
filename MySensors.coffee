@@ -57,25 +57,25 @@ module.exports = (env) ->
       ) 
       deviceConfigDef = require("./device-config-schema")
 
-      @framework.deviceManager.registerDeviceClass("MySensorsDHT", {
-        configDef: deviceConfigDef.MySensorsDHT, 
-        createCallback: (config) => new MySensorsDHT(config, @board)
-      })    
+      deviceClasses = [
+        MySensorsDHT
+        MySensorsPIR
+        MySensorsSwitch
+      ]
 
-      @framework.deviceManager.registerDeviceClass("MySensorsPIR", {
-        configDef: deviceConfigDef.MySensorsPIR, 
-        createCallback: (config) => new MySensorsPIR(config, @board)
-      })   
-
-      @framework.deviceManager.registerDeviceClass("MySensorsSwitch", {
-        configDef: deviceConfigDef.MySensorsSwitch, 
-        createCallback: (config) => new MySensorsSwitch(config, @board)
-      })    
+      for Cl in deviceClasses
+        do (Cl) =>
+          @framework.deviceManager.registerDeviceClass(Cl.name, {
+            configDef: deviceConfigDef[Cl.name]
+            createCallback: (config,lastState) => 
+             device  =  new Cl(config,lastState, @board)
+             return device
+            })    
        
 
   class MySensorsDHT extends env.devices.TemperatureSensor
 
-    constructor: (@config, @board) ->
+    constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
       env.logger.info "MySensorsDHT" , @id , @name
@@ -116,18 +116,19 @@ module.exports = (env) ->
 
   class MySensorsPIR extends env.devices.PresenceSensor
 
-    constructor: (@config,@board) ->
+    constructor: (@config,lastState,@board) ->
       @id = config.id
       @name = config.name
-      #@_presence = lastState?.presence?.value or false
+      @_presence = lastState?.presence?.value or false
+      env.logger.info "MySensorsPIR" , @id , @name, @_presence
 
       resetPresence = ( =>
         @_setPresence(no)
       )
 
       @board.on('rfValue', (result) =>
-        env.logger.info "MySensorPIR", result
         if result.sender is @config.nodeid and result.type is V_TRIPPED and result.sensor is @config.sensorid
+          env.logger.info "MySensorPIR", result
           unless result.value is ZERO_VALUE
             @_setPresence(yes)
           clearTimeout(@_resetPresenceTimeout)
@@ -140,10 +141,12 @@ module.exports = (env) ->
 
   class MySensorsSwitch extends env.devices.PowerSwitch
 
-    constructor: (@config, @board) ->
+    constructor: (@config,lastState,@board) ->
       @id = config.id
       @name = config.name
-      #@_state = lastState?.state?.value
+      @_state = lastState?.state?.value
+      env.logger.info "MySensorsSwitch" , @id , @name, @_presence
+
 
       @board.on('rfValue', (result) =>
         env.logger.info "MySensorSwitch" , result

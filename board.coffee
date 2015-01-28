@@ -131,6 +131,7 @@ class Board extends events.EventEmitter
     if (datas[5])
       rawpayload = datas[5].trim()
     
+   
     switch command
       when C_PRESENTATION
         console.log  "Presented Node : ", datas
@@ -146,10 +147,10 @@ class Board extends events.EventEmitter
 
   _rfWrite: (datas) ->
     console.log "_rfWrite", datas 
-    data = @_encode(datas.destination,datas.sensor,C_SET,1,datas.type,datas.value)
+    data = @_rfencode(datas.destination,datas.sensor,C_SET,1,datas.type,datas.value)
     @driver.write(data) 
    
-  _encode: (destination, sensor, command, acknowledge, type, payload) ->
+  _rfencode: (destination, sensor, command, acknowledge, type, payload) ->
     msg = destination.toString(10) + ";" + sensor.toString(10) + ";" + command.toString(10) + ";" + acknowledge.toString(10) + ";" + type.toString(10) + ";";
     msg += payload
     msg += '\n'
