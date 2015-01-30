@@ -13,6 +13,7 @@ Controllers
   * Temperature and Humidity  ( http://mysensors.org/build/humidity)
   * motion ( http://mysensors.org/build/motion )
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
+  * TimeAware Sensor support ( Unix time seconds ) 
   * more to be add.. :)
 
 Gateways
