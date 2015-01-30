@@ -69,7 +69,6 @@ P_ULONG32          = 5
 P_CUSTOM           = 6
 
 
-
 class Board extends events.EventEmitter
 
   # @HIGH=1
@@ -120,8 +119,10 @@ class Board extends events.EventEmitter
 
   _rfReceived: (data) ->
     # decoding message
+    datas = {};
     datas = data.toString().split(";")
     sender = parseInt datas[0]
+
     sensor = parseInt datas[1]
     command = parseInt datas[2]
     ack = parseInt datas[3]
@@ -130,31 +131,81 @@ class Board extends events.EventEmitter
 
     if (datas[5])
       rawpayload = datas[5].trim()
-    
-   
+
     switch command
       when C_PRESENTATION
-        console.log  "Presented Node : ", datas
+        console.log "<- Presented Node ", datas
       when C_SET
-        result = {}            
-        result = {
+        @_rfsendtoboard(sender,sensor,type,rawpayload)
+      when C_INTERNAL
+        switch type 
+          when I_BATTERY_LEVEL
+            console.log "<- I_BATTERY_LEVEL ", sender, rawpayload
+            #saveBatteryLevel(sender, payload, db);
+          when I_TIME
+            console.log "<- I_TIME ", data 
+            @_rfsendTime(sender, sensor)
+          when I_VERSION
+            console.log "<- I_VERSION ", payload
+          when I_ID_REQUEST
+            console.log "<- I_ID_REQUEST ", data
+            #sendNextAvailableSensorId(db, gw);
+          when I_ID_RESPONSE
+            console.log "<- I_ID_RESPONSE ", data
+          when I_INCLUSION_MODE
+            console.log "<- I_INCLUSION_MODE ", data
+          when I_CONFIG
+            console.log "<- I_CONFIG ", data
+          when I_PING
+            console.log "<- I_PING ", data
+          when I_PING_ACK
+            console.log "<- I_PING_ACK ", data
+          when I_LOG_MESSAGE
+            console.log "<- I_LOG_MESSAGE ", data
+          when I_CHILDREN
+            console.log "<- I_CHILDREN ", data
+          when I_SKETCH_NAME
+            #saveSketchName(sender, payload, db);
+            console.log "<- I_SKETCH_NAME ", data
+          when I_SKETCH_VERSION
+            #saveSketchVersion(sender, payload, db);
+            console.log "<- I_SKETCH_VERSION ", data
+      
+
+  _rfsendTime: (destination,sensor) ->
+     payload = Math.floor((new Date().getTime())/1000)
+     datas = {}
+     datas = 
+     { 
+        "destination": destination,
+        "sensor": sensor, 
+        "type"  : I_TIME,
+        "ack"   : 0,
+        "command" : C_INTERNAL,
+        "value" : payload
+     } 
+     @_rfWrite(datas)
+
+  _rfsendtoboard: (sender,sensor,type,rawpayload) ->
+      result = {}            
+      result = {
           "sender": sender,
           "sensor": sensor,
           "type"  : type,
           "value" : rawpayload
-        } 
-        @emit "rfValue", result
+      } 
+      @emit "rfValue", result  
 
   _rfWrite: (datas) ->
-    console.log "_rfWrite", datas 
-    data = @_rfencode(datas.destination,datas.sensor,C_SET,1,datas.type,datas.value)
+    datas.command ?= C_SET
+    data = @_rfencode(datas.destination,datas.sensor,datas.command,datas.ack,datas.type,datas.value)
+    console.log "-> Sending ", data
     @driver.write(data) 
-   
+
   _rfencode: (destination, sensor, command, acknowledge, type, payload) ->
     msg = destination.toString(10) + ";" + sensor.toString(10) + ";" + command.toString(10) + ";" + acknowledge.toString(10) + ";" + type.toString(10) + ";";
     msg += payload
     msg += '\n'
-    console.log msg
     return msg.toString();  
 
 module.exports = Board

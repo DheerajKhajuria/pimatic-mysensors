@@ -78,7 +78,7 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
-      env.logger.info "MySensorsDHT" , @id , @name
+      env.logger.info "MySensorsDHT " , @id , @name
 
       @attributes = {}
 
@@ -98,7 +98,7 @@ module.exports = (env) ->
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
             if result.sensor is sensorid
-              env.logger.info "MySensorDHT" , result
+              env.logger.info "<- MySensorDHT " , result
               if result.type is V_TEMP
                 #env.logger.info  "temp" , result.value 
                 @_temperatue = parseInt(result.value)
@@ -120,7 +120,7 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
       @_presence = lastState?.presence?.value or false
-      env.logger.info "MySensorsPIR" , @id , @name, @_presence
+      env.logger.info "MySensorsPIR " , @id , @name, @_presence
 
       resetPresence = ( =>
         @_setPresence(no)
@@ -128,7 +128,7 @@ module.exports = (env) ->
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_TRIPPED and result.sensor is @config.sensorid
-          env.logger.info "MySensorPIR", result
+          env.logger.info "<- MySensorPIR ", result
           unless result.value is ZERO_VALUE
             @_setPresence(yes)
           clearTimeout(@_resetPresenceTimeout)
@@ -145,28 +145,30 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
       @_state = lastState?.state?.value
-      env.logger.info "MySensorsSwitch" , @id , @name, @_presence
+      env.logger.info "MySensorsSwitch " , @id , @name, @_presence
 
 
       @board.on('rfValue', (result) =>
-        env.logger.info "MySensorSwitch" , result
         if result.sender is @config.nodeid and result.type is V_LIGHT and result.sensor is @config.sensorid 
           state = (if parseInt(result.value) is 1 then on else off)
+          env.logger.info "<- MySensorSwitch " , result
           @_setState(state)
         )
       super()
 
     changeStateTo: (state) ->     
-      env.logger.info "MySensorSwitch-changeStateTo", state
       assert state is on or state is off
       if state is true then _state = 1  else _state = 0       
       datas = 
       { 
-        "destination": @config.nodeid, "sensor": @config.sensorid, 
-        "type"  : V_LIGHT, "value" : _state  
+        "destination": @config.nodeid, 
+        "sensor": @config.sensorid, 
+        "type"  : V_LIGHT,
+        "value" : _state,
+        "ack"   : 1
       } 
       @board._rfWrite(datas).then ( () =>
-        @_setState(state)
+         @_setState(state)
       )
   
   # ###Finally
