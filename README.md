@@ -33,11 +33,12 @@ Pimatic Configuration changes
 You can load the plugin by editing your config.json to include:
 ```
 {
-      "plugin": "MySensors",
+      "plugin": "mysensors",
       "driver": "serialport",
       "protocols": "1.4.1",
       "driverOptions": {
-      "serialDevice": "/dev/ttyMySensorsGateway", # #'/dev/ttyUSBx' if using serial Gateway
+      "//": "'/dev/ttyUSBx' if using serial Gateway",
+      "serialDevice": "/dev/ttyMySensorsGateway", 
       "baudrate": 115200
       }
 }
