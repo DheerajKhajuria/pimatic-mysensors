@@ -28,8 +28,8 @@
     "MySensors"
   ],
   "dependencies": {
-    "bluebird": "~2.2.2",
-    "serialport": "~1.4.5"
+    "bluebird": "^2.2.2",
+    "serialport": "^1.4.10"
   },
   "peerDependencies": {
     "pimatic": "0.8.*"
