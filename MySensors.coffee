@@ -61,6 +61,7 @@ module.exports = (env) ->
         MySensorsDHT
         MySensorsPIR
         MySensorsSwitch
+        MySensorsPulseMeter
       ]
 
       for Cl in deviceClasses
@@ -112,6 +113,68 @@ module.exports = (env) ->
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
+
+  class MySensorsPulseMeter extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      @_totalkw = 0
+      @_tickcount = 0
+      env.logger.info "MySensorsPulseMeter " , @id , @name
+
+      @attributes = {}
+
+      @attributes.watt = {
+        description: "the messured Wattage"
+        type: "number"
+        unit: 'W'
+      }
+      
+
+      @attributes.kW = {
+        description: "the messured Kilo Wattage"
+        type: "number"
+        unit: 'kW'
+      }
+
+      @attributes.kWh = {
+        description: "the messured Kwh"
+        type: "number"
+        unit: 'kWh'
+      }
+     
+      calcuatekwh = ( =>
+        @_avgkw =  @_totalkw / @_tickcount 
+        @_kwh = (@_avgkw * (@_tickcount * 10)) / 3600     
+        @_tickcount = 0 
+        @_totalkw  = 0
+        env.logger.info  "calculatekwh.." , @kwh
+        @emit "kWh", @_kwh
+      )
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          for sensorid in @config.sensorid
+            if result.sensor is sensorid
+              env.logger.info "<- MySensorsPulseMeter" , result
+              if result.type is V_WATT
+                #env.logger.info  "temp" , result.value 
+                @_watt = parseInt(result.value)
+                @_kw = @_watt/1000
+                @_totalkw += @_kw
+                @_tickcount++ # ~per 10 second  
+
+                setTimeout(calcuatekwh, 1800000)
+                @emit "kW", @_kw
+                @emit "watt", @_watt
+        
+      )
+      super()
+
+    getWatt: -> Promise.resolve @_watt
+    getKW: -> Promise.resolve @_kw
+    getKWh: -> Promise.resolve @_kwh
 
 
   class MySensorsPIR extends env.devices.PresenceSensor

@@ -1,4 +1,4 @@
-{ "name": "pimatic-MySensors",
+{ "name": "pimatic-mysensors",
   "description": "MySensors Plugin for pimatic",
   "author": "Dheeraj Khajuria <Dheeraj.Khajuria@gmail.com> ",
   "main": "MySensors",
@@ -14,9 +14,8 @@
     "README.md",
     "MySensors-config-schema.coffee"
   ],
-  "version": "0.8.0",
-  "homepage": "http://your-plugin-website",
-  "private": true,
+  "version": "0.8.1",
+  "homepage": "http://pimatic.org",
   "repository": {
     "type": "git",
     "url": "git://github.com/DheerajKhajuria/pimatic-MySensors.git"
