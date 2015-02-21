@@ -14,6 +14,8 @@ Controllers
   * motion ( http://mysensors.org/build/motion )
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * TimeAware Sensor support ( Unix time seconds ) 
+  * Binary buttom ( http://www.mysensors.org/build/binary )
+  * pulseMeter ( experimental only support wattage ) 
   * more to be add.. :)
 
 Gateways
@@ -86,4 +88,16 @@ This is the basic sensor with only temperature and humidity
       "nodeid": 10,
       "sensorid": 1
     },
+```
+* Binay Button
+ 
+```
+  {
+      "id": "Door",
+      "name": "Door",
+      "class": "MySensorsButton",
+      "nodeid": 12,
+      "sensorid": 1
+  },
+  
 ```
