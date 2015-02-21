@@ -62,6 +62,7 @@ module.exports = (env) ->
         MySensorsPIR
         MySensorsSwitch
         MySensorsPulseMeter
+        MySensorsButton
       ]
 
       for Cl in deviceClasses
@@ -196,6 +197,27 @@ module.exports = (env) ->
             @_setPresence(yes)
           clearTimeout(@_resetPresenceTimeout)
           @_resetPresenceTimeout = setTimeout(resetPresence, @config.resetTime)
+      )
+      super()
+
+    getPresence: -> Promise.resolve @_presence
+
+  
+   class MySensorsButton extends env.devices.PresenceSensor
+
+    constructor: (@config,lastState,@board) ->
+      @id = config.id
+      @name = config.name
+      @_presence = lastState?.presence?.value or false
+      env.logger.info "MySensorsButton" , @id , @name, @_presence
+    
+      @board.on('rfValue', (result) =>
+        if result.sender is @config.nodeid and result.type is ( V_TRIPPED or V_LIGHT ) and result.sensor is @config.sensorid
+          env.logger.info "<- MySensorsButton ", result
+          if result.value is ZERO_VALUE
+            @_setPresence(no)
+          else
+            @_setPresence(yes)
       )
       super()
 
