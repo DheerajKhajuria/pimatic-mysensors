@@ -203,25 +203,23 @@ module.exports = (env) ->
     getPresence: -> Promise.resolve @_presence
 
   
-   class MySensorsButton extends env.devices.PresenceSensor
+   class MySensorsButton extends env.devices.ContactSensor
 
     constructor: (@config,lastState,@board) ->
       @id = config.id
       @name = config.name
-      @_presence = lastState?.presence?.value or false
-      env.logger.info "MySensorsButton" , @id , @name, @_presence
+      @_contact = lastState?.contact?.value or false
+      env.logger.info "MySensorsButton" , @id , @name, @_contact
     
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is ( V_TRIPPED or V_LIGHT ) and result.sensor is @config.sensorid
           env.logger.info "<- MySensorsButton ", result
           if result.value is ZERO_VALUE
-            @_setPresence(no)
+            @_setContact(yes)
           else
-            @_setPresence(yes)
+            @_setContact(no)
       )
       super()
-
-    getPresence: -> Promise.resolve @_presence
 
 
   class MySensorsSwitch extends env.devices.PowerSwitch
@@ -230,7 +228,7 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
       @_state = lastState?.state?.value
-      env.logger.info "MySensorsSwitch " , @id , @name, @_presence
+      env.logger.info "MySensorsSwitch " , @id , @name, @_state
 
 
       @board.on('rfValue', (result) =>
