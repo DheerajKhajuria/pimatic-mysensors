@@ -112,7 +112,6 @@ module.exports = (env) ->
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
-    getBatvoltage: -> Promise.resolve @_batvoltage
 
   class MySensorsPulseMeter extends env.devices.Device
 
