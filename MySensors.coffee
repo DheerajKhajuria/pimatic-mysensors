@@ -75,7 +75,7 @@ module.exports = (env) ->
             })    
        
 
-  class MySensorsDHT extends env.devices.TemperatureSensor
+class MySensorsDHT extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
       @id = config.id
@@ -95,25 +95,24 @@ module.exports = (env) ->
           type: "number"
           unit: '%'
       }
-     
+
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
-          for sensorid in @config.sensorid
-            if result.sensor is sensorid
-              env.logger.info "<- MySensorDHT " , result
-              if result.type is V_TEMP
-                #env.logger.info  "temp" , result.value 
-                @_temperatue = parseInt(result.value)
-                @emit "temperature", @_temperatue
-              if result.type is V_HUM
-                #env.logger.info  "humidity" , result.value
-                @_humidity = parseInt(result.value)
-                @emit "humidity", @_humidity
+          env.logger.info "<- MySensorDHT " , result
+          if result.type is V_TEMP
+            #env.logger.info  "temp" , result.value
+            @_temperatue = parseFloat(result.value)
+            @emit "temperature", @_temperatue
+          if result.type is V_HUM
+            #env.logger.info  "humidity" , result.value
+            @_humidity = Math.round(parseFloat(result.value))
+            @emit "humidity", @_humidity
       )
       super()
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
+    getBatvoltage: -> Promise.resolve @_batvoltage
 
   class MySensorsPulseMeter extends env.devices.Device
 
