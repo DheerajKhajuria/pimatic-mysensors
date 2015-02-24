@@ -59,7 +59,7 @@ This is the basic sensor with only temperature and humidity
       "id": "DHT11",
       "name": "DHT11",
       "class": "MySensorsDHT",
-      "nodeid": 10,
+      "nodeid": 10
     }
 ```
 * Motion sensor PIR 
