@@ -75,7 +75,7 @@ module.exports = (env) ->
             })    
        
 
-class MySensorsDHT extends env.devices.TemperatureSensor
+  class MySensorsDHT extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
       @id = config.id
