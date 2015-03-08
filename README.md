@@ -11,6 +11,7 @@ Controllers
 
   Support for following sensors
   * Temperature and Humidity  ( http://mysensors.org/build/humidity)
+  * Temperature and Pressure (http://mysensors.org/build/pressure) 
   * motion ( http://mysensors.org/build/motion )
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * TimeAware Sensor support ( Unix time seconds ) 
