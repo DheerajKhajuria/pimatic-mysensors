@@ -16,6 +16,22 @@ module.exports = {
         items:
           type: "number"
     },
+  MySensorsBMP: {
+    title: "MySensorsBMP config options"
+    type: "object"
+    extensions: ["xLink"]
+    properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
+      sensorid:
+        description: "This is the child-sensor-ids that uniquely identifies one attached sensor"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          type: "number"
+    },
   MySensorsPulseMeter: {
     title: "MySensorsPulseMeter config options"
     type: "object"
