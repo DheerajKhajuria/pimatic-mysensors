@@ -70,9 +70,6 @@ This is the basic sensor with only temperature and humidity
 
 * Temperature and Pressure
 
-Devices must be added manually to the device section of your pimatic config.
-
-This is the basic sensor with temperature, pressure and forecast
 ```
  {
       "id": "BMP",
