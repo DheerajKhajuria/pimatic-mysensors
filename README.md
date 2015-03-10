@@ -11,6 +11,7 @@ Controllers
 
   Support for following sensors
   * Temperature and Humidity  ( http://mysensors.org/build/humidity)
+  * Temperature and Pressure ( http://mysensors.org/build/pressure)
   * motion ( http://mysensors.org/build/motion )
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * TimeAware Sensor support ( Unix time seconds ) 
@@ -66,6 +67,23 @@ This is the basic sensor with only temperature and humidity
       ]
     }
 ```
+
+* Temperature and Pressure
+
+```
+ {
+      "id": "BMP",
+      "name": "BMP",
+      "class": "MySensorsBMP",
+      "nodeid": 10,
+      "sensorid": [
+        0,
+        1,
+        2
+      ]
+    }
+```
+
 * Motion sensor PIR 
  
 ```
