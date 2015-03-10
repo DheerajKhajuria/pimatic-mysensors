@@ -60,11 +60,7 @@ This is the basic sensor with only temperature and humidity
       "id": "DHT11",
       "name": "DHT11",
       "class": "MySensorsDHT",
-      "nodeid": 10,
-      "sensorid": [
-        0,
-        1
-      ]
+      "nodeid": 10
     }
 ```
 
