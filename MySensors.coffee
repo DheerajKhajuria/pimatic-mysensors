@@ -72,8 +72,8 @@ module.exports = (env) ->
             createCallback: (config,lastState) => 
              device  =  new Cl(config,lastState, @board)
              return device
-            })
-
+            })    
+       
   class MySensorsDHT extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
@@ -172,6 +172,7 @@ module.exports = (env) ->
     getPressure: -> Promise.resolve @_pressure
     getForecast: -> Promise.resolve @_forecast
 
+
   class MySensorsPulseMeter extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
@@ -220,12 +221,10 @@ module.exports = (env) ->
                 @_watt = parseInt(result.value)
                 @_kw = @_watt/1000
                 @_totalkw += @_kw
-                @_tickcount++ # ~per 10 second
-
+                @_tickcount++ # ~per 10 second  
                 setTimeout(calcuatekwh, 1800000)
                 @emit "kW", @_kw
                 @emit "watt", @_watt
-
       )
       super()
 
@@ -274,6 +273,7 @@ module.exports = (env) ->
             @_setContact(no)
       )
       super()
+
 
   class MySensorsSwitch extends env.devices.PowerSwitch
 
