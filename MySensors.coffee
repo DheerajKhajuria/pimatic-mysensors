@@ -59,6 +59,7 @@ module.exports = (env) ->
 
       deviceClasses = [
         MySensorsDHT
+        MySensorsBMP
         MySensorsPIR
         MySensorsSwitch
         MySensorsPulseMeter
@@ -114,6 +115,58 @@ module.exports = (env) ->
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
+
+  class MySensorsBMP extends env.devices.TemperatureSensor
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      env.logger.info "MySensorsBMP " , @id , @name
+
+      @attributes = {}
+
+      @attributes.temperature = {
+        description: "the messured temperature"
+        type: "number"
+        unit: '°C'
+      }
+
+      @attributes.pressure = {
+          description: "the messured pressure"
+          type: "number"
+          unit: 'hPa'
+      }
+
+      @attributes.forecast = {
+          description: "the forecast"
+          type: "string"
+      }
+     
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          for sensorid in @config.sensorid
+            if result.sensor is sensorid
+              env.logger.info "<- MySensorBMP " , result
+              if result.type is V_TEMP
+                #env.logger.info  "temp" , result.value 
+                @_temperatue = parseInt(result.value)
+                @emit "temperature", @_temperatue
+              if result.type is V_PRESSURE
+                #env.logger.info  "pressure" , result.value
+                @_pressure = parseInt(result.value)
+                @emit "pressure", @_pressure
+              if result.type is V_FORECAST
+                #env.logger.info  "forecast" , result.value
+                @_forecast = result.value
+                @emit "forecast", @_forecast
+
+      )
+      super()
+
+    getTemperature: -> Promise.resolve @_temperatue
+    getPressure: -> Promise.resolve @_pressure
+    getForecast: -> Promise.resolve @_forecast
+
 
   class MySensorsPulseMeter extends env.devices.Device
 
