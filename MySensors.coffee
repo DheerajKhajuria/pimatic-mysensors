@@ -288,7 +288,8 @@ module.exports = (env) ->
 
     changeStateTo: (state) ->     
       assert state is on or state is off
-      if state is true then _state = 1  else _state = 0       
+      if state is true then _state = 1  else _state = 0 
+      datas = {}      
       datas = 
       { 
         "destination": @config.nodeid, 

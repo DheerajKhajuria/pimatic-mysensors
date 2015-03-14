@@ -150,13 +150,14 @@ class Board extends events.EventEmitter
             console.log "<- I_VERSION ", payload
           when I_ID_REQUEST
             console.log "<- I_ID_REQUEST ", data
-            @_rfsendNextAvailableSensorId(sender,sensor);
+            @_rfsendNextAvailableSensorId
           when I_ID_RESPONSE
             console.log "<- I_ID_RESPONSE ", data
           when I_INCLUSION_MODE
             console.log "<- I_INCLUSION_MODE ", data
           when I_CONFIG
             console.log "<- I_CONFIG ", data
+            @_rfsendConfig(sender)
           when I_PING
             console.log "<- I_PING ", data
           when I_PING_ACK
@@ -188,7 +189,7 @@ class Board extends events.EventEmitter
      @_rfWrite( datas)
 
 
-  _rfsendNextAvailableSensorId: (destination,sensor) ->
+  _rfsendNextAvailableSensorId: ->
      datas = {}
      nextnodeid = @config.startingNodeId
      if nextnodeid is null
@@ -197,8 +198,8 @@ class Board extends events.EventEmitter
         nextnodeid +=1
      datas = 
      { 
-        "destination": destination,
-        "sensor": sensor, 
+        "destination": BROADCAST_ADDRESS,
+        "sensor": NODE_SENSOR_ID, 
         "type"  : I_ID_RESPONSE,
         "ack"   : 0,
         "command" : C_INTERNAL,
@@ -225,6 +226,18 @@ class Board extends events.EventEmitter
           "value" : rawpayload
       }
       @emit "rfbattery", result
+
+  _rfsendConfig: (destination) ->
+      datas = {}
+      datas = { 
+        "destination": destination,
+        "sensor": NODE_SENSOR_ID, 
+        "type"  : I_CONFIG,
+        "ack"   : 0,
+        "command" : C_INTERNAL,
+        "value" : @config.metric
+      } 
+      @_rfWrite(datas) 
 
   _rfWrite: (datas) ->
     datas.command ?= C_SET
