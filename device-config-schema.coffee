@@ -15,6 +15,10 @@ module.exports = {
         format: "table"
         items:
           type: "number"
+      showbatterystat:
+        description: "This enable the batterystats from the sensor node default: false"
+        type: "boolean"
+        default: false
     },
   MySensorsBMP: {
     title: "MySensorsBMP config options"
@@ -87,5 +91,14 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
-    }  
-}
+    }, 
+  MySensorBattery: {
+    title: "MySensorBattery config options"
+    type: "object"
+    extensions: ["xLink"]
+    properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
+   }
+}   

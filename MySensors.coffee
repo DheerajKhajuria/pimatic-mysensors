@@ -49,11 +49,12 @@ module.exports = (env) ->
   class MySensors extends env.plugins.Plugin
 
     init: (app, @framework, @config) =>
-      @board = new Board(@config)
+      @board = new Board(@framework, @config)
 
       @board.connect().then( =>
         env.logger.info("Connected to MySensors Gateway.")
       ) 
+        
       deviceConfigDef = require("./device-config-schema")
 
       deviceClasses = [
@@ -63,6 +64,7 @@ module.exports = (env) ->
         MySensorsSwitch
         MySensorsPulseMeter
         MySensorsButton
+        MySensorBattery
       ]
 
       for Cl in deviceClasses
@@ -72,14 +74,15 @@ module.exports = (env) ->
             createCallback: (config,lastState) => 
              device  =  new Cl(config,lastState, @board)
              return device
-            })    
+            })
+      #env.logger.info @framework.deviceManager.devicesConfig.length
        
   class MySensorsDHT extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
       @id = config.id
-      @name = config.name
-      env.logger.info "MySensorsDHT " , @id , @name
+      @name = config.name 
+      env.logger.info "MySensorsDHT " , @id , @name 
 
       @attributes = {}
 
@@ -94,13 +97,7 @@ module.exports = (env) ->
           type: "number"
           unit: '%'
       }
-
-      @attributes.batteryStat = {
-        description: "the messured Battery Stat of Sensor"
-        type: "number"
-        unit: '%'
-      }
-
+     
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
@@ -119,7 +116,6 @@ module.exports = (env) ->
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
-    getBatteryStat: -> Promise.resolve @_batteryStat
 
   class MySensorsBMP extends env.devices.TemperatureSensor
 
@@ -171,7 +167,6 @@ module.exports = (env) ->
     getTemperature: -> Promise.resolve @_temperatue
     getPressure: -> Promise.resolve @_pressure
     getForecast: -> Promise.resolve @_forecast
-
 
   class MySensorsPulseMeter extends env.devices.Device
 
@@ -305,6 +300,30 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setState(state)
       )
+
+  class MySensorBattery extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      env.logger.info "MySensorBattery" , @id , @name
+
+      @attributes = {}
+
+      @attributes.Battery = {
+         description: "the measured Battery Stat of Sensor"
+         type: "number"
+         unit: '%'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+         battery =  parseInt(result.value);
+         @emit "battery", @_battery
+      )
+      super()
+
+    getBattery: -> Promise.resolve @_battery
 
   # ###Finally
   # Create a instance of my plugin

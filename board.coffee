@@ -81,8 +81,9 @@ class Board extends events.EventEmitter
   # _opened: no
   # ready: no
 
-  constructor: (config) ->
+  constructor: (framework,config) ->
     @config = config
+    @framework = framework
     assert @config.driver in ["serialport", "gpio"]
     # setup a new driver
     switch @config.driver
@@ -184,11 +185,16 @@ class Board extends events.EventEmitter
         "command" : C_INTERNAL,
         "value" : payload
      } 
-     @_rfWrite(datas)
+     @_rfWrite( datas)
 
 
   _rfsendNextAvailableSensorId: (destination,sensor) ->
      datas = {}
+     nextnodeid = @config.startingNodeId
+     if nextnodeid is null
+        nextnodeid = 1
+     else
+        nextnodeid +=1
      datas = 
      { 
         "destination": destination,
@@ -196,9 +202,11 @@ class Board extends events.EventEmitter
         "type"  : I_ID_RESPONSE,
         "ack"   : 0,
         "command" : C_INTERNAL,
-        "value" : 1
+        "value" : nextnodeid
      } 
+     @config.startingNodeId = nextnodeid
      @_rfWrite(datas) 
+     @framework.saveConfig()
 
   _rfsendtoboard: (sender,sensor,type,rawpayload) ->
       result = {}            
