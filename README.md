@@ -17,7 +17,7 @@ Controllers
   * TimeAware Sensor support ( Unix time seconds ) 
   * Binary buttom ( http://www.mysensors.org/build/binary )
   * pulseMeter ( experimental only support wattage )
-  * battery stat of sensors
+  * battery level stats of sensors
   * more to be add.. :)
 
 Gateways
