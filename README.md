@@ -12,12 +12,12 @@ Controllers
   Support for following sensors
   * Temperature and Humidity  ( http://mysensors.org/build/humidity)
   * Temperature and Pressure ( http://mysensors.org/build/pressure)
-  * motion ( http://mysensors.org/build/motion )
+  * Motion ( http://mysensors.org/build/motion )
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * TimeAware Sensor support ( Unix time seconds ) 
   * Binary buttom ( http://www.mysensors.org/build/binary )
-  * pulseMeter ( experimental only support wattage )
-  * battery level stats of sensors
+  * Battery level stats of sensors
+  * PulseMeter ( experimental only support wattage )
   * more to be add.. :)
 
 Gateways
