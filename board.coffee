@@ -142,7 +142,7 @@ class Board extends events.EventEmitter
         switch type 
           when I_BATTERY_LEVEL
             console.log "<- I_BATTERY_LEVEL ", sender, rawpayload
-            @_rfsendtoboard(sender,sensor,type,rawpayload)
+            @_rfsendbatterystat(sender,rawpayload)
           when I_TIME
             console.log "<- I_TIME ", data 
             @_rfsendTime(sender, sensor)
@@ -217,6 +217,14 @@ class Board extends events.EventEmitter
           "value" : rawpayload
       } 
       @emit "rfValue", result  
+
+  _rfsendbatterystat: (sender,rawpayload) ->
+      result = {}
+      result = {
+          "sender": sender,
+          "value" : rawpayload
+      }
+      @emit "rfbattery", result
 
   _rfWrite: (datas) ->
     datas.command ?= C_SET

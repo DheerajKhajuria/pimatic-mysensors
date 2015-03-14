@@ -310,20 +310,21 @@ module.exports = (env) ->
 
       @attributes = {}
 
-      @attributes.Battery = {
+      @attributes.battery = {
          description: "the measured Battery Stat of Sensor"
          type: "number"
          unit: '%'
       }
 
-      @board.on("rfValue", (result) =>
+      @board.on("rfbattery", (result) =>
         if result.sender is @config.nodeid
-         battery =  parseInt(result.value);
-         @emit "battery", @_battery
+         @_batterystat =  parseInt(result.value)
+         env.logger.info result , @_batterystat
+         @emit "battery", @_batterystat
       )
       super()
 
-    getBattery: -> Promise.resolve @_battery
+    getBattery: -> Promise.resolve @_batterystat
 
   # ###Finally
   # Create a instance of my plugin
