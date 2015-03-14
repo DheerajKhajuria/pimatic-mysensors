@@ -1,4 +1,4 @@
-pimatic-plugin-MySensors
+pimatic-plugin-mySensors
 ========================
 
 > Note:  beta version 
