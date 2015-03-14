@@ -40,7 +40,6 @@ module.exports = (env) ->
 
   ZERO_VALUE         = "0"
 
-
   Promise = env.require 'bluebird'
   assert = env.require 'cassert'
   Board = require('./board')
@@ -50,11 +49,12 @@ module.exports = (env) ->
   class MySensors extends env.plugins.Plugin
 
     init: (app, @framework, @config) =>
-      @board = new Board(@config)
+      @board = new Board(@framework, @config)
 
       @board.connect().then( =>
         env.logger.info("Connected to MySensors Gateway.")
       ) 
+        
       deviceConfigDef = require("./device-config-schema")
 
       deviceClasses = [
@@ -64,6 +64,7 @@ module.exports = (env) ->
         MySensorsSwitch
         MySensorsPulseMeter
         MySensorsButton
+        MySensorBattery
       ]
 
       for Cl in deviceClasses
@@ -73,15 +74,15 @@ module.exports = (env) ->
             createCallback: (config,lastState) => 
              device  =  new Cl(config,lastState, @board)
              return device
-            })    
+            })
+      #env.logger.info @framework.deviceManager.devicesConfig.length
        
-
   class MySensorsDHT extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
       @id = config.id
-      @name = config.name
-      env.logger.info "MySensorsDHT " , @id , @name
+      @name = config.name 
+      env.logger.info "MySensorsDHT " , @id , @name 
 
       @attributes = {}
 
@@ -141,7 +142,7 @@ module.exports = (env) ->
           description: "the forecast"
           type: "string"
       }
-     
+
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
@@ -167,7 +168,6 @@ module.exports = (env) ->
     getPressure: -> Promise.resolve @_pressure
     getForecast: -> Promise.resolve @_forecast
 
-
   class MySensorsPulseMeter extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
@@ -184,7 +184,6 @@ module.exports = (env) ->
         type: "number"
         unit: 'W'
       }
-      
 
       @attributes.kW = {
         description: "the messured Kilo Wattage"
@@ -197,7 +196,7 @@ module.exports = (env) ->
         type: "number"
         unit: 'kWh'
       }
-     
+
       calcuatekwh = ( =>
         @_avgkw =  @_totalkw / @_tickcount 
         @_kwh = (@_avgkw * (@_tickcount * 10)) / 3600     
@@ -218,18 +217,15 @@ module.exports = (env) ->
                 @_kw = @_watt/1000
                 @_totalkw += @_kw
                 @_tickcount++ # ~per 10 second  
-
                 setTimeout(calcuatekwh, 1800000)
                 @emit "kW", @_kw
                 @emit "watt", @_watt
-        
       )
       super()
 
     getWatt: -> Promise.resolve @_watt
     getKW: -> Promise.resolve @_kw
     getKWh: -> Promise.resolve @_kwh
-
 
   class MySensorsPIR extends env.devices.PresenceSensor
 
@@ -255,7 +251,6 @@ module.exports = (env) ->
 
     getPresence: -> Promise.resolve @_presence
 
-  
    class MySensorsButton extends env.devices.ContactSensor
 
     constructor: (@config,lastState,@board) ->
@@ -263,7 +258,7 @@ module.exports = (env) ->
       @name = config.name
       @_contact = lastState?.contact?.value or false
       env.logger.info "MySensorsButton" , @id , @name, @_contact
-    
+
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is ( V_TRIPPED or V_LIGHT ) and result.sensor is @config.sensorid
           env.logger.info "<- MySensorsButton ", result
@@ -282,7 +277,6 @@ module.exports = (env) ->
       @name = config.name
       @_state = lastState?.state?.value
       env.logger.info "MySensorsSwitch " , @id , @name, @_state
-
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_LIGHT and result.sensor is @config.sensorid 
@@ -306,7 +300,31 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setState(state)
       )
-  
+
+  class MySensorBattery extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      env.logger.info "MySensorBattery" , @id , @name
+
+      @attributes = {}
+
+      @attributes.Battery = {
+         description: "the measured Battery Stat of Sensor"
+         type: "number"
+         unit: '%'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+         battery =  parseInt(result.value);
+         @emit "battery", @_battery
+      )
+      super()
+
+    getBattery: -> Promise.resolve @_battery
+
   # ###Finally
   # Create a instance of my plugin
   mySensors = new MySensors

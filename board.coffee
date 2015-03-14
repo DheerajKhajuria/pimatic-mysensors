@@ -81,8 +81,9 @@ class Board extends events.EventEmitter
   # _opened: no
   # ready: no
 
-  constructor: (config) ->
+  constructor: (framework,config) ->
     @config = config
+    @framework = framework
     assert @config.driver in ["serialport", "gpio"]
     # setup a new driver
     switch @config.driver
@@ -141,7 +142,7 @@ class Board extends events.EventEmitter
         switch type 
           when I_BATTERY_LEVEL
             console.log "<- I_BATTERY_LEVEL ", sender, rawpayload
-            #saveBatteryLevel(sender, payload, db);
+            @_rfsendtoboard(sender,sensor,type,rawpayload)
           when I_TIME
             console.log "<- I_TIME ", data 
             @_rfsendTime(sender, sensor)
@@ -149,7 +150,7 @@ class Board extends events.EventEmitter
             console.log "<- I_VERSION ", payload
           when I_ID_REQUEST
             console.log "<- I_ID_REQUEST ", data
-            #sendNextAvailableSensorId(db, gw);
+            @_rfsendNextAvailableSensorId(sender,sensor);
           when I_ID_RESPONSE
             console.log "<- I_ID_RESPONSE ", data
           when I_INCLUSION_MODE
@@ -184,7 +185,28 @@ class Board extends events.EventEmitter
         "command" : C_INTERNAL,
         "value" : payload
      } 
-     @_rfWrite(datas)
+     @_rfWrite( datas)
+
+
+  _rfsendNextAvailableSensorId: (destination,sensor) ->
+     datas = {}
+     nextnodeid = @config.startingNodeId
+     if nextnodeid is null
+        nextnodeid = 1
+     else
+        nextnodeid +=1
+     datas = 
+     { 
+        "destination": destination,
+        "sensor": sensor, 
+        "type"  : I_ID_RESPONSE,
+        "ack"   : 0,
+        "command" : C_INTERNAL,
+        "value" : nextnodeid
+     } 
+     @config.startingNodeId = nextnodeid
+     @_rfWrite(datas) 
+     @framework.saveConfig()
 
   _rfsendtoboard: (sender,sensor,type,rawpayload) ->
       result = {}            
