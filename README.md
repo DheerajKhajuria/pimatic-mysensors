@@ -126,7 +126,11 @@ This is the basic sensor with only temperature and humidity
       "id": "Battery",
       "name": "BatteryStat",
       "class": "MySensorBattery",
-      "nodeid": 11
+      "nodeid": [
+      11,
+      12,
+      13
+      ]
   },
   
 ```
