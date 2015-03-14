@@ -16,7 +16,8 @@ Controllers
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * TimeAware Sensor support ( Unix time seconds ) 
   * Binary buttom ( http://www.mysensors.org/build/binary )
-  * pulseMeter ( experimental only support wattage ) 
+  * pulseMeter ( experimental only support wattage )
+  * battery stat of sensors
   * more to be add.. :)
 
 Gateways
@@ -116,6 +117,16 @@ This is the basic sensor with only temperature and humidity
       "class": "MySensorsButton",
       "nodeid": 12,
       "sensorid": 1
+  },
+  
+```
+*  Battery Stat
+```
+  {
+      "id": "Battery",
+      "name": "BatteryStat",
+      "class": "MySensorBattery",
+      "nodeid": 11
   },
   
 ```
