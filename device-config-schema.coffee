@@ -51,7 +51,7 @@ module.exports = {
   MySensorsPIR: {
     title: "MySensorsPIR config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink", "xPresentLabel", "xAbsentLabel"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -59,6 +59,11 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
+      autoReset:
+        description: """Reset the state after resetTime. Usefull for contact sensors, 
+                      that only emit open or close events"""
+        type: "boolean"
+        default: true
       resetTime:
         description: "Time after that the PIR presence value is reset to absent"
         type: "number"
@@ -67,7 +72,7 @@ module.exports = {
   MySensorsButton: {
     title: "MySensorsButton config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xConfirm", "xLink", "xClosedLabel", "xOpenedLabel"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -79,7 +84,7 @@ module.exports = {
   MySensorsSwitch: {
     title: "MySensorsSwitch config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xConfirm", "xLink", "xOnLabel", "xOffLabel"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
