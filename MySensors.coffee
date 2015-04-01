@@ -64,6 +64,7 @@ module.exports = (env) ->
         MySensorsSwitch
         MySensorsPulseMeter
         MySensorsButton
+        MySensorsLight
         MySensorBattery
       ]
 
@@ -334,6 +335,33 @@ module.exports = (env) ->
           @emit "battery_" + result.sender, @_batterystat
       )
       super()
+      
+      
+    class MySensorsLight extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      env.logger.info "MySensorsLight " , @id , @name
+      @attributes = {}
+
+      @attributes.light = {
+        description: "the messured light"
+        type: "number"
+        unit: '%'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          if result.sensor is  @config.sensorid
+            env.logger.info "<- MySensorsLight" , result
+            if result.type is V_LIGHT_LEVEL
+              @_light = parseInt(result.value)
+              @emit "light", @_light
+      )
+      super()
+
+    getLight: -> Promise.resolve @_light
 
   # ###Finally
   # Create a instance of my plugin
