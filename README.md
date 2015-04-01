@@ -17,6 +17,7 @@ Controllers
   * TimeAware Sensor support ( Unix time seconds ) 
   * Binary buttom ( http://www.mysensors.org/build/binary )
   * Battery level stats of sensors
+  * Light Sensor 
   * PulseMeter ( experimental only support wattage )
   * more to be add.. :)
 
@@ -118,6 +119,7 @@ This is the basic sensor with only temperature and humidity
       "nodeid": 12,
       "sensorid": 1
   },
+
   
 ```
 *  Battery Stat
@@ -132,5 +134,16 @@ This is the basic sensor with only temperature and humidity
       13
       ]
   },
+  
+```  
+*  Light sensor ( 0 to 100 )
+```
+  {
+      "id": "Light",
+      "name": "Light",
+      "class": "MySensorLight",
+      "nodeid": 15,
+      "sensorid": 2
+  }
   
 ```
