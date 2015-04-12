@@ -18,6 +18,7 @@ Controllers
   * Binary buttom ( http://www.mysensors.org/build/binary )
   * Battery level stats of sensors
   * Light Sensor 
+  * Gas Sensor ( ppm )
   * PulseMeter ( experimental only support wattage )
   * more to be add.. :)
 
@@ -147,3 +148,14 @@ This is the basic sensor with only temperature and humidity
   }
   
 ```
+*  Gas sensor ( ppm )
+```
+  {
+      "id": "GasSensor,
+      "name": "GasSensor",
+      "class": "MySensorGas",
+      "nodeid": 14,
+      "sensorid": 3
+  }
+  
+```  

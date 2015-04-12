@@ -65,6 +65,7 @@ module.exports = (env) ->
         MySensorsPulseMeter
         MySensorsButton
         MySensorsLight
+        MySensorsGas
         MySensorBattery
       ]
 
@@ -357,6 +358,32 @@ module.exports = (env) ->
 
     getLight: -> Promise.resolve @_light
 
+    
+  class MySensorsGas extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      env.logger.info "MySensorsGas " , @id , @name
+      @attributes = {}
+
+      @attributes.gas = {
+        description: "the messured gas presence in ppm"
+        type: "number"
+        unit: 'ppm'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          if result.sensor is  @config.sensorid
+            env.logger.info "<- MySensorsGas" , result
+            if result.type is V_VAR1
+              @_gas = parseInt(result.value)
+              @emit "gas", @_gas
+      )
+      super()
+
+    getGas: -> Promise.resolve @_gas
   # ###Finally
   # Create a instance of my plugin
   mySensors = new MySensors
