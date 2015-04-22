@@ -66,7 +66,7 @@ module.exports = (env) ->
         MySensorsButton
         MySensorsLight
         MySensorsGas
-        MySensorBattery
+        MySensorsBattery
       ]
 
       for Cl in deviceClasses
@@ -304,12 +304,12 @@ module.exports = (env) ->
          @_setState(state)
       )
 
-  class MySensorBattery extends env.devices.Device
+  class MySensorsBattery extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
-      env.logger.info "MySensorBattery" , @id , @name
+      env.logger.info "MySensorsBattery" , @id , @name
 
       @attributes = {}
 
