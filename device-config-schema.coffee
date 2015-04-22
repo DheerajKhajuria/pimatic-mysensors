@@ -88,8 +88,8 @@ module.exports = {
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
     }, 
-  MySensorBattery: {
-    title: "MySensorBattery config options"
+  MySensorsBattery: {
+    title: "MySensorsBattery config options"
     type: "object"
     extensions: ["xLink"]
     properties:
