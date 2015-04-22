@@ -123,12 +123,12 @@ This is the basic sensor with only temperature and humidity
 
   
 ```
-*  Battery Stat
+*  Battery levels
 ```
   {
       "id": "Battery",
-      "name": "BatteryStat",
-      "class": "MySensorBattery",
+      "name": "Batterylevel",
+      "class": "MySensorsBattery",
       "nodeid": [
       11,
       12,
@@ -142,7 +142,7 @@ This is the basic sensor with only temperature and humidity
   {
       "id": "Light",
       "name": "Light",
-      "class": "MySensorLight",
+      "class": "MySensorsLight",
       "nodeid": 15,
       "sensorid": 2
   }
@@ -153,7 +153,7 @@ This is the basic sensor with only temperature and humidity
   {
       "id": "GasSensor,
       "name": "GasSensor",
-      "class": "MySensorGas",
+      "class": "MySensorsGas",
       "nodeid": 14,
       "sensorid": 3
   }
