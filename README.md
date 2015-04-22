@@ -16,7 +16,7 @@ Controllers
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * TimeAware Sensor support ( Unix time seconds ) 
   * Binary buttom ( http://www.mysensors.org/build/binary )
-  * Battery level stats of sensors
+  * Battery level  of sensors
   * Light Sensor 
   * Gas Sensor ( ppm )
   * PulseMeter ( experimental only support wattage )
