@@ -138,6 +138,8 @@ class Board extends events.EventEmitter
         console.log "<- Presented Node ", datas
       when C_SET
         @_rfsendtoboard(sender,sensor,type,rawpayload)
+      when C_REQ
+        console.log "<- request from  ", sender, rawpayload
       when C_INTERNAL
         switch type 
           when I_BATTERY_LEVEL
