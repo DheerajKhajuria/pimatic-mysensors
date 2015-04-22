@@ -175,8 +175,6 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
-      @_totalkw = 0
-      @_tickcount = 0
       env.logger.info "MySensorsPulseMeter " , @id , @name
 
       @attributes = {}
@@ -187,10 +185,10 @@ module.exports = (env) ->
         unit: 'W'
       }
 
-      @attributes.kW = {
-        description: "the messured Kilo Wattage"
+      @attributes.pulsecount = {
+        description: "Measure the Pulse Count"
         type: "number"
-        unit: 'kW'
+        unit: ''
       }
 
       @attributes.kWh = {
@@ -213,20 +211,21 @@ module.exports = (env) ->
           for sensorid in @config.sensorid
             if result.sensor is sensorid
               env.logger.info "<- MySensorsPulseMeter" , result
+              if result.type is V_VAR1
+                @_pc = parseInt(result.value)
+                @emit "pulsecount", @_pc
               if result.type is V_WATT
-                #env.logger.info  "temp" , result.value 
                 @_watt = parseInt(result.value)
-                @_kw = @_watt/1000
-                @_totalkw += @_kw
-                @_tickcount++ # ~per 10 second  
-                setTimeout(calcuatekwh, 1800000)
-                @emit "kW", @_kw
                 @emit "watt", @_watt
+              if result.type is V_KWH
+                @_kw = parseInt(result.value)
+                @emit "kW", @_kw
+               
       )
       super()
 
     getWatt: -> Promise.resolve @_watt
-    getKW: -> Promise.resolve @_kw
+    getPulsecount: -> Promise.resolve @_pulsecount
     getKWh: -> Promise.resolve @_kwh
 
   class MySensorsPIR extends env.devices.PresenceSensor
