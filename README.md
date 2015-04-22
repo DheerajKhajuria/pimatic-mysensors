@@ -16,10 +16,10 @@ Controllers
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * TimeAware Sensor support ( Unix time seconds ) 
   * Binary buttom ( http://www.mysensors.org/build/binary )
-  * Battery level  of sensors
   * Light Sensor 
   * Gas Sensor ( ppm )
   * PulseMeter ( experimental only support wattage )
+  * Battery level  of multiple sensors
   * more to be add.. :)
 
 Gateways
@@ -53,6 +53,9 @@ in the plugins section.
 
 ### Devices
 
+ Note:  To enable battery level stats of sensor set ["batterystat"] to yes. see temp & Hum exp.
+        support is enable for all sensor except PIR. for PIR use configure seperate battery devices.
+
 * Temperature and Humidity
 
 Devices must be added manually to the device section of your pimatic config.
@@ -64,6 +67,7 @@ This is the basic sensor with only temperature and humidity
       "name": "DHT11",
       "class": "MySensorsDHT",
       "nodeid": 10,
+      "batterySensor": yes
       "sensorid": [
         0,
         1
