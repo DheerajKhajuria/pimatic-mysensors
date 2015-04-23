@@ -83,6 +83,7 @@ This is the basic sensor with only temperature and humidity
       "name": "BMP",
       "class": "MySensorsBMP",
       "nodeid": 10,
+      "batterySensor": true,
       "sensorid": [
         0,
         1,
@@ -114,7 +115,7 @@ This is the basic sensor with only temperature and humidity
       "sensorid": 1
     },
 ```
-* Binay Button
+* Binary Button
  
 ```
   {
@@ -122,6 +123,7 @@ This is the basic sensor with only temperature and humidity
       "name": "Door",
       "class": "MySensorsButton",
       "nodeid": 12,
+      "batterySensor": true,
       "sensorid": 1
   },
 
@@ -148,6 +150,7 @@ This is the basic sensor with only temperature and humidity
       "name": "Light",
       "class": "MySensorsLight",
       "nodeid": 15,
+      "batterySensor": true,
       "sensorid": 2
   }
   
@@ -159,6 +162,7 @@ This is the basic sensor with only temperature and humidity
       "name": "GasSensor",
       "class": "MySensorsGas",
       "nodeid": 14,
+      "batterySensor": true,
       "sensorid": 3
   }
   
