@@ -103,10 +103,6 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
-      batterySensor:
-         description: "Show battery level with Sensors"
-         type: "boolean"
-         default: no  
     }, 
   MySensorsLight: {
     title: "MySensorsLight config options"
