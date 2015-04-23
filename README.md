@@ -53,8 +53,8 @@ in the plugins section.
 
 ### Devices
 
- Note:  To enable battery level stats of sensor set ["batterystat"] to yes. see temp & Hum exp.
-        support is enable for all sensor except PIR. for PIR use configure seperate battery devices.
+ Note:  To enable battery level with  sensor. set ["batterystat"] to true. see temp & Hum exp.
+        support is enable for all sensor except PIR,Switch. for PIR or switch use configure seperate battery devices.
 
 * Temperature and Humidity
 
@@ -67,7 +67,7 @@ This is the basic sensor with only temperature and humidity
       "name": "DHT11",
       "class": "MySensorsDHT",
       "nodeid": 10,
-      "batterySensor": yes
+      "batterySensor": true,
       "sensorid": [
         0,
         1

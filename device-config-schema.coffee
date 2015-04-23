@@ -15,6 +15,10 @@ module.exports = {
         format: "table"
         items:
           type: "number"
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no
     },
   MySensorsBMP: {
     title: "MySensorsBMP config options"
@@ -31,6 +35,10 @@ module.exports = {
         format: "table"
         items:
           type: "number"
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no    
     },
   MySensorsPulseMeter: {
     title: "MySensorsPulseMeter config options"
@@ -47,6 +55,10 @@ module.exports = {
         format: "table"
         items:
           type: "number"
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no    
     },  
   MySensorsPIR: {
     title: "MySensorsPIR config options"
@@ -75,6 +87,10 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no  
     },
   MySensorsSwitch: {
     title: "MySensorsSwitch config options"
@@ -87,20 +103,11 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no  
     }, 
-  MySensorsBattery: {
-    title: "MySensorsBattery config options"
-    type: "object"
-    extensions: ["xLink"]
-    properties:
-      nodeid:
-        description: "The unique id of the node that sends or should receive the message"
-        type: "array"
-        default: []
-        format: "table"
-        items:
-          type: "number"
-   },
   MySensorsLight: {
     title: "MySensorsLight config options"
     type: "object"
@@ -112,6 +119,23 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no  
+    },
+  MySensorsBattery: {
+   title: "MySensorsBattery config options"
+   type: "object"
+   extensions: ["xLink"]
+   properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          type: "number"
     },
   MySensorsGas:  {
     title: "MySensorsGas config options"
@@ -124,5 +148,9 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no  
     } 
 }   

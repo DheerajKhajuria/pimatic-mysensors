@@ -99,6 +99,20 @@ module.exports = (env) ->
           type: "number"
           unit: '%'
       }
+
+      @attributes.battery = {
+        description: "Display the battery level of Sensor"
+        type: "number"
+        unit: '%'
+        hidden: !@config.batterySensor
+       }
+        
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
      
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
@@ -118,6 +132,7 @@ module.exports = (env) ->
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
+    getBattery: -> Promise.resolve @_batterystat
 
   class MySensorsBMP extends env.devices.TemperatureSensor
 
@@ -145,6 +160,21 @@ module.exports = (env) ->
           type: "string"
       }
 
+      @attributes.battery = {
+        description: "Display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        hidden: !@config.batterySensor
+       }
+
+
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
+
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
@@ -168,7 +198,9 @@ module.exports = (env) ->
 
     getTemperature: -> Promise.resolve @_temperatue
     getPressure: -> Promise.resolve @_pressure
-    getForecast: -> Promise.resolve @_forecast
+    getForecast: -> Promise.resolve @_forecast    
+    getBattery: -> Promise.resolve @_batterystat
+
 
   class MySensorsPulseMeter extends env.devices.Device
 
@@ -189,6 +221,7 @@ module.exports = (env) ->
         description: "Measure the Pulse Count"
         type: "number"
         unit: ''
+        hidden: yes
       }
 
       @attributes.kWh = {
@@ -204,6 +237,21 @@ module.exports = (env) ->
         @_totalkw  = 0
         env.logger.info  "calculatekwh.." , @kwh
         @emit "kWh", @_kwh
+      )
+
+
+      @attributes.battery = {
+        description: "Display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        hidden: !@config.batterySensor
+       }
+        
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
       )
 
       @board.on("rfValue", (result) =>
@@ -226,7 +274,9 @@ module.exports = (env) ->
 
     getWatt: -> Promise.resolve @_watt
     getPulsecount: -> Promise.resolve @_pulsecount
-    getKWh: -> Promise.resolve @_kwh
+    getKWh: -> Promise.resolve @_kwh    
+    getBattery: -> Promise.resolve @_batterystat
+
 
   class MySensorsPIR extends env.devices.PresenceSensor
 
@@ -235,7 +285,7 @@ module.exports = (env) ->
       @name = config.name
       @_presence = lastState?.presence?.value or false
       env.logger.info "MySensorsPIR " , @id , @name, @_presence
-
+ 
       resetPresence = ( =>
         @_setPresence(no)
       )
@@ -250,7 +300,8 @@ module.exports = (env) ->
       )
       super()
 
-    getPresence: -> Promise.resolve @_presence
+    getPresence: -> Promise.resolve @_presence    
+
 
    class MySensorsButton extends env.devices.ContactSensor
 
@@ -260,6 +311,20 @@ module.exports = (env) ->
       @_contact = lastState?.contact?.value or false
       env.logger.info "MySensorsButton" , @id , @name, @_contact
 
+      @attributes.battery = {
+        description: "Display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        hidden: !@config.batterySensor
+       }
+        
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
+ 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is ( V_TRIPPED or V_LIGHT ) and result.sensor is @config.sensorid
           env.logger.info "<- MySensorsButton ", result
@@ -270,6 +335,8 @@ module.exports = (env) ->
       )
       super()
 
+    getBattery: -> Promise.resolve @_batterystat
+
 
   class MySensorsSwitch extends env.devices.PowerSwitch
 
@@ -278,7 +345,7 @@ module.exports = (env) ->
       @name = config.name
       @_state = lastState?.state?.value
       env.logger.info "MySensorsSwitch " , @id , @name, @_state
-
+      
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_LIGHT and result.sensor is @config.sensorid 
           state = (if parseInt(result.value) is 1 then on else off)
@@ -303,6 +370,95 @@ module.exports = (env) ->
          @_setState(state)
       )
 
+  class MySensorsLight extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      env.logger.info "MySensorsLight " , @id , @name
+      @attributes = {}
+
+      
+      @attributes.battery = {
+        description: "display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        hidden: !@config.batterySensor
+       }
+        
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
+
+
+      @attributes.light = {
+        description: "the messured light"
+        type: "number"
+        unit: '%'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          if result.sensor is  @config.sensorid
+            env.logger.info "<- MySensorsLight" , result
+            if result.type is V_LIGHT_LEVEL
+              @_light = parseInt(result.value)
+              @emit "light", @_light
+      )
+      super()
+
+    getLight: -> Promise.resolve @_light    
+    getBattery: -> Promise.resolve @_batterystat
+
+
+    
+  class MySensorsGas extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      env.logger.info "MySensorsGas " , @id , @name
+      @attributes = {}
+
+
+      @attributes.battery = {
+        description: "display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        hidden: !@config.batterySensor
+       }
+        
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
+
+      @attributes.gas = {
+        description: "the messured gas presence in ppm"
+        type: "number"
+        unit: 'ppm'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          if result.sensor is  @config.sensorid
+            env.logger.info "<- MySensorsGas" , result
+            if result.type is V_VAR1
+              @_gas = parseInt(result.value)
+              @emit "gas", @_gas
+      )
+      super()
+
+    getGas: -> Promise.resolve @_gas    
+    getBattery: -> Promise.resolve @_batterystat
+
+
+   
   class MySensorsBattery extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
@@ -330,59 +486,6 @@ module.exports = (env) ->
       )
       super()
 
-
-  class MySensorsLight extends env.devices.Device
-
-    constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
-      env.logger.info "MySensorsLight " , @id , @name
-      @attributes = {}
-
-      @attributes.light = {
-        description: "the messured light"
-        type: "number"
-        unit: '%'
-      }
-
-      @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is  @config.sensorid
-            env.logger.info "<- MySensorsLight" , result
-            if result.type is V_LIGHT_LEVEL
-              @_light = parseInt(result.value)
-              @emit "light", @_light
-      )
-      super()
-
-    getLight: -> Promise.resolve @_light
-
-    
-  class MySensorsGas extends env.devices.Device
-
-    constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
-      env.logger.info "MySensorsGas " , @id , @name
-      @attributes = {}
-
-      @attributes.gas = {
-        description: "the messured gas presence in ppm"
-        type: "number"
-        unit: 'ppm'
-      }
-
-      @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is  @config.sensorid
-            env.logger.info "<- MySensorsGas" , result
-            if result.type is V_VAR1
-              @_gas = parseInt(result.value)
-              @emit "gas", @_gas
-      )
-      super()
-
-    getGas: -> Promise.resolve @_gas
   # ###Finally
   # Create a instance of my plugin
   mySensors = new MySensors
