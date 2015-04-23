@@ -194,6 +194,9 @@ class Board extends events.EventEmitter
   _rfsendNextAvailableSensorId: ->
      datas = {}
      nextnodeid = @config.startingNodeId
+     if nextnodeid > 255 
+      console.log "-> Error assigning Next ID, already reached maximum ID"
+      return
      if nextnodeid is null
         nextnodeid = 1
      else
