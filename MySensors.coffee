@@ -220,12 +220,12 @@ module.exports = (env) ->
       @attributes.pulsecount = {
         description: "Measure the Pulse Count"
         type: "number"
-        unit: ''
-        hidden: yes
+        #unit: ''
+        hidden: no
       }
 
       @attributes.kWh = {
-        description: "the messured Kwh"
+        description: "the messured kWh"
         type: "number"
         unit: 'kWh'
       }
@@ -260,14 +260,17 @@ module.exports = (env) ->
             if result.sensor is sensorid
               env.logger.info "<- MySensorsPulseMeter" , result
               if result.type is V_VAR1
-                @_pc = parseInt(result.value)
-                @emit "pulsecount", @_pc
+                env.logger.info "<- MySensorsPulseMeter masuk V_VAR1"
+                @_pulsecount = parseInt(result.value)
+                @emit "pulsecount", @_pulsecount
               if result.type is V_WATT
+                env.logger.info "<- MySensorsPulseMeter masuk V_WATT"
                 @_watt = parseInt(result.value)
-                @emit "watt", @_watt
+                @emit "watt", @_watt 
               if result.type is V_KWH
-                @_kw = parseInt(result.value)
-                @emit "kW", @_kw
+                env.logger.info "<- MySensorsPulseMeter masuk V_KWH"
+                @_kwh = parseFloat(result.value)
+                @emit "kWh", @_kwh
                
       )
       super()
