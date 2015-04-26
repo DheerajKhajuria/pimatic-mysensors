@@ -62,6 +62,7 @@ module.exports = (env) ->
         MySensorsBMP
         MySensorsPIR
         MySensorsSwitch
+        MySensorsDimmer
         MySensorsPulseMeter
         MySensorsButton
         MySensorsLight
@@ -369,7 +370,50 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setState(state)
       )
+  
+  class MySensorsDimmer extends env.devices.DimmerActuator
+    _lastdimlevel: null
 
+    constructor: (@config, lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      @_dimlevel = lastState?.dimlevel?.value or 0
+      @_lastdimlevel = lastState?.lastdimlevel?.value or 100
+      @_state = lastState?.state?.value or off
+      env.logger.info "MySensorsDimmer " , @id , @name, @_state, @_dimlevel
+
+      @board.on('rfValue', (result) =>
+        if result.sender is @config.nodeid and result.type is V_DIMMER and result.sensor is @config.sensorid 
+          state = (if parseInt(result.value) is 1 then on else off)
+          env.logger.info "<- MySensorDimmer " , result
+          @_setState(state)
+        )
+      super()
+
+    #_sendLevelToDimmers: sendToDimmersMixin   
+
+    turnOn: -> @changeDimlevelTo(@_lastdimlevel)
+
+    changeDimlevelTo: (level) ->
+      unless @config.forceSend
+        if @_dimlevel is level then return Promise.resolve true
+      if level is 0
+        state = false
+      unless @_dimlevel is 0
+        @_lastdimlevel = @_dimlevel
+      datas = {}      
+      datas = 
+      { 
+        "destination": @config.nodeid, 
+        "sensor": @config.sensorid, 
+        "type"  : V_DIMMER,
+        "value" : level,
+        "ack"   : 1
+      } 
+      @board._rfWrite(datas).then ( () =>
+         @_setDimlevel(level)
+      )
+  
   class MySensorsLight extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
