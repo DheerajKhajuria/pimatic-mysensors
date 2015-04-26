@@ -230,7 +230,7 @@ module.exports = (env) ->
         unit: 'kWh'
       }
 
-      calcuatekwh = ( =>
+      calculatekwh = ( =>
         @_avgkw =  @_totalkw / @_tickcount 
         @_kwh = (@_avgkw * (@_tickcount * 10)) / 3600     
         @_tickcount = 0 
