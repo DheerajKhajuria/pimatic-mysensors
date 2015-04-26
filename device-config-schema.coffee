@@ -63,7 +63,7 @@ module.exports = {
   MySensorsPIR: {
     title: "MySensorsPIR config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink", "xPresentLabel", "xAbsentLabel"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -79,7 +79,7 @@ module.exports = {
   MySensorsButton: {
     title: "MySensorsButton config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xConfirm", "xLink", "xClosedLabel", "xOpenedLabel"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -95,7 +95,7 @@ module.exports = {
   MySensorsSwitch: {
     title: "MySensorsSwitch config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xConfirm", "xLink", "xOnLabel", "xOffLabel"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
