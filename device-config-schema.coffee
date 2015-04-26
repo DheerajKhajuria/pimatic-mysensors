@@ -108,6 +108,18 @@ module.exports = {
          type: "boolean"
          default: no  
     }, 
+  MySensorsDimmer: {
+    title: "MySensorsDimmer config options"
+    type: "object"
+    extensions: ["xConfirm"]
+    properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
+      sensorid:
+        description: "This is the child-sensor-id that uniquely identifies one attached sensor"
+        type: "number"
+    },
   MySensorsLight: {
     title: "MySensorsLight config options"
     type: "object"
