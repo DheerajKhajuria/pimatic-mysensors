@@ -207,6 +207,7 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
+      @_pulsecount = lastState?.pulsecount?.value
       env.logger.info "MySensorsPulseMeter " , @id , @name
 
       @attributes = {}
@@ -221,7 +222,7 @@ module.exports = (env) ->
         description: "Measure the Pulse Count"
         type: "number"
         #unit: ''
-        hidden: no
+        hidden: yes
       }
 
       @attributes.kWh = {
@@ -246,7 +247,27 @@ module.exports = (env) ->
         unit: '%'
         hidden: !@config.batterySensor
        }
-        
+
+      @attributes.ampere = {
+        description: "the messured Ampere"
+        type: "number",
+        unit: "A"
+       }       
+
+      @board.on("rfRequest", (result) =>
+        if result.sender is @config.nodeid
+          datas = {}      
+          datas = 
+          { 
+            "destination": @config.nodeid, 
+            "sensor": @config.sensorid, 
+            "type"  : V_VAR1,
+            "value" : @_pulsecount,
+            "ack"   : 1
+          } 
+          @board._rfWrite(datas)
+      ) 
+
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
@@ -260,15 +281,17 @@ module.exports = (env) ->
             if result.sensor is sensorid
               env.logger.info "<- MySensorsPulseMeter" , result
               if result.type is V_VAR1
-                env.logger.info "<- MySensorsPulseMeter masuk V_VAR1"
+                env.logger.debug "<- MySensorsPulseMeter masuk V_VAR1"
                 @_pulsecount = parseInt(result.value)
                 @emit "pulsecount", @_pulsecount
               if result.type is V_WATT
-                env.logger.info "<- MySensorsPulseMeter masuk V_WATT"
+                env.logger.debug "<- MySensorsPulseMeter masuk V_WATT"
                 @_watt = parseInt(result.value)
-                @emit "watt", @_watt 
+                @emit "watt", @_watt
+                @_ampere = @_watt / 220
+                @emit "ampere", @_ampere
               if result.type is V_KWH
-                env.logger.info "<- MySensorsPulseMeter masuk V_KWH"
+                env.logger.debug "<- MySensorsPulseMeter masuk V_KWH"
                 @_kwh = parseFloat(result.value)
                 @emit "kWh", @_kwh
                
@@ -279,6 +302,7 @@ module.exports = (env) ->
     getPulsecount: -> Promise.resolve @_pulsecount
     getKWh: -> Promise.resolve @_kwh    
     getBattery: -> Promise.resolve @_batterystat
+    getAmpere: -> Promise.resolve @_ampere
 
 
   class MySensorsPIR extends env.devices.PresenceSensor
