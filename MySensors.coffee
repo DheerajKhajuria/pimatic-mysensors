@@ -384,8 +384,10 @@ module.exports = (env) ->
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_DIMMER and result.sensor is @config.sensorid 
           state = (if parseInt(result.value) is 0 then off else on)
+          dimlevel = (result.value)
           env.logger.info "<- MySensorDimmer " , result
           @_setState(state)
+          @_setDimlevel(dimlevel)
         )
       super()
 
