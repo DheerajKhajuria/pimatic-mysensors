@@ -380,17 +380,14 @@ module.exports = (env) ->
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_lastdimlevel = lastState?.lastdimlevel?.value or 100
       @_state = lastState?.state?.value or off
-      env.logger.info "MySensorsDimmer " , @id , @name, @_state, @_dimlevel
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_DIMMER and result.sensor is @config.sensorid 
-          state = (if parseInt(result.value) is 1 then on else off)
+          state = (if parseInt(result.value) is 0 then off else on)
           env.logger.info "<- MySensorDimmer " , result
           @_setState(state)
         )
       super()
-
-    #_sendLevelToDimmers: sendToDimmersMixin   
 
     turnOn: -> @changeDimlevelTo(@_lastdimlevel)
 
