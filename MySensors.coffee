@@ -151,12 +151,14 @@ module.exports = (env) ->
         description: "the messured temperature"
         type: "number"
         unit: '°C'
+        acronym: 'T'
       }
 
       @attributes.pressure = {
           description: "the messured pressure"
           type: "number"
           unit: 'hPa'
+          acronym: 'mbar'
       }
 
       @attributes.forecast = {
@@ -168,6 +170,7 @@ module.exports = (env) ->
         description: "Display the Battery level of Sensor"
         type: "number"
         unit: '%'
+        acronym: 'BATT'
         hidden: !@config.batterySensor
        }
 
@@ -219,6 +222,7 @@ module.exports = (env) ->
         description: "the messured Wattage"
         type: "number"
         unit: 'W'
+        acronym: 'Watt'
       }
 
       @attributes.pulsecount = {
@@ -232,6 +236,7 @@ module.exports = (env) ->
         description: "the messured Kwh"
         type: "number"
         unit: 'kWh'
+        acronym: 'kWh'
       }
 
       calculatekwh = ( =>
@@ -248,6 +253,7 @@ module.exports = (env) ->
         description: "Display the Battery level of Sensor"
         type: "number"
         unit: '%'
+        acronym: 'BATT'
         hidden: !@config.batterySensor
        }
         
@@ -319,6 +325,7 @@ module.exports = (env) ->
         description: "Display the Battery level of Sensor"
         type: "number"
         unit: '%'
+        acronym: 'BATT'
         hidden: !@config.batterySensor
        }
         
@@ -383,6 +390,21 @@ module.exports = (env) ->
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_lastdimlevel = lastState?.lastdimlevel?.value or 100
       @_state = lastState?.state?.value or off
+      
+      @attributes.battery = {
+        description: "Display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        acronym: 'BATT'
+        hidden: !@config.batterySensor
+      }
+        
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_DIMMER and result.sensor is @config.sensorid 
@@ -415,6 +437,9 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setDimlevel(level)
       )
+      
+  getBattery: -> Promise.resolve @_batterystat
+
   
   class MySensorsLight extends env.devices.Device
 
@@ -429,6 +454,7 @@ module.exports = (env) ->
         description: "display the Battery level of Sensor"
         type: "number"
         unit: '%'
+        acronym: 'BATT'
         hidden: !@config.batterySensor
        }
         
@@ -474,6 +500,7 @@ module.exports = (env) ->
         description: "display the Battery level of Sensor"
         type: "number"
         unit: '%'
+        acronym: 'BATT'
         hidden: !@config.batterySensor
        }
         
