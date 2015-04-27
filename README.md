@@ -115,6 +115,17 @@ This is the basic sensor with only temperature and humidity
       "sensorid": 1
     },
 ```
+* Dimmer 
+ 
+```
+ {
+      "id": "Dimmer",
+      "name": "Dimmer",
+      "class": "MySensorsDimmer",
+      "nodeid": 10,
+      "sensorid": 1
+    },
+```
 * Binary Button
  
 ```
