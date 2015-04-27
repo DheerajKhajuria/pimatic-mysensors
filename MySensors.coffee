@@ -93,18 +93,21 @@ module.exports = (env) ->
         description: "the messured temperature"
         type: "number"
         unit: '°C'
+        acronym: 'T'
       }
 
       @attributes.humidity = {
           description: "the messured humidity"
           type: "number"
           unit: '%'
+          acronym: 'RH'
       }
 
       @attributes.battery = {
         description: "Display the battery level of Sensor"
         type: "number"
         unit: '%'
+        acronym: 'BATT'
         hidden: !@config.batterySensor
        }
         
