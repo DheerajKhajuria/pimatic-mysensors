@@ -263,6 +263,7 @@ module.exports = (env) ->
         description: "the messured Ampere"
         type: "number",
         unit: "A"
+        acronym: 'Ampere'
        }       
 
       @board.on("rfRequest", (result) =>
