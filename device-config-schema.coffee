@@ -72,8 +72,7 @@ module.exports = {
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
       autoReset:
-        description: """Reset the state after resetTime. Usefull for contact sensors, 
-                      that only emit open or close events"""
+        description: "Disable this if your PIR sensors also emit absence."
         type: "boolean"
         default: true
       resetTime:
