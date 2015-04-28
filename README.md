@@ -16,6 +16,7 @@ Controllers
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * TimeAware Sensor support ( Unix time seconds ) 
   * Binary buttom ( http://www.mysensors.org/build/binary )
+  * Dimmer 
   * Light Sensor 
   * Gas Sensor ( ppm )
   * PulseMeter ( experimental only support wattage )
@@ -115,8 +116,17 @@ This is the basic sensor with only temperature and humidity
       "sensorid": 1
     },
 ```
+* Dimmer 
+```
+ {
+      "id": "Dimmer",
+      "name": "Dimmer",
+      "class": "MySensorsDimmer",
+      "nodeid": 10,
+      "sensorid": 1
+    },
+```
 * Binary Button
- 
 ```
   {
       "id": "Door",
@@ -153,7 +163,6 @@ This is the basic sensor with only temperature and humidity
       "batterySensor": true,
       "sensorid": 2
   }
-  
 ```
 *  Gas sensor ( ppm )
 ```
