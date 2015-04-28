@@ -302,16 +302,16 @@ module.exports = (env) ->
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_TRIPPED and result.sensor is @config.sensorid
-          env.logger.debug "<- MySensorPIR ", result
+          if @config.logLevel is "info"
+            env.logger.info "<- MySensorPIR ", result
           if result.value is ZERO_VALUE
             @_setPresence(no)
           else
             @_setPresence(yes)
-          clearTimeout(@_resetPresenceTimeout)
          if @config.autoReset is true
-              clearTimeout(@_resetContactTimeout)
-              @_resetContactTimeout = setTimeout(( =>
-                @_setContact(!hasContact)
+              clearTimeout(@_resetPresenceTimeout)
+              @_resetPresenceTimeout = setTimeout(( =>
+                @_setPresence(no)
               ), @config.resetTime)
       )
       super()
