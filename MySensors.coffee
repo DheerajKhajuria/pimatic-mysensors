@@ -291,17 +291,17 @@ module.exports = (env) ->
             if result.sensor is sensorid
               env.logger.info "<- MySensorsPulseMeter" , result
               if result.type is V_VAR1
-                env.logger.debug "<- MySensorsPulseMeter masuk V_VAR1"
+                env.logger.debug "<- MySensorsPulseMeter V_VAR1"
                 @_pulsecount = parseInt(result.value)
                 @emit "pulsecount", @_pulsecount
               if result.type is V_WATT
-                env.logger.debug "<- MySensorsPulseMeter masuk V_WATT"
+                env.logger.debug "<- MySensorsPulseMeter V_WATT"
                 @_watt = parseInt(result.value)
                 @emit "watt", @_watt
                 @_ampere = @_watt / 220
                 @emit "ampere", @_ampere
               if result.type is V_KWH
-                env.logger.debug "<- MySensorsPulseMeter masuk V_KWH"
+                env.logger.debug "<- MySensorsPulseMeter V_KWH"
                 @_kwh = parseFloat(result.value)
                 @emit "kWh", @_kwh
                
