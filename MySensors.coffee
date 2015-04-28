@@ -214,6 +214,7 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
+      @voltage = config.appliedVoltage
       @_pulsecount = lastState?.pulsecount?.value
       env.logger.info "MySensorsPulseMeter " , @id , @name
 
@@ -298,7 +299,7 @@ module.exports = (env) ->
                 env.logger.debug "<- MySensorsPulseMeter V_WATT"
                 @_watt = parseInt(result.value)
                 @emit "watt", @_watt
-                @_ampere = @_watt / 220
+                @_ampere = @_watt / @voltage
                 @emit "ampere", @_ampere
               if result.type is V_KWH
                 env.logger.debug "<- MySensorsPulseMeter V_KWH"

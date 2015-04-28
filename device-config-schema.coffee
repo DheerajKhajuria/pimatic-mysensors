@@ -45,6 +45,9 @@ module.exports = {
     type: "object"
     extensions: ["xLink"]
     properties:
+      appliedVoltage:
+        description: "The voltage applied"
+        type: "number"
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
         type: "number"
