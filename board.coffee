@@ -71,16 +71,6 @@ P_CUSTOM           = 6
 
 class Board extends events.EventEmitter
 
-  # @HIGH=1
-  # @LOW=0
-  # @INPUT=0
-  # @OUTPUT=1
-  # @INPUT_PULLUP=2
-
-  # _awaitingAck: []
-  # _opened: no
-  # ready: no
-
   constructor: (framework,config) ->
     @config = config
     @framework = framework
@@ -90,15 +80,11 @@ class Board extends events.EventEmitter
       when "serialport"
         SerialPortDriver = require './serialport'
         @driver = new SerialPortDriver(@config.driverOptions)
-    #@_lastAction = Promise.resolve()
-    #@driver.on('ready', => 
-    #  @ready = yes
-    #  @emit('ready') 
-    #)
+  
     @driver.on('error', (error) => @emit('error', error) )
     @driver.on('reconnect', (error) => @emit('reconnect', error) )
     @driver.on('close', => 
-      #@ready = no
+     
       @emit('close')
     )
     @driver.on("data", (data) =>
@@ -108,14 +94,14 @@ class Board extends events.EventEmitter
       @emit "line", line
       @_rfReceived(line)
     )
-    #@on('ready', => @setupWatchdog())
+   
 
   connect: (timeout = 20000, retries = 3) -> 
-    # Stop watchdog if its running/ and close current connection
+   
     return @pendingConnect = @driver.connect(timeout, retries)
 
   disconnect: ->
-    #@stopWatchdog()
+    
     return @driver.disconnect()
 
   _rfReceived: (data) ->
@@ -135,45 +121,45 @@ class Board extends events.EventEmitter
 
     switch command
       when C_PRESENTATION
-        console.log "<- Presented Node ", datas
+        env.logger.info "<- Presented Node ", datas
       when C_SET
         @_rfsendtoboard(sender,sensor,type,rawpayload)
       when C_REQ
-        console.log "<- request from  ", sender, rawpayload
+        env.logger.info "<- request from  ", sender, rawpayload
       when C_INTERNAL
         switch type 
           when I_BATTERY_LEVEL
-            console.log "<- I_BATTERY_LEVEL ", sender, rawpayload
+            env.logger.info "<- I_BATTERY_LEVEL ", sender, rawpayload
             @_rfsendbatterystat(sender,rawpayload)
           when I_TIME
-            console.log "<- I_TIME ", data 
+            env.logger.info "<- I_TIME ", data 
             @_rfsendTime(sender, sensor)
           when I_VERSION
-            console.log "<- I_VERSION ", payload
+            env.logger.info "<- I_VERSION ", payload
           when I_ID_REQUEST
-            console.log "<- I_ID_REQUEST ", data
+            env.logger.info "<- I_ID_REQUEST ", data
             @_rfsendNextAvailableSensorId
           when I_ID_RESPONSE
-            console.log "<- I_ID_RESPONSE ", data
+            env.logger.info "<- I_ID_RESPONSE ", data
           when I_INCLUSION_MODE
-            console.log "<- I_INCLUSION_MODE ", data
+            env.logger.info "<- I_INCLUSION_MODE ", data
           when I_CONFIG
-            console.log "<- I_CONFIG ", data
+            env.logger.info "<- I_CONFIG ", data
             @_rfsendConfig(sender)
           when I_PING
-            console.log "<- I_PING ", data
+            env.logger.info "<- I_PING ", data
           when I_PING_ACK
-            console.log "<- I_PING_ACK ", data
+            env.logger.info "<- I_PING_ACK ", data
           when I_LOG_MESSAGE
-            console.log "<- I_LOG_MESSAGE ", data
+            env.logger.info "<- I_LOG_MESSAGE ", data
           when I_CHILDREN
-            console.log "<- I_CHILDREN ", data
+            env.logger.info "<- I_CHILDREN ", data
           when I_SKETCH_NAME
             #saveSketchName(sender, payload, db);
-            console.log "<- I_SKETCH_NAME ", data
+            env.logger.info "<- I_SKETCH_NAME ", data
           when I_SKETCH_VERSION
             #saveSketchVersion(sender, payload, db);
-            console.log "<- I_SKETCH_VERSION ", data
+            env.logger.info "<- I_SKETCH_VERSION ", data
       
 
   _rfsendTime: (destination,sensor) ->
@@ -195,7 +181,7 @@ class Board extends events.EventEmitter
      datas = {}
      nextnodeid = @config.startingNodeId
      if nextnodeid > 255 
-      console.log "-> Error assigning Next ID, already reached maximum ID"
+      env.logger.info "-> Error assigning Next ID, already reached maximum ID"
       return
      if nextnodeid is null
         nextnodeid = 1
@@ -247,7 +233,7 @@ class Board extends events.EventEmitter
   _rfWrite: (datas) ->
     datas.command ?= C_SET
     data = @_rfencode(datas.destination,datas.sensor,datas.command,datas.ack,datas.type,datas.value)
-    console.log "-> Sending ", data
+    env.logger.info "-> Sending ", data
     @driver.write(data) 
 
   _rfencode: (destination, sensor, command, acknowledge, type, payload) ->
