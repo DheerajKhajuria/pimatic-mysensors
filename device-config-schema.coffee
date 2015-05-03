@@ -70,6 +70,10 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
+      autoReset:
+        description: "Disable this if your PIR sensors also emit absence."
+        type: "boolean"
+        default: true
       resetTime:
         description: "Time after that the PIR presence value is reset to absent"
         type: "number"
