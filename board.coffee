@@ -126,6 +126,7 @@ class Board extends events.EventEmitter
         @_rfsendtoboard(sender,sensor,type,rawpayload)
       when C_REQ
         console.log "<- request from  ", sender, rawpayload
+        @_rfrequest(sender,sensor,type)
       when C_INTERNAL
         switch type 
           when I_BATTERY_LEVEL
@@ -199,6 +200,15 @@ class Board extends events.EventEmitter
      @config.startingNodeId = nextnodeid
      @_rfWrite(datas) 
      @framework.saveConfig()
+
+  _rfrequest: (sender,sensor,type) ->
+    result = {}
+    result = {
+      "sender": sender,
+      "sensor": sensor,
+      "type": type
+    }
+    @emit "rfRequest", result 
 
   _rfsendtoboard: (sender,sensor,type,rawpayload) ->
       result = {}            

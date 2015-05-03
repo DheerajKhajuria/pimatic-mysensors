@@ -45,16 +45,15 @@ module.exports = {
     type: "object"
     extensions: ["xLink"]
     properties:
+      appliedVoltage:
+        description: "The voltage applied"
+        type: "number"
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
         type: "number"
       sensorid:
         description: "This is the child-sensor-ids that uniquely identifies one attached sensor"
-        type: "array"
-        default: []
-        format: "table"
-        items:
-          type: "number"
+        type: "number"
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
