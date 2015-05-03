@@ -3,7 +3,7 @@ module.exports = {
   MySensorsDHT: {
     title: "MySensorsDHT config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink", "xAttributeOptions"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -23,7 +23,7 @@ module.exports = {
   MySensorsBMP: {
     title: "MySensorsBMP config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink", "xAttributeOptions"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -43,7 +43,7 @@ module.exports = {
   MySensorsPulseMeter: {
     title: "MySensorsPulseMeter config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink", "xAttributeOptions"]
     properties:
       appliedVoltage:
         description: "The voltage applied"
@@ -122,7 +122,7 @@ module.exports = {
   MySensorsLight: {
     title: "MySensorsLight config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink", "xAttributeOptions"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -138,7 +138,7 @@ module.exports = {
   MySensorsBattery: {
    title: "MySensorsBattery config options"
    type: "object"
-   extensions: ["xLink"]
+   extensions: ["xLink", "xAttributeOptions"]
    properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -151,7 +151,7 @@ module.exports = {
   MySensorsGas:  {
     title: "MySensorsGas config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink", "xAttributeOptions"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
