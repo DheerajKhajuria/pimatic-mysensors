@@ -42,6 +42,7 @@ module.exports = (env) ->
 
   Promise = env.require 'bluebird'
   assert = env.require 'cassert'
+  _ = env.require 'lodash'
   Board = require('./board')
 
   Promise.promisifyAll(Board.prototype)
@@ -354,6 +355,8 @@ module.exports = (env) ->
       @name = config.name
       @_contact = lastState?.contact?.value or false
       env.logger.info "MySensorsButton" , @id , @name, @_contact
+  
+      @attributes = _.cloneDeep @attributes
 
       @attributes.battery = {
         description: "Display the Battery level of Sensor"
