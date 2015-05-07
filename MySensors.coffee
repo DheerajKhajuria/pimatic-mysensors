@@ -459,8 +459,8 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setDimlevel(level)
       )
-      
-  getBattery: -> Promise.resolve @_batterystat
+  
+
 
   
   class MySensorsLight extends env.devices.Device
