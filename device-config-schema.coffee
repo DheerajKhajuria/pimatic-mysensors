@@ -3,7 +3,7 @@ module.exports = {
   MySensorsDHT: {
     title: "MySensorsDHT config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink", "xAttributeOptions"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -23,7 +23,7 @@ module.exports = {
   MySensorsBMP: {
     title: "MySensorsBMP config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink" ,"xAttributeOptions"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"
@@ -151,7 +151,7 @@ module.exports = {
   MySensorsGas:  {
     title: "MySensorsGas config options"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink","xAttributeOptions"]
     properties:
       nodeid:
         description: "The unique id of the node that sends or should receive the message"

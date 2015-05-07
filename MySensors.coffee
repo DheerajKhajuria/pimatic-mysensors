@@ -44,6 +44,7 @@ module.exports = (env) ->
   assert = env.require 'cassert'
   _ = env.require 'lodash'
   Board = require('./board')
+  M = env.matcher
 
   Promise.promisifyAll(Board.prototype)
 
@@ -58,6 +59,8 @@ module.exports = (env) ->
         
       deviceConfigDef = require("./device-config-schema")
 
+      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework, config) 
+      
       deviceClasses = [
         MySensorsDHT
         MySensorsBMP
@@ -580,6 +583,88 @@ module.exports = (env) ->
           @emit "battery_" + result.sender, @_batterystat
       )
       super()
+
+
+ 
+
+ # PushBullet = require('pushbullet');
+ # Promise.promisifyAll(PushBullet.prototype)
+  
+  pusherService = null
+
+  # class PushbulletPlugin extends env.plugins.Plugin
+
+  #   init: (app, @framework, config) =>
+      apikey = config.apikey
+      env.logger.debug "apikey= #{apikey}"
+      pusherService = new PushBullet(apikey)
+      
+      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework, config)
+
+
+  
+  class MySensorsActionProvider extends env.actions.ActionProvider
+
+    constructor: (@framework) -> 
+    # ### executeAction()
+    ###
+    This function handles action in the form of `execute "some string"`
+    ###
+    parseAction: (input, context) =>
+      retVal = null
+      commandTokens = null
+      fullMatch = no
+
+      setCommand = (m, tokens) => commandTokens = tokens
+      onEnd = => fullMatch = yes
+      
+      m = M(input, context)
+        .match("SendIR ")
+        .matchStringWithVars(setCommand)
+      
+      if m.hadMatch()
+        match = m.getFullMatch()
+        return {
+          token: match
+          nextInput: input.substring(match.length)
+          actionHandler: new MysensorsActionHandler(@framework, commandTokens)
+        }
+      else
+        return null
+
+  class MySensorsActionHandler extends env.actions.ActionHandler
+
+    constructor: (@framework, @commandTokens) ->
+    # ### executeAction()
+    ###
+    This function handles action in the form of `execute "some string"`
+    ###
+    executeAction: (simulate) =>
+      @framework.variableManager.evaluateStringExpression(@commandTokens).then( (command) =>
+        if simulate
+          # just return a promise fulfilled with a description about what we would do.
+          return __("would execute \"%s\"", command)
+        else
+
+      datas = {}      
+      datas = 
+      { 
+        "destination": @config.nodeid, 
+        "sensor": @config.sensorid, 
+        "type"  : V_LIGHT,
+        "value" : command,
+        "ack"   : 1
+      } 
+      @board._rfWrite(datas).then ( () =>
+         @_setState(state)
+      )
+          # return exec(command).then( (streams) =>
+          #   stdout = streams[0]
+          #   stderr = streams[1]
+          #   env.logger.error stderr if stderr.length isnt 0
+          #   return __("executed \"%s\": %s", command, stdout.trim())
+          )
+      )
 
   # ###Finally
   # Create a instance of my plugin
