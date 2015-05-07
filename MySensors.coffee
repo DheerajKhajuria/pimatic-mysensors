@@ -427,21 +427,6 @@ module.exports = (env) ->
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_lastdimlevel = lastState?.lastdimlevel?.value or 100
       @_state = lastState?.state?.value or off
-      
-      @attributes.battery = {
-        description: "Display the Battery level of Sensor"
-        type: "number"
-        unit: '%'
-        acronym: 'BATT'
-        hidden: !@config.batterySensor
-      }
-        
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
-          unless result.value is null or undefined
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
-      )
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_DIMMER and result.sensor is @config.sensorid 
