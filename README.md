@@ -176,3 +176,16 @@ This is the basic sensor with only temperature and humidity
   }
   
 ```  
+*  Pulse sensor ( Watt, KWh and Ampere )
+```
+  {
+      "id": "EnergySensor,
+      "name": "Energy Sensor",
+      "class": "MySensorsPulseMeter",
+      "nodeid": 3,
+      "batterySensor": true,
+      "sensorid": 1,
+      "appliedVoltage"  : 220
+  }
+  
+```  

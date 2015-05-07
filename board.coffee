@@ -71,16 +71,6 @@ P_CUSTOM           = 6
 
 class Board extends events.EventEmitter
 
-  # @HIGH=1
-  # @LOW=0
-  # @INPUT=0
-  # @OUTPUT=1
-  # @INPUT_PULLUP=2
-
-  # _awaitingAck: []
-  # _opened: no
-  # ready: no
-
   constructor: (framework,config) ->
     @config = config
     @framework = framework
@@ -90,15 +80,11 @@ class Board extends events.EventEmitter
       when "serialport"
         SerialPortDriver = require './serialport'
         @driver = new SerialPortDriver(@config.driverOptions)
-    #@_lastAction = Promise.resolve()
-    #@driver.on('ready', => 
-    #  @ready = yes
-    #  @emit('ready') 
-    #)
+  
     @driver.on('error', (error) => @emit('error', error) )
     @driver.on('reconnect', (error) => @emit('reconnect', error) )
     @driver.on('close', => 
-      #@ready = no
+     
       @emit('close')
     )
     @driver.on("data", (data) =>
@@ -108,14 +94,14 @@ class Board extends events.EventEmitter
       @emit "line", line
       @_rfReceived(line)
     )
-    #@on('ready', => @setupWatchdog())
+   
 
   connect: (timeout = 20000, retries = 3) -> 
-    # Stop watchdog if its running/ and close current connection
+   
     return @pendingConnect = @driver.connect(timeout, retries)
 
   disconnect: ->
-    #@stopWatchdog()
+    
     return @driver.disconnect()
 
   _rfReceived: (data) ->
@@ -140,6 +126,7 @@ class Board extends events.EventEmitter
         @_rfsendtoboard(sender,sensor,type,rawpayload)
       when C_REQ
         console.log "<- request from  ", sender, rawpayload
+        @_rfrequest(sender,sensor,type)
       when C_INTERNAL
         switch type 
           when I_BATTERY_LEVEL
@@ -213,6 +200,15 @@ class Board extends events.EventEmitter
      @config.startingNodeId = nextnodeid
      @_rfWrite(datas) 
      @framework.saveConfig()
+
+  _rfrequest: (sender,sensor,type) ->
+    result = {}
+    result = {
+      "sender": sender,
+      "sensor": sensor,
+      "type": type
+    }
+    @emit "rfRequest", result 
 
   _rfsendtoboard: (sender,sensor,type,rawpayload) ->
       result = {}            

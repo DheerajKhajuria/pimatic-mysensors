@@ -42,6 +42,7 @@ module.exports = (env) ->
 
   Promise = env.require 'bluebird'
   assert = env.require 'cassert'
+  _ = env.require 'lodash'
   Board = require('./board')
 
   Promise.promisifyAll(Board.prototype)
@@ -214,6 +215,8 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
+      @voltage = config.appliedVoltage
+      @_pulsecount = lastState?.pulsecount?.value
       env.logger.info "MySensorsPulseMeter " , @id , @name
 
       @attributes = {}
@@ -228,12 +231,12 @@ module.exports = (env) ->
       @attributes.pulsecount = {
         description: "Measure the Pulse Count"
         type: "number"
-        unit: ''
+        #unit: ''
         hidden: yes
       }
 
       @attributes.kWh = {
-        description: "the messured Kwh"
+        description: "the messured kWh"
         type: "number"
         unit: 'kWh'
         acronym: 'kWh'
@@ -256,7 +259,28 @@ module.exports = (env) ->
         acronym: 'BATT'
         hidden: !@config.batterySensor
        }
-        
+
+      @attributes.ampere = {
+        description: "the messured Ampere"
+        type: "number",
+        unit: "A"
+        acronym: 'Ampere'
+       }       
+
+      @board.on("rfRequest", (result) =>
+        if result.sender is @config.nodeid
+          datas = {}      
+          datas = 
+          { 
+            "destination": @config.nodeid, 
+            "sensor": @config.sensorid, 
+            "type"  : V_VAR1,
+            "value" : @_pulsecount,
+            "ack"   : 1
+          } 
+          @board._rfWrite(datas)
+      ) 
+
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
@@ -270,14 +294,19 @@ module.exports = (env) ->
             if result.sensor is sensorid
               env.logger.info "<- MySensorsPulseMeter" , result
               if result.type is V_VAR1
-                @_pc = parseInt(result.value)
-                @emit "pulsecount", @_pc
+                env.logger.debug "<- MySensorsPulseMeter V_VAR1"
+                @_pulsecount = parseInt(result.value)
+                @emit "pulsecount", @_pulsecount
               if result.type is V_WATT
+                env.logger.debug "<- MySensorsPulseMeter V_WATT"
                 @_watt = parseInt(result.value)
                 @emit "watt", @_watt
+                @_ampere = @_watt / @voltage
+                @emit "ampere", @_ampere
               if result.type is V_KWH
-                @_kw = parseInt(result.value)
-                @emit "kW", @_kw
+                env.logger.debug "<- MySensorsPulseMeter V_KWH"
+                @_kwh = parseFloat(result.value)
+                @emit "kWh", @_kwh
                
       )
       super()
@@ -286,6 +315,7 @@ module.exports = (env) ->
     getPulsecount: -> Promise.resolve @_pulsecount
     getKWh: -> Promise.resolve @_kwh    
     getBattery: -> Promise.resolve @_batterystat
+    getAmpere: -> Promise.resolve @_ampere
 
 
   class MySensorsPIR extends env.devices.PresenceSensor
@@ -303,10 +333,15 @@ module.exports = (env) ->
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_TRIPPED and result.sensor is @config.sensorid
           env.logger.info "<- MySensorPIR ", result
-          unless result.value is ZERO_VALUE
+          if result.value is ZERO_VALUE
+            @_setPresence(no)
+          else
             @_setPresence(yes)
-          clearTimeout(@_resetPresenceTimeout)
-        @_resetPresenceTimeout = setTimeout(resetPresence, @config.resetTime)
+         if @config.autoReset is true
+              clearTimeout(@_resetPresenceTimeout)
+              @_resetPresenceTimeout = setTimeout(( =>
+                @_setPresence(no)
+              ), @config.resetTime)
       )
       super()
 
@@ -320,6 +355,8 @@ module.exports = (env) ->
       @name = config.name
       @_contact = lastState?.contact?.value or false
       env.logger.info "MySensorsButton" , @id , @name, @_contact
+  
+      @attributes = _.cloneDeep @attributes
 
       @attributes.battery = {
         description: "Display the Battery level of Sensor"
