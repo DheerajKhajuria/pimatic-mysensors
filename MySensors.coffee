@@ -565,7 +565,7 @@ module.exports = (env) ->
       env.logger.info "MySensorsBattery" , @id , @name
 
       @attributes = {}
-
+      @_batterystat = {}
       for nodeid in @config.nodeid
         do (nodeid) =>
           attr = "battery_" + nodeid
@@ -574,13 +574,14 @@ module.exports = (env) ->
             type: "number"
             unit: '%'
           }
-          getter = ( =>  Promise.resolve @_batterystat )
+          getter = ( =>  Promise.resolve @_batterystat[nodeid] )
           @_createGetter( attr, getter)
+          @_batterystat[nodeid] = lastState?[attr]?.value
 
       @board.on("rfbattery", (result) =>
-         unless result.value is null or undefined
-          @_batterystat =  parseInt(result.value)
-          @emit "battery_" + result.sender, @_batterystat
+        unless result.value is null or undefined
+          @_batterystat[result.sender] =  parseInt(result.value)
+          @emit "battery_" + result.sender, @_batterystat[result.sender]
       )
       super()
 
