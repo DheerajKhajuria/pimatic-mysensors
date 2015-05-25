@@ -70,6 +70,7 @@ module.exports = (env) ->
         MySensorsPulseMeter
         MySensorsButton
         MySensorsLight
+        MySensorsDistance
         MySensorsGas
         MySensorsBattery
       ]
@@ -508,6 +509,50 @@ module.exports = (env) ->
       super()
 
     getLight: -> Promise.resolve @_light    
+    getBattery: -> Promise.resolve @_batterystat
+
+  class MySensorsDistance extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+      env.logger.info "MySensorsDistance " , @id , @name
+      @attributes = {}
+
+
+      @attributes.battery = {
+        description: "display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        acronym: 'BATT'
+        hidden: !@config.batterySensor
+       }
+
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
+
+
+      @attributes.distance = {
+        description: "the messured distance"
+        type: "number"
+        unit: 'cm'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          if result.sensor is  @config.sensorid
+            env.logger.info "<- MySensorsDistance" , result
+            if result.type is V_DISTANCE
+              @_distance = parseInt(result.value)
+              @emit "distance", @_distance
+      )
+      super()
+
+    getDistance: -> Promise.resolve @_distance
     getBattery: -> Promise.resolve @_batterystat
 
 
