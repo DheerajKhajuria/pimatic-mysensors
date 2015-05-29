@@ -7,8 +7,6 @@ Pimatic plugin supporting MySensors as controller. (http://mysensors.org/)
 
 Controllers
 -----------
-  node-id to be fixed in Sensors/Actuator code.
-
   Support for following sensors
   * Temperature and Humidity  ( http://mysensors.org/build/humidity)
   * Temperature and Pressure ( http://mysensors.org/build/pressure)
@@ -43,6 +41,7 @@ You can load the plugin by editing your config.json to include:
       "plugin": "mysensors",
       "driver": "serialport",
       "protocols": "1.4.1",
+      "startingNodeId": 1,
       "driverOptions": {
       "//": "'/dev/ttyUSBx' if using serial Gateway",
       "serialDevice": "/dev/ttyMySensorsGateway", 

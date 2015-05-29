@@ -139,7 +139,7 @@ class Board extends events.EventEmitter
             console.log "<- I_VERSION ", payload
           when I_ID_REQUEST
             console.log "<- I_ID_REQUEST ", data
-            @_rfsendNextAvailableSensorId
+            @_rfsendNextAvailableSensorId()
           when I_ID_RESPONSE
             console.log "<- I_ID_RESPONSE ", data
           when I_INCLUSION_MODE
