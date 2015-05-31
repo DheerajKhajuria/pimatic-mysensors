@@ -20,6 +20,22 @@ module.exports = {
          type: "boolean"
          default: no
     },
+  MySensorsDST: {
+    title: "MySensorsDST config options"
+    type: "object"
+    extensions: ["xLink", "xAttributeOptions"]
+    properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
+      sensorid:
+        description: "This is the child-sensor-ids that uniquely identifies one attached sensor"
+        type: "number"
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no
+    },
   MySensorsBMP: {
     title: "MySensorsBMP config options"
     type: "object"
