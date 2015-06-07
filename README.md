@@ -17,10 +17,12 @@ Controllers
   * TimeAware Sensor support ( Unix time seconds ) 
   * Binary buttom ( http://www.mysensors.org/build/binary )
   * Dimmer 
+  * Distance
   * Light Sensor 
   * Gas Sensor ( ppm )
-  * PulseMeter ( experimental only support wattage )
+  * PulseMeter ( experimental only support wattage/Ampere )
   * Battery level  of multiple sensors
+  * support for sending IR codes to mysensor node
   * more to be add.. :)
 
 Gateways
