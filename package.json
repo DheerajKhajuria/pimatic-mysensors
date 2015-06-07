@@ -1,7 +1,10 @@
 {
   "name": "pimatic-mysensors",
   "description": "MySensors Plugin for pimatic",
-  "author": "Dheeraj Khajuria <Dheeraj.Khajuria@gmail.com> ",
+  "author": {
+    "name": "Dheeraj Khajuria",
+    "email": "Dheeraj.Khajuria@gmail.com"
+  },
   "main": "MySensors",
   "files": [
     "MySensors.coffee",
@@ -37,5 +40,31 @@
   "engines": {
     "node": ">0.8.x",
     "npm": ">1.1.x"
-  }
+  },
+  "gitHead": "0c531701970a4f9f8a90283b1158b9705dd6e2d8",
+  "bugs": {
+    "url": "https://github.com/DheerajKhajuria/pimatic-MySensors/issues"
+  },
+  "_id": "pimatic-mysensors@0.8.17",
+  "scripts": {},
+  "_shasum": "cd9bcfa33da8e9a67f54457357e5891fc9b58f88",
+  "_from": "pimatic-mysensors@",
+  "_npmVersion": "2.8.4",
+  "_nodeVersion": "0.10.25",
+  "_npmUser": {
+    "name": "dheerajkhajuria",
+    "email": "dheeraj.khajuria@gmail.com"
+  },
+  "dist": {
+    "shasum": "cd9bcfa33da8e9a67f54457357e5891fc9b58f88",
+    "tarball": "http://registry.npmjs.org/pimatic-mysensors/-/pimatic-mysensors-0.8.17.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "dheerajkhajuria",
+      "email": "dheeraj.khajuria@gmail.com"
+    }
+  ],
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/pimatic-mysensors/-/pimatic-mysensors-0.8.17.tgz"
 }

@@ -59,8 +59,8 @@ module.exports = (env) ->
         
       deviceConfigDef = require("./device-config-schema")
 
-      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework, config) 
-      
+      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework,@board, config) 
+
       deviceClasses = [
         MySensorsDHT
         MySensorsBMP
@@ -213,7 +213,6 @@ module.exports = (env) ->
     getForecast: -> Promise.resolve @_forecast    
     getBattery: -> Promise.resolve @_batterystat
 
-
   class MySensorsPulseMeter extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
@@ -321,7 +320,6 @@ module.exports = (env) ->
     getBattery: -> Promise.resolve @_batterystat
     getAmpere: -> Promise.resolve @_ampere
 
-
   class MySensorsPIR extends env.devices.PresenceSensor
 
     constructor: (@config,lastState,@board) ->
@@ -388,7 +386,6 @@ module.exports = (env) ->
       super()
 
     getBattery: -> Promise.resolve @_batterystat
-
 
   class MySensorsSwitch extends env.devices.PowerSwitch
 
@@ -463,9 +460,6 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setDimlevel(level)
       )
-  
-
-
   
   class MySensorsLight extends env.devices.Device
 
@@ -555,8 +549,6 @@ module.exports = (env) ->
     getDistance: -> Promise.resolve @_distance
     getBattery: -> Promise.resolve @_batterystat
 
-
-    
   class MySensorsGas extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
@@ -600,8 +592,6 @@ module.exports = (env) ->
     getGas: -> Promise.resolve @_gas    
     getBattery: -> Promise.resolve @_batterystat
 
-
-   
   class MySensorsBattery extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
@@ -629,88 +619,74 @@ module.exports = (env) ->
           @emit "battery_" + result.sender, @_batterystat[result.sender]
       )
       super()
-
-
- 
-
- # PushBullet = require('pushbullet');
- # Promise.promisifyAll(PushBullet.prototype)
   
-  pusherService = null
+  class MySensorsActionHandler extends env.actions.ActionHandler
 
-  # class PushbulletPlugin extends env.plugins.Plugin
+    constructor: (@framework,@board,@nodeid,@sensorid,@cmdcode) ->
 
-  #   init: (app, @framework, config) =>
-      apikey = config.apikey
-      env.logger.debug "apikey= #{apikey}"
-      pusherService = new PushBullet(apikey)
-      
-      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework, config)
+    executeAction: (simulate) =>
+      Promise.all( [
+        @framework.variableManager.evaluateStringExpression(@nodeid)
+        @framework.variableManager.evaluateStringExpression(@sensorid)
+        @framework.variableManager.evaluateStringExpression(@cmdcode)
+      ]).then( ([node, sensor, Code]) =>
+        if simulate
+          # just return a promise fulfilled with a description about what we would do.
+          return __("would send IR \"%s\"", cmdCode)
+        else
+          datas = {}      
+          datas = 
+          { 
+            "destination": node, 
+            "sensor": sensor, 
+            "type"  : V_LIGHT,
+            "value" : Code,
+            "ack"   : 1
+          }
+          return @board._rfWrite(datas).then ( () =>
+            __("IR message sent successfully")
+          )
+          )
 
-
-  
   class MySensorsActionProvider extends env.actions.ActionProvider
 
-    constructor: (@framework) -> 
-    # ### executeAction()
-    ###
-    This function handles action in the form of `execute "some string"`
-    ###
+    constructor: (@framework,@board) -> 
+     
     parseAction: (input, context) =>
-      retVal = null
-      commandTokens = null
+    
+      cmdcode = "0x00000"
+      nodeid = "0"
+      sensorid = "0"
       fullMatch = no
 
-      setCommand = (m, tokens) => commandTokens = tokens
+      setCmdcode = (m, tokens) => cmdcode = tokens
+      setSensorid = (m, tokens) => sensorid = tokens
+      setNodeid = (m, tokens) => nodeid = tokens
+  
       onEnd = => fullMatch = yes
       
       m = M(input, context)
-        .match("SendIR ")
-        .matchStringWithVars(setCommand)
+        .match('send ', optional: yes)
+        .match('Ir')
       
+      next = m.match(' nodeid:').matchStringWithVars(setNodeid)
+      if next.hadMatch() then m = next
+     
+      next = m.match(' sensorid:').matchStringWithVars(setSensorid)
+      if next.hadMatch() then m = next
+
+      next = m.match(' cmdcode:').matchStringWithVars(setCmdcode)
+      if next.hadMatch() then m = next
+
       if m.hadMatch()
         match = m.getFullMatch()
         return {
           token: match
           nextInput: input.substring(match.length)
-          actionHandler: new MysensorsActionHandler(@framework, commandTokens)
+          actionHandler: new MySensorsActionHandler(@framework,@board,nodeid,sensorid,cmdcode)
         }
       else
         return null
-
-  class MySensorsActionHandler extends env.actions.ActionHandler
-
-    constructor: (@framework, @commandTokens) ->
-    # ### executeAction()
-    ###
-    This function handles action in the form of `execute "some string"`
-    ###
-    executeAction: (simulate) =>
-      @framework.variableManager.evaluateStringExpression(@commandTokens).then( (command) =>
-        if simulate
-          # just return a promise fulfilled with a description about what we would do.
-          return __("would execute \"%s\"", command)
-        else
-
-      datas = {}      
-      datas = 
-      { 
-        "destination": @config.nodeid, 
-        "sensor": @config.sensorid, 
-        "type"  : V_LIGHT,
-        "value" : command,
-        "ack"   : 1
-      } 
-      @board._rfWrite(datas).then ( () =>
-         @_setState(state)
-      )
-          # return exec(command).then( (streams) =>
-          #   stdout = streams[0]
-          #   stderr = streams[1]
-          #   env.logger.error stderr if stderr.length isnt 0
-          #   return __("executed \"%s\": %s", command, stdout.trim())
-          )
-      )
 
   # ###Finally
   # Create a instance of my plugin
