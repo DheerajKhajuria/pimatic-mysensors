@@ -22,7 +22,7 @@ Controllers
   * Gas Sensor ( ppm )
   * PulseMeter ( experimental only support wattage/Ampere )
   * Battery level  of multiple sensors
-  * support for sending IR codes to mysensor node
+  * support for sending IR codes to mysensor node ( using Action Provider/Handler )
   * more to be add.. :)
 
 Gateways
