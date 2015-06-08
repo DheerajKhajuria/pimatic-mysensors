@@ -53,6 +53,12 @@ You can load the plugin by editing your config.json to include:
 ```
 in the plugins section. 
 
+### Rules
+* for sending IR hex code to mysensors node use either "send Ir" or simply "Ir" command.
+  Ir nodeid: "id" sensorid: "id" cmdcode: "0x342333"
+  
+
+
 ### Devices
 
  Note:  To enable battery level with  sensor. set ["batterystat"] to true. see temp & Hum exp.
