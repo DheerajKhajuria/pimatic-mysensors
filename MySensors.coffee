@@ -91,6 +91,9 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name 
+      @_temperatue = lastState?.temperature?.value 
+      @_humidity = lastState?.humidity?.value 
+      @_batterystat = lastState?.batterystat?.value 
       env.logger.info "MySensorsDHT " , @id , @name 
 
       @attributes = {}
@@ -149,6 +152,8 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name 
+      @_temperatue = lastState?.temperature?.value 
+      @_batterystat = lastState?.batterystat?.value 
       env.logger.debug "MySensorsDST " , @id , @name 
 
       @attributes = {}
@@ -195,6 +200,10 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
+      @_temperatue = lastState?.temperature?.value 
+      @_pressure = lastState?.pressure?.value 
+      @_forecast = lastState?.forecast?.value 
+      @_batterystat = lastState?.batterystat?.value 
       env.logger.info "MySensorsBMP " , @id , @name
 
       @attributes = {}
@@ -266,7 +275,13 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
       @voltage = config.appliedVoltage
+
+      @_watt = lastState?.watt?.value
+      @_ampere = lastState?.ampere?.value
+      @_kwh  = lastState?.kwh?.value
       @_pulsecount = lastState?.pulsecount?.value
+      @_batterystat = lastState?.batterystat?.value
+
       env.logger.info "MySensorsPulseMeter " , @id , @name
 
       @attributes = {}
@@ -513,6 +528,9 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
+
+      @_light = lastState?.light?.value
+      @_batterystat = lastState?.batterystat?.value
       env.logger.info "MySensorsLight " , @id , @name
       @attributes = {}
 
@@ -557,6 +575,8 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
+      @_distance= lastState?.distance?.value
+      @_batterystat = lastState?.batterystat?.value
       env.logger.info "MySensorsDistance " , @id , @name
       @attributes = {}
 
@@ -601,6 +621,8 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
+      @_gas = lastState?.gas?.value
+      @_batterystat = lastState?.batterystat?.value
       env.logger.info "MySensorsGas " , @id , @name
       @attributes = {}
 
@@ -686,7 +708,7 @@ module.exports = (env) ->
           { 
             "destination": node, 
             "sensor": sensor, 
-            "type"  : V_LIGHT,
+            "type"  : V_IR_SEND,
             "value" : Code,
             "ack"   : 1
           }
