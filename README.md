@@ -54,8 +54,8 @@ You can load the plugin by editing your config.json to include:
 in the plugins section. 
 
 ### Rules
-* for sending IR hex code to mysensors node use either "send Ir" or simply "Ir" command.
-  Ir nodeid: "id" sensorid: "id" cmdcode: "0x342333"
+* For sending IR hex code to mysensors node use either "send Ir" or simply "Ir" command in action text box.
+  exp. Ir nodeid: "id" sensorid: "id" cmdcode: "0x342333"
   
 
 
