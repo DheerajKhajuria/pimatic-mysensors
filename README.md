@@ -78,6 +78,20 @@ This is the basic sensor with only temperature and humidity
     }
 ```
 
+* Temperature
+
+This is the basic sensor with only temperature
+```
+    {
+      "id": "Temp1",
+      "name": "Temp1",
+      "class": "MySensorsDST",
+      "nodeid": 11,
+      "batterySensor": true,
+      "sensorid": 0
+    }
+```
+
 * Temperature and Pressure
 
 ```

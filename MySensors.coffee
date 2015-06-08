@@ -63,6 +63,7 @@ module.exports = (env) ->
 
       deviceClasses = [
         MySensorsDHT
+        MySensorsDST
         MySensorsBMP
         MySensorsPIR
         MySensorsSwitch
@@ -141,6 +142,52 @@ module.exports = (env) ->
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
+    getBattery: -> Promise.resolve @_batterystat
+
+  class MySensorsDST extends env.devices.TemperatureSensor
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name 
+      env.logger.debug "MySensorsDST " , @id , @name 
+
+      @attributes = {}
+
+      @attributes.temperature = {
+        description: "the messured temperature"
+        type: "number"
+        unit: '°C'
+        acronym: 'T'
+      }
+
+      @attributes.battery = {
+        description: "Display the battery level of Sensor"
+        type: "number"
+        unit: '%'
+        acronym: 'BATT'
+        hidden: !@config.batterySensor
+       }
+        
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
+     
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          for sensorid in @config.sensorid
+            if result.sensor is sensorid
+              env.logger.debug "<- MySensorDST " , result
+              if result.type is V_TEMP
+                #env.logger.debug  "temp" , result.value 
+                @_temperatue = parseFloat(result.value)
+                @emit "temperature", @_temperatue
+      )
+      super()
+
+    getTemperature: -> Promise.resolve @_temperatue
     getBattery: -> Promise.resolve @_batterystat
 
   class MySensorsBMP extends env.devices.TemperatureSensor
