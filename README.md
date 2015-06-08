@@ -56,6 +56,7 @@ in the plugins section.
 ### Rules
 * For sending IR hex code to mysensors node use either "send Ir" or simply "Ir" command in action text box.
   exp. Ir nodeid: "id" sensorid: "id" cmdcode: "0x342333"
+Note: uses V_IR_SEND type code to send IR command.
   
 
 
