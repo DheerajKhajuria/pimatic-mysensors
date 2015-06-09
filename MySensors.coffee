@@ -73,7 +73,6 @@ module.exports = (env) ->
         MySensorsLight
         MySensorsDistance
         MySensorsGas
-        MySensorsBattery
       ]
 
       for Cl in deviceClasses
@@ -81,11 +80,17 @@ module.exports = (env) ->
           @framework.deviceManager.registerDeviceClass(Cl.name, {
             configDef: deviceConfigDef[Cl.name]
             createCallback: (config,lastState) => 
-             device  =  new Cl(config,lastState, @board)
-             return device
+              device  =  new Cl(config,lastState, @board)
+              return device
             })
-      #env.logger.info @framework.deviceManager.devicesConfig.length
-       
+      # registerDevice for MySensorsBattery device   
+      @framework.deviceManager.registerDeviceClass(MySensorsBattery.name, {
+        configDef: deviceConfigDef[MySensorsBattery.name]
+        createCallback: (config,lastState) => 
+          device  =  new MySensorsBattery(config,lastState, @board,@framework)
+          return device
+        })    
+      
   class MySensorsDHT extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
@@ -663,7 +668,7 @@ module.exports = (env) ->
 
   class MySensorsBattery extends env.devices.Device
 
-    constructor: (@config,lastState, @board) ->
+    constructor: (@config,lastState, @board,@framework) ->
       @id = config.id
       @name = config.name
       env.logger.info "MySensorsBattery" , @id , @name
@@ -672,11 +677,15 @@ module.exports = (env) ->
       @_batterystat = {}
       for nodeid in @config.nodeid
         do (nodeid) =>
-          attr = "battery_" + nodeid
+          for device in  @framework.deviceManager.devicesConfig
+            if device?.nodeid and device?.nodeid is nodeid 
+              attr = device?.name 
+
           @attributes[attr] = {
             description: "the measured Battery Stat of Sensor"
             type: "number"
             unit: '%'
+            acronym:  attr 
           }
           getter = ( =>  Promise.resolve @_batterystat[nodeid] )
           @_createGetter( attr, getter)
