@@ -679,13 +679,15 @@ module.exports = (env) ->
         do (nodeid) =>
           for device in  @framework.deviceManager.devicesConfig
             if device?.nodeid and device?.nodeid is nodeid 
-              attr = device?.name 
+              attrname = device?.name 
+              break
 
+          attr = "batteryLevel_" + nodeid
           @attributes[attr] = {
             description: "the measured Battery Stat of Sensor"
             type: "number"
             unit: '%'
-            acronym:  attr 
+            acronym:  attrname
           }
           getter = ( =>  Promise.resolve @_batterystat[nodeid] )
           @_createGetter( attr, getter)
@@ -694,7 +696,7 @@ module.exports = (env) ->
       @board.on("rfbattery", (result) =>
         unless result.value is null or undefined
           @_batterystat[result.sender] =  parseInt(result.value)
-          @emit "battery_" + result.sender, @_batterystat[result.sender]
+          @emit "batteryLevel_" + result.sender, @_batterystat[result.sender]
       )
       super()
   
