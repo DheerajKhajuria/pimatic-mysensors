@@ -187,13 +187,12 @@ module.exports = (env) ->
      
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
-          for sensorid in @config.sensorid
-            if result.sensor is sensorid
-              env.logger.debug "<- MySensorDST " , result
-              if result.type is V_TEMP
-                #env.logger.debug  "temp" , result.value 
-                @_temperatue = parseFloat(result.value)
-                @emit "temperature", @_temperatue
+          if result.sensor is @config.sensorid
+            env.logger.debug "<- MySensorDST " , result
+            if result.type is V_TEMP
+              #env.logger.debug  "temp" , result.value 
+              @_temperatue = parseFloat(result.value)
+              @emit "temperature", @_temperatue
       )
       super()
 
