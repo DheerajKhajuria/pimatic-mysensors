@@ -283,7 +283,7 @@ module.exports = (env) ->
 
       @_watt = lastState?.watt?.value
       @_ampere = lastState?.ampere?.value
-      @_kwh  = lastState?.kwh?.value
+      @_kwh = lastState?.kwh?.value
       @_pulsecount = lastState?.pulsecount?.value
       @_batterystat = lastState?.batterystat?.value
 
