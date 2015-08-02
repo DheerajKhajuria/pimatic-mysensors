@@ -2,8 +2,8 @@ module.exports = (env) ->
 
   V_TEMP               = 0
   V_HUM                = 1
-  V_LIGHT              = 2
-  V_DIMMER             = 3
+  V_STATUS             = 2
+  V_PERCENTAGE         = 3
   V_PRESSURE           = 4
   V_FORECAST           = 5
   V_RAIN               = 6
@@ -449,7 +449,7 @@ module.exports = (env) ->
       )
  
       @board.on('rfValue', (result) =>
-        if result.sender is @config.nodeid and result.type is ( V_TRIPPED or V_LIGHT ) and result.sensor is @config.sensorid
+        if result.sender is @config.nodeid and result.type is ( V_TRIPPED or V_STATUS ) and result.sensor is @config.sensorid
           env.logger.info "<- MySensorsButton ", result
           if result.value is ZERO_VALUE
             @_setContact(yes)
@@ -469,7 +469,7 @@ module.exports = (env) ->
       env.logger.info "MySensorsSwitch " , @id , @name, @_state
       
       @board.on('rfValue', (result) =>
-        if result.sender is @config.nodeid and result.type is V_LIGHT and result.sensor is @config.sensorid 
+        if result.sender is @config.nodeid and result.type is V_STATUS and result.sensor is @config.sensorid 
           state = (if parseInt(result.value) is 1 then on else off)
           env.logger.info "<- MySensorSwitch " , result
           @_setState(state)
@@ -484,7 +484,7 @@ module.exports = (env) ->
       { 
         "destination": @config.nodeid, 
         "sensor": @config.sensorid, 
-        "type"  : V_LIGHT,
+        "type"  : V_STATUS,
         "value" : _state,
         "ack"   : 1
       } 
@@ -503,7 +503,7 @@ module.exports = (env) ->
       @_state = lastState?.state?.value or off
 
       @board.on('rfValue', (result) =>
-        if result.sender is @config.nodeid and result.type is V_DIMMER and result.sensor is @config.sensorid 
+        if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid 
           state = (if parseInt(result.value) is 0 then off else on)
           dimlevel = (result.value)
           env.logger.info "<- MySensorDimmer " , result
@@ -526,7 +526,7 @@ module.exports = (env) ->
       { 
         "destination": @config.nodeid, 
         "sensor": @config.sensorid, 
-        "type"  : V_DIMMER,
+        "type"  : V_PERCENTAGE,
         "value" : level,
         "ack"   : 1
       } 
