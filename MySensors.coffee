@@ -82,7 +82,6 @@ module.exports = (env) ->
         MySensorsButton
         MySensorsLight
         MySensorsDistance
-        MySensorsMoisture
         MySensorsGas
       ]
 
@@ -627,52 +626,6 @@ module.exports = (env) ->
     getDistance: -> Promise.resolve @_distance
     getBattery: -> Promise.resolve @_batterystat
   
-  class MySensorsMoisture extends env.devices.Device
-
-    constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
-      @_moisture = lastState?.moisture?.value
-      @_batterystat = lastState?.batterystat?.value
-      env.logger.info "MySensorsMoisture " , @id , @name
-      @attributes = {}
-
-
-      @attributes.battery = {
-        description: "display the Battery level of Sensor"
-        type: "number"
-        unit: '%'
-        acronym: 'BATT'
-        hidden: !@config.batterySensor
-       }
-
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
-          unless result.value is null or undefined
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
-      )
-
-
-      @attributes.moisture = {
-        description: "the messured moisture percentage"
-        type: "number"
-        unit: '%'
-      }
-
-      @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is  @config.sensorid
-            env.logger.info "<- MySensorsMoisture" , result
-            if result.type is V_LEVEL
-              @_distance = parseInt(result.value)
-              @emit "moisture", @_moisture
-      )
-      super()
-
-    getMoisture: -> Promise.resolve @_moisture
-    getBattery: -> Promise.resolve @_batterystat
-
   class MySensorsGas extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
