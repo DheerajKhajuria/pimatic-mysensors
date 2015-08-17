@@ -195,5 +195,29 @@ module.exports = {
          description: "Show battery level with Sensors"
          type: "boolean"
          default: no  
-    } 
+    },
+  MySensorsLevel:  {
+    title: "MySensorsLevel config options"
+    type: "object"
+    extensions: ["xLink","xAttributeOptions"]
+    properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
+      sensorid:
+        description: "This is the child-sensor-id that uniquely identifies one attached sensor"
+        type: "number"
+      units:
+        description: "unit"
+        format: "string"
+        default: "%"
+      acronym:
+        description: "acronym"
+        format: "string"
+        default: "M"
+      batterySensor:
+        description: "Show battery level with Sensors"
+        type: "boolean"
+        default: no
+    }
 }   
