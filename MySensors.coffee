@@ -677,7 +677,7 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = config.id
       @name = config.name
-      @_moisture = lastState?.level?.value
+      @_level = lastState?.level?.value
       @_batterystat = lastState?.batterystat?.value
       env.logger.info "MySensorsLevel " , @id , @name
       @attributes = {}
