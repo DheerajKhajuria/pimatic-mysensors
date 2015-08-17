@@ -422,7 +422,6 @@ module.exports = (env) ->
 
     getPresence: -> Promise.resolve @_presence
 
-
   class MySensorsButton extends env.devices.ContactSensor
 
     constructor: (@config,lastState,@board) ->
