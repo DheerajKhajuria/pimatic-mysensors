@@ -709,7 +709,7 @@ module.exports = (env) ->
           if result.sensor is  @config.sensorid
             env.logger.info "<- MySensorsLevel" , result
             if result.type is V_LEVEL
-              @_distance = parseInt(result.value)
+              @_level = parseInt(result.value)
               @emit "level", @_level
       )
       super()
