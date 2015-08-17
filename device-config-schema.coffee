@@ -207,7 +207,7 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
-      units:
+      unit:
         description: "unit"
         format: "string"
         default: "%"
