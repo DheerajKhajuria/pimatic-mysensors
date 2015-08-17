@@ -411,18 +411,19 @@ module.exports = (env) ->
             @_setPresence(no)
           else
             @_setPresence(yes)
-         if @config.autoReset is true
-              clearTimeout(@_resetPresenceTimeout)
-              @_resetPresenceTimeout = setTimeout(( =>
-                @_setPresence(no)
-              ), @config.resetTime)
+          if @config.autoReset is true
+            clearTimeout(@_resetPresenceTimeout)
+            @_resetPresenceTimeout = setTimeout(( =>
+              @_setPresence(no)
+            ), @config.resetTime)
       )
+
       super()
 
-    getPresence: -> Promise.resolve @_presence    
+    getPresence: -> Promise.resolve @_presence
 
 
-   class MySensorsButton extends env.devices.ContactSensor
+  class MySensorsButton extends env.devices.ContactSensor
 
     constructor: (@config,lastState,@board) ->
       @id = config.id
