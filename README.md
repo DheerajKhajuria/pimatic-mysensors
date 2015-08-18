@@ -187,7 +187,7 @@ This is the basic sensor with only temperature
       "sensorid": 2
   }
 ```
-*  Lux sensor ( 0 to 10000+ )
+*  Lux sensor ( lux )
 ```
   {
       "id": "Lux",
