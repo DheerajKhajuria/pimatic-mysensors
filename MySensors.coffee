@@ -621,7 +621,7 @@ module.exports = (env) ->
             env.logger.info "<- MySensorsLux" , result
             if result.type is V_LIGHT_LEVEL or V_LEVEL
               @_lux = parseInt(result.value)
-              @emit "light", @_lux
+              @emit "lux", @_lux
       )
       super()
 
