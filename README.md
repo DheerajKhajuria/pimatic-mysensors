@@ -17,6 +17,7 @@ Controllers
   * Dimmer 
   * Distance
   * Light Sensor 
+  * Lux Sensor
   * Gas Sensor ( ppm )
   * PulseMeter ( experimental only support wattage/Ampere )
   * Battery level  of multiple sensors
@@ -184,6 +185,17 @@ This is the basic sensor with only temperature
       "nodeid": 15,
       "batterySensor": true,
       "sensorid": 2
+  }
+```
+*  Lux sensor ( 0 to 10000+ )
+```
+  {
+      "id": "Lux",
+      "name": "Lux",
+      "class": "MySensorsLux",
+      "nodeid": 16,
+      "batterySensor": true,
+      "sensorid": 1
   }
 ```
 *  Gas sensor ( ppm )
