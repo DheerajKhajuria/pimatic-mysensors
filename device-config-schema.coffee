@@ -220,4 +220,14 @@ module.exports = {
         type: "boolean"
         default: no
     }
+  MySensorsMulti:  {
+    title: "MySensorsMulti config options"
+    type: "object"
+    extensions: ["xLink","xAttributeOptions"]
+    properties:
+      attributes:
+        description: "Attributes of the device"
+        type: "array"
+
+  }
 }   

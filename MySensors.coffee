@@ -84,6 +84,7 @@ module.exports = (env) ->
         MySensorsDistance
         MySensorsGas
         MySensorsLevel
+        MySensorsMulti
       ]
 
       for Cl in deviceClasses
@@ -122,10 +123,10 @@ module.exports = (env) ->
       }
 
       @attributes.humidity = {
-          description: "the messured humidity"
-          type: "number"
-          unit: '%'
-          acronym: 'RH'
+        description: "the messured humidity"
+        type: "number"
+        unit: '%'
+        acronym: 'RH'
       }
 
       @attributes.battery = {
@@ -716,6 +717,81 @@ module.exports = (env) ->
 
     getLevel: -> Promise.resolve @_level
     getBattery: -> Promise.resolve @_batterystat
+
+  class MySensorsMulti extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+
+      @_temperature = lastState?.temperature?.value
+      @_humidity = lastState?.humidity?.value
+      @_moisture = lastState?.moisture?.value
+
+      @attributes = {}
+      # initialise all attributes
+      for attr, i in @config.attributes
+        do (attr) =>
+          name = attr.name
+          assert name in [
+              "temperature",
+              "humidity",
+              "moisture"
+            ]
+
+          @attributes[name] = {
+            description: name
+            unit : attr.unit
+            acronym: attr.acronym
+          }
+
+          switch name
+            when "temperature"
+              @attributes[name].type = "number"
+
+            when "humidity"
+              @attributes[name].type = "number"
+
+            when "moisture"
+              @attributes[name].type = "number"
+
+            else
+              throw new Error("Illegal attribute name: #{name} in MysSensorsMulti device.")
+
+      @board.on("rfValue", (result) =>
+        for attr, i in @config.attributes
+          do (attr) =>
+            name = attr.name
+            if result.sender is attr.nodeid
+              if result.sensor is  attr.sensorid
+                env.logger.info "<- MySensorsMulti" , result
+                switch name
+                  when "temperature"
+                    if result.type is V_TEMP
+                      @_temperatue = parseFloat(result.value)
+                      @_setAttribute "temperature", @_temperatue
+
+                  when "humidity"
+                    if result.type is V_HUM
+                      #env.logger.info  "humidity" , result.value
+                      @_humidity = Math.round(parseFloat(result.value))
+                      @_setAttribute "humidity", @_humidity
+
+                  when "moisture"
+                    if result.type is V_LEVEL
+                      @_moisture = parseInt(result.value)
+                      @_setAttribute "moisture", @_moisture
+      )
+      super()
+
+    _setAttribute: (attributeName, value) ->
+      unless @[attributeName] is value
+        @[attributeName] = value
+        @emit attributeName, value
+
+    getTemperature: -> Promise.resolve @_temperature
+    getHumidity: -> Promise.resolve @_humidity
+    getMoisture: -> Promise.resolve @_moisture
 
   class MySensorsBattery extends env.devices.Device
 
