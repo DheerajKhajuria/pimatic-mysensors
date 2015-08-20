@@ -746,12 +746,9 @@ module.exports = (env) ->
             if result.sender is attr.nodeid
               if result.sensor is  attr.sensorid
                 env.logger.info "<- MySensorsMulti" , result
-
-                if result.type is attr.sensortype
-                  value = parseFloat(result.value)
-                  @attributeValue[name] = value
-                  @emit name, value
-
+                value = parseFloat(result.value)
+                @attributeValue[name] = value
+                @emit name, value
       )
       super()
 
@@ -759,7 +756,6 @@ module.exports = (env) ->
       unless @[attributeName] is value
         @[attributeName] = value
         @emit attributeName, value
-
 
   class MySensorsBattery extends env.devices.Device
 
