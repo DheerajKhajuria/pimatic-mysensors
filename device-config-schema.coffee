@@ -228,6 +228,36 @@ module.exports = {
       attributes:
         description: "Attributes of the device"
         type: "array"
+        default: []
+        format: "table"
+        items:
+          type: "object"
+          required: ["name", "nodeid", "sensorid", "sensortype", "valuetype", "acronym", "unit"]
+          properties:
+            name:
+              description: "Name for the corresponding attribute."
+              type: "string"
+            nodeid:
+              description: "The unique id of the node that sends or should receive the message"
+              type: "number"
+            sensorid:
+              description: "This is the child-sensor-id that uniquely identifies one attached sensor"
+              type: "number"
+            sensortype:
+              description: "The type of sensor"
+              type: "number"
+            valuetype:
+              description: "The type of the value."
+              type: "string"
+              default: "number"
+              enum: ["string", "number"]
+            acronym:
+              description: "Acronym to show as value label in the frontend"
+              type: "string"
+            unit:
+              description: "The unit to show in the frontend."
+              type: "string"
+
 
   }
 }   
