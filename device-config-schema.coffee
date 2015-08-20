@@ -246,8 +246,8 @@ module.exports = {
             valuetype:
               description: "The type of the value."
               type: "string"
-              default: "number"
-              enum: ["string", "number", "boolean"]
+              default: "integer"
+              enum: ["integer", "float", "round", "boolean", "string"]
             acronym:
               description: "Acronym to show as value label in the frontend"
               type: "string"

@@ -734,8 +734,22 @@ module.exports = (env) ->
             description: name
             unit : attr.unit
             acronym: attr.acronym
-            type: attr.valuetype
+
           }
+          switch attr.valuetype
+            when "integer"
+              @attributes[name].type = "number"
+            when "float"
+              @attributes[name].type = "number"
+            when "round"
+              @attributes[name].type = "number"
+            when "boolean"
+              @attributes[name].type = "boolean"
+            when "string"
+              @attributes[name].type = "string"
+            else
+              throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
+
           @attributeValue[name] = lastState?[name]?.value
           @_createGetter name, ( => Promise.resolve @attributeValue[name] )
 
@@ -746,7 +760,23 @@ module.exports = (env) ->
             if result.sender is attr.nodeid
               if result.sensor is  attr.sensorid
                 env.logger.info "<- MySensorsMulti" , result
-                value = parseFloat(result.value)
+                switch attr.valuetype
+                  when "integer"
+                    value = parseInt(result.value)
+                  when "float"
+                    value = parseFloat(result.value)
+                  when "round"
+                    value = Math.round(parseFloat(result.value))
+                  when "boolean"
+                    if result.value is "0"
+                      value = false
+                    else
+                      value = true
+                  when "string"
+                    value = result.value
+                  else
+                    throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
+
                 @attributeValue[name] = value
                 @emit name, value
       )
