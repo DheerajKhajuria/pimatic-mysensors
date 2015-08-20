@@ -103,11 +103,6 @@ module.exports = (env) ->
           return device
         })
 
-      _createGetter: (attributeName, fn) ->
-        getterName = 'get' + attributeName[0].toUpperCase() + attributeName.slice(1)
-        @[getterName] = fn
-        return
-
   class MySensorsDHT extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
@@ -729,18 +724,21 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
 
+      @attributeValue = {}
       @attributes = {}
       # initialise all attributes
       for attr, i in @config.attributes
         do (attr) =>
           name = attr.name
-
+          @[name] = 180
           @attributes[name] = {
             description: name
             unit : attr.unit
             acronym: attr.acronym
             type: attr.valuetype
           }
+          @attributeValue[name] = 0
+          @_createGetter name, ( => Promise.resolve @attributeValue[name] )
 
       @board.on("rfValue", (result) =>
         for attr, i in @config.attributes
@@ -751,14 +749,11 @@ module.exports = (env) ->
                 env.logger.info "<- MySensorsMulti" , result
 
                 if result.type is attr.sensortype
-                  @_value = parseFloat(result.value)
-                  @_setAttribute name, @_value
+                  value = parseFloat(result.value)
+                  @attributeValue[name] = value
+                  @emit name, value
 
       )
-      for attr, i in @config.attributes
-        do (attr) =>
-          name = attr.name
-          @_createGetter(name, Promise.resolve @[name])
       super()
 
     _setAttribute: (attributeName, value) ->
