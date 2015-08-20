@@ -730,14 +730,13 @@ module.exports = (env) ->
       for attr, i in @config.attributes
         do (attr) =>
           name = attr.name
-          @[name] = 180
           @attributes[name] = {
             description: name
             unit : attr.unit
             acronym: attr.acronym
             type: attr.valuetype
           }
-          @attributeValue[name] = 0
+          @attributeValue[name] = lastState?[name]?.value
           @_createGetter name, ( => Promise.resolve @attributeValue[name] )
 
       @board.on("rfValue", (result) =>
