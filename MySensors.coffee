@@ -87,11 +87,6 @@ module.exports = (env) ->
         MySensorsMulti
       ]
 
-      _createGetter: (attributeName, fn) ->
-        getterName = 'get' + attributeName[0].toUpperCase() + attributeName.slice(1)
-        @[getterName] = fn
-        return
-
       for Cl in deviceClasses
         do (Cl) =>
           @framework.deviceManager.registerDeviceClass(Cl.name, {
@@ -107,6 +102,11 @@ module.exports = (env) ->
           device  =  new MySensorsBattery(config,lastState, @board,@framework)
           return device
         })
+
+      _createGetter: (attributeName, fn) ->
+        getterName = 'get' + attributeName[0].toUpperCase() + attributeName.slice(1)
+        @[getterName] = fn
+        return
 
   class MySensorsDHT extends env.devices.TemperatureSensor
 
@@ -755,6 +755,10 @@ module.exports = (env) ->
                   @_setAttribute name, @_value
 
       )
+      for attr, i in @config.attributes
+        do (attr) =>
+          name = attr.name
+          @_createGetter(name, Promise.resolve @[name])
       super()
 
     _setAttribute: (attributeName, value) ->
@@ -762,10 +766,6 @@ module.exports = (env) ->
         @[attributeName] = value
         @emit attributeName, value
 
-    for attr, i in @config.attributes
-      do (attr) =>
-        name = attr.name
-        @_createGetter(name, Promise.resolve @[name])
 
   class MySensorsBattery extends env.devices.Device
 
