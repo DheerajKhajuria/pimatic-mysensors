@@ -734,6 +734,7 @@ module.exports = (env) ->
             description: name
             unit : attr.unit
             acronym: attr.acronym
+            label : attr.label
           }
           switch attr.valuetype
             when "integer"
@@ -744,6 +745,8 @@ module.exports = (env) ->
               @attributes[name].type = "number"
             when "boolean"
               @attributes[name].type = "boolean"
+              if _.isArray attr.labels
+                @attributes[name].labels = attr.booleanlabels
             when "string"
               @attributes[name].type = "string"
             when "battery"
@@ -793,7 +796,6 @@ module.exports = (env) ->
                 value =  parseInt(result.value)
                 @_setAttribute name, value
       )
-
       super()
 
     _setAttribute: (attributeName, value) ->

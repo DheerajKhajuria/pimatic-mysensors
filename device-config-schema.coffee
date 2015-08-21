@@ -248,11 +248,17 @@ module.exports = {
               type: "string"
               default: "integer"
               enum: ["integer", "float", "round", "boolean", "string", "battery"]
+            booleanlabels:
+              description: "The display value of a boolean valuetype"
+              type: "string"
             acronym:
               description: "Acronym to show as value label in the frontend"
               type: "string"
             unit:
               description: "The unit to show in the frontend."
+              type: "string"
+            label:
+              description: "Change the default variable name to this value."
               type: "string"
   }
 }   
