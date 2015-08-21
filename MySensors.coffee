@@ -745,7 +745,7 @@ module.exports = (env) ->
               @attributes[name].type = "number"
             when "boolean"
               @attributes[name].type = "boolean"
-              if _.isArray attr.labels
+              if _.isArray attr.booleanlabels
                 @attributes[name].labels = attr.booleanlabels
             when "string"
               @attributes[name].type = "string"
