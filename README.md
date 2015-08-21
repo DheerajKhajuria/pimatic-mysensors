@@ -211,3 +211,99 @@ This is the basic sensor with only temperature
   }
   
 ```  
+* Multi sensor 
+
+This device works a little bit different then the other devices. You can add multiple (or just one, if you like to) sensors to this device, even from different nodes.
+
+You have to give the sensor a name, a type of value that the sensor sends, the nodeid of the sensor and if the sensor is not a battery, then you should also supply the sensorid of the sensor.
+
+##### Attributes:
+
+You should give the sensor an unique **name** 
+
+The **nodeid** should be the nodeid of the MySensors sensor
+
+The **sensorid** should be the sensorid of the MySensors sensor. Don't use this if the valuetype is 'battery'. Then you should only provide a nodeid.
+
+The **valuetype** can be one of the following:
+- **integer (integers are your primary data-type for number storage)
+- **float** (datatype for floating-point numbers, a number that has a decimal point)
+- **round** (rounds the received value to the nearest integer)
+- **boolean** (true or false)
+- **string** (text)
+- **battery** (if you want to receive a battery percentage from a node)
+
+**booleanlabels** should only be provided if the valuetype is 'boolean'. Instead of true or false, it will use the text from this array.
+
+You can provide an **acronym**, if you want to display a text before the received value.
+ 
+**unit** can be set to display a text after the received value (lux, %, °C etc).
+
+When you don't set a **label**, then it uses the **name** that you have provided for the sensor. If you don't want that, you can provide a **label**.
+
+
+##### Example:
+
+```
+    {
+          "class": "MySensorsMulti",
+          "id": "multi",
+          "name": "Multi Sensor",
+          "attributes": [
+            {
+              "name": "temperature",
+              "nodeid": 4,
+              "sensorid": 1,
+              "valuetype": "float",
+              "acronym": "T",
+              "unit": "°C"
+            },
+            {
+              "name": "humidity",
+              "nodeid": 4,
+              "sensorid": 2,
+              "valuetype": "round",
+              "acronym": "H",
+              "unit": "%"
+            },
+            {
+              "name": "moisture",
+              "nodeid": 4,
+              "sensorid": 0,
+              "valuetype": "integer",
+              "acronym": "M",
+              "unit": "%",
+              "label": "ilikepimaticandmysensors"
+            },
+            {
+              "name": "pir",
+              "nodeid": 9,
+              "sensorid": 2,
+              "valuetype": "boolean",
+              "booleanlabels": [
+                "Movement",
+                "No movement"
+              ],
+              "acronym": "PIR"
+            },
+            {
+              "name": "battery",
+              "nodeid": 4,
+              "valuetype": "battery",
+              "acronym": "Battery",
+              "unit": "%"
+            }
+          ]
+        }
+```
+
+![MySensorsMulti example](https://raw.githubusercontent.com/PascalLaurens/pimatic-mysensors/master/screenshots/MySensorsMultiExample.png)
+
+In the example above, you can see that the MySensorsMulti class is used.
+- Temperature has a nodeid of 4 and an sensorid of 1. Because the temperature has a decimal number, I used 'float' as valuetype. 'T' is displayed before the value and '°C' after the value.
+- Humidity has a nodeid of 4 and an sensorid of 2. I used 'round' as valuetype, so the received valuetype will be rounded to the nearest integer. 'H' is displayed before the value and '%' after the value.
+- Moisture has a nodeid of 4 and an sensorid of 0. I used 'integer' as valuetype, because my MySensors sketch also sends an integer. 'M' is displayed before the value and '%' after the value. In the picture you can see that if I click the value, it displays 'ilikepimaticandmysensors', instead of 'moisture'.
+- Pir has a different nodeid. It uses 9 as nodeid and 2 as sensorid. Because it has a valuetype of 'boolean', it normally displays 'true' or 'false', but because I provided the booleanlabels, it displays 'Movement' or 'No movement'.
+- Battery is the battery percentage of the battery from nodeid 4. It displays 'Battery' before the value and '%' after the value.
+
+You can also use other sensors. As long as they support the available value types (integer, float, round, boolean, string or battery). You can't for example use this device as a switch. 

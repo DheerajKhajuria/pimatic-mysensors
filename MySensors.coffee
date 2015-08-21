@@ -726,7 +726,7 @@ module.exports = (env) ->
 
       @attributeValue = {}
       @attributes = {}
-      # initialise all attributes
+      # loop trough all attributes in the config  and initialise all attributes
       for attr, i in @config.attributes
         do (attr) =>
           name = attr.name
@@ -756,14 +756,19 @@ module.exports = (env) ->
 
           @attributeValue[name] = lastState?[name]?.value
           @_createGetter name, ( => Promise.resolve @attributeValue[name] )
-
+      # when a mysensors value has been received
       @board.on("rfValue", (result) =>
+        # loop trough all attributes in the config
         for attr, i in @config.attributes
           do (attr) =>
             name = attr.name
+            # check if the received nodeid is the same as the nodeid in the config of the attribute
             if result.sender is attr.nodeid
+              # check if the received sensorid is the same as the sensorid in the config of the attribute
               if result.sensor is  attr.sensorid
                 env.logger.info "<- MySensorsMulti" , result
+
+                # Adjust the received value according to the valuetype that has been set in the config
                 switch attr.valuetype
                   when "integer"
                     value = parseInt(result.value)
@@ -779,21 +784,26 @@ module.exports = (env) ->
                   when "string"
                     value = result.value
                   when "battery"
+                    # You should not set a sensorid for a battery sensor
                     throw new Error("A battery doesn't need a sensorid: #{name} in MySensorsMulti.")
                   else
                     throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
 
+                # If the received value is different then the current value, it should be emitted
                 @_setAttribute name, value
       )
-
+      # when a battery percentage has been received
       @board.on("rfbattery", (result) =>
+        # loop trough all attributes in the config
         for attr, i in @config.attributes
           do (attr) =>
             name = attr.name
             valuetype = attr.valuetype
+            # if the attribute has a valuetype of battery and the received nodeid is the same as the nodeid in the config of the attribute
             if result.sender is attr.nodeid and valuetype is "battery"
               unless result.value is null or undefined
                 value =  parseInt(result.value)
+                # If the received value is different then the current value, it should be emitted
                 @_setAttribute name, value
       )
       super()
