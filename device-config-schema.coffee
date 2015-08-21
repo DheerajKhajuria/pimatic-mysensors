@@ -250,7 +250,7 @@ module.exports = {
               enum: ["integer", "float", "round", "boolean", "string", "battery"]
             booleanlabels:
               description: "The display value of a boolean valuetype"
-              type: "string"
+              type: "array"
             acronym:
               description: "Acronym to show as value label in the frontend"
               type: "string"
