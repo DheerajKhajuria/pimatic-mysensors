@@ -232,7 +232,7 @@ module.exports = {
         format: "table"
         items:
           type: "object"
-          required: ["name", "nodeid", "sensorid", "valuetype", "acronym", "unit"]
+          required: ["name", "nodeid", "valuetype"]
           properties:
             name:
               description: "Name for the corresponding attribute."
@@ -247,7 +247,7 @@ module.exports = {
               description: "The type of the value."
               type: "string"
               default: "integer"
-              enum: ["integer", "float", "round", "boolean", "string"]
+              enum: ["integer", "float", "round", "boolean", "string", "battery"]
             acronym:
               description: "Acronym to show as value label in the frontend"
               type: "string"

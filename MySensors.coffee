@@ -734,7 +734,6 @@ module.exports = (env) ->
             description: name
             unit : attr.unit
             acronym: attr.acronym
-
           }
           switch attr.valuetype
             when "integer"
@@ -747,6 +746,8 @@ module.exports = (env) ->
               @attributes[name].type = "boolean"
             when "string"
               @attributes[name].type = "string"
+            when "battery"
+              @attributes[name].type = "number"
             else
               throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
 
@@ -774,12 +775,25 @@ module.exports = (env) ->
                       value = true
                   when "string"
                     value = result.value
+                  when "battery"
+                    throw new Error("A battery doesn't need a sensorid: #{name} in MySensorsMulti.")
                   else
                     throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
 
-                @attributeValue[name] = value
-                @emit name, value
+                @_setAttribute name, value
       )
+
+      @board.on("rfbattery", (result) =>
+        for attr, i in @config.attributes
+          do (attr) =>
+            name = attr.name
+            valuetype = attr.valuetype
+            if result.sender is attr.nodeid and valuetype is "battery"
+              unless result.value is null or undefined
+                value =  parseInt(result.value)
+                @_setAttribute name, value
+      )
+
       super()
 
     _setAttribute: (attributeName, value) ->
