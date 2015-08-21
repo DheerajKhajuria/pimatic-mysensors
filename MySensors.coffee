@@ -83,7 +83,6 @@ module.exports = (env) ->
         MySensorsLight
         MySensorsDistance
         MySensorsGas
-        MySensorsLevel
         MySensorsMulti
       ]
 
