@@ -673,51 +673,6 @@ module.exports = (env) ->
     getGas: -> Promise.resolve @_gas
     getBattery: -> Promise.resolve @_batterystat
 
-  class MySensorsLevel extends env.devices.Device
-
-    constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
-      @_level = lastState?.level?.value
-      @_batterystat = lastState?.batterystat?.value
-      env.logger.info "MySensorsLevel " , @id , @name
-      @attributes = {}
-
-      @attributes.battery = {
-        description: "display the Battery level of Sensor"
-        type: "number"
-        unit: '%'
-        acronym: 'BATT'
-        hidden: !@config.batterySensor
-      }
-
-      @board.on("rfbattery", (result) =>
-        if result.sender is @config.nodeid
-          unless result.value is null or undefined
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
-      )
-
-      @attributes.level = {
-        description: "the level of moisture, dust, air quality, sound, vibration or light"
-        type: "number"
-        unit: @config.unit
-        acronym:  @config.acronym
-      }
-
-      @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is  @config.sensorid
-            env.logger.info "<- MySensorsLevel" , result
-            if result.type is V_LEVEL
-              @_level = parseInt(result.value)
-              @emit "level", @_level
-      )
-      super()
-
-    getLevel: -> Promise.resolve @_level
-    getBattery: -> Promise.resolve @_batterystat
-
   class MySensorsMulti extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
