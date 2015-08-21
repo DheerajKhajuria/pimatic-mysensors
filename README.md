@@ -226,7 +226,7 @@ The **nodeid** should be the nodeid of the MySensors sensor
 The **sensorid** should be the sensorid of the MySensors sensor. Don't use this if the valuetype is 'battery'. Then you should only provide a nodeid.
 
 The **valuetype** can be one of the following:
-- **integer (integers are your primary data-type for number storage)
+- **integer** (integers are your primary data-type for number storage)
 - **float** (datatype for floating-point numbers, a number that has a decimal point)
 - **round** (rounds the received value to the nearest integer)
 - **boolean** (true or false)
