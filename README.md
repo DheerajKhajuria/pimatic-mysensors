@@ -414,8 +414,7 @@ In the following example you can see that a lot of sensors are supported with th
           "sensorid": 10,
           "type": "integer",
           "acronym": "SoilMoistPercentageSensor: ",
-          "unit": "%",
-          "label": "BeerPercentage"
+          "unit": "%"
         },
         {
           "name": "MotionSensor",
