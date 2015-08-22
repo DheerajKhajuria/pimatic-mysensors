@@ -728,7 +728,7 @@ module.exports = (env) ->
                 receiveData = true
 
               if (receiveData)
-                env.logger.info "<- MySensorsMulti" , result
+                env.logger.debug "<- MySensorsMulti" , result
 
                 # Adjust the received value according to the type that has been set in the config
                 switch attr.type
