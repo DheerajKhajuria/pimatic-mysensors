@@ -225,6 +225,10 @@ The **nodeid** should be the nodeid of the MySensors sensor
 
 The **sensorid** should be the sensorid of the MySensors sensor. Don't use this if the type is 'battery'. Then you should only provide a nodeid.
 
+If multiple sensors are using the same sensorid, you can specify a **sensortype**. The PressureSensor Example Arduino sketch from MySensors uses V_PRESSURE to send the pressure and V_FORECAST to send the forecast. They are both send with the same sensorid (MySensor calls it child-sensor-id). 
+You can see in the documentation of the MySensors library (http://www.mysensors.org/download/serial_api_15, under 'set, req') that V_PRESSURE has a value of 4, so the **sensortype** is 4. V_FORECAST has a value of 5, so the **sensortype** should be 5.
+
+
 The **type** can be one of the following:
 - **integer** (integers are your primary data-type for number storage)
 - **float** (datatype for floating-point numbers, a number that has a decimal point)
@@ -242,7 +246,7 @@ You can provide an **acronym**, if you want to display a text before the receive
 When you don't set a **label**, then it uses the **name** that you have provided for the sensor. If you don't want that, you can provide a **label**.
 
 
-##### Example:
+##### Example 1:
 
 ```
     {
@@ -307,3 +311,142 @@ In the example above, you can see that the MySensorsMulti class is used.
 - Battery is the battery percentage of the battery from nodeid 4. It displays 'Battery' before the value and '%' after the value.
 
 You can also use other sensors. As long as they support the available value types (integer, float, round, boolean, string or battery). You can't for example use this device as a switch. 
+
+##### Example 2:
+
+In the following example you can see that a lot of sensors are supported with the MySensorsMulti class. The pressure and forecast are both being send with sensorid 12, so I used the sensortype to separate them.
+
+```
+"devices": [
+    {
+      "class": "MySensorsMulti",
+      "id": "multi2",
+      "name": "Multi Sensor",
+      "attributes": [
+        {
+          "name": "BinarySwitch",
+          "nodeid": 1,
+          "sensorid": 0,
+          "type": "boolean",
+          "booleanlabels": [
+            "Open",
+            "Closed"
+          ],
+          "acronym": "BinarySwitch: "
+        },
+        {
+          "name": "DimmableLED",
+          "nodeid": 1,
+          "sensorid": 1,
+          "type": "integer",
+          "acronym": "DimmableLED: ",
+          "unit": "%"
+        },
+        {
+          "name": "DistanceSensor",
+          "nodeid": 1,
+          "sensorid": 2,
+          "type": "integer",
+          "acronym": "DistanceSensor: ",
+          "unit": "cm"
+        },
+        {
+          "name": "DustSensor",
+          "nodeid": 1,
+          "sensorid": 3,
+          "type": "integer",
+          "acronym": "DustSensor: "
+        },
+        {
+          "name": "AirQualitySensor",
+          "nodeid": 1,
+          "sensorid": 4,
+          "type": "integer",
+          "acronym": "AirQualitySensor: ",
+          "unit": "ppm"
+        },
+        {
+          "name": "HumiditySensor",
+          "nodeid": 1,
+          "sensorid": 5,
+          "type": "float",
+          "acronym": "HumiditySensor: ",
+          "unit": "%"
+        },
+        {
+          "name": "TemperatureSensor",
+          "nodeid": 1,
+          "sensorid": 6,
+          "type": "float",
+          "acronym": "TemperatureSensor: ",
+          "unit": "°C"
+        },
+        {
+          "name": "LightSensor",
+          "nodeid": 1,
+          "sensorid": 7,
+          "type": "integer",
+          "acronym": "LightSensor: ",
+          "unit": "%"
+        },
+        {
+          "name": "LightLuxSensor",
+          "nodeid": 1,
+          "sensorid": 8,
+          "type": "integer",
+          "acronym": "LightLuxSensor: ",
+          "unit": "lx"
+        },
+        {
+          "name": "SoilMoistSensor",
+          "nodeid": 1,
+          "sensorid": 9,
+          "type": "boolean",
+          "booleanlabels": [
+            "Needs Water",
+            "Water enough"
+          ],
+          "acronym": "SoilMoistSensor: "
+        },
+        {
+          "name": "SoilMoistPercentageSensor",
+          "nodeid": 1,
+          "sensorid": 10,
+          "type": "integer",
+          "acronym": "SoilMoistPercentageSensor: ",
+          "unit": "%",
+          "label": "BeerPercentage"
+        },
+        {
+          "name": "MotionSensor",
+          "nodeid": 1,
+          "sensorid": 11,
+          "type": "boolean",
+          "booleanlabels": [
+            "Movement",
+            "No movement"
+          ],
+          "acronym": "MotionSensor: "
+        },
+        {
+          "name": "PressureSensor",
+          "nodeid": 1,
+          "sensorid": 12,
+          "sensortype": 4,
+          "type": "integer",
+          "acronym": "PressureSensor: ",
+          "unit": "hPa"
+        },
+        {
+          "name": "ForecastSensor",
+          "nodeid": 1,
+          "sensorid": 12,
+          "sensortype": 5,
+          "type": "string",
+          "acronym": "ForecastSensor: "
+        }
+      ]
+    }
+ ```
+ 
+ ![MySensorsMulti example 2](https://raw.githubusercontent.com/PascalLaurens/pimatic-mysensors/master/screenshots/MySensorsMultiExample2.png)
