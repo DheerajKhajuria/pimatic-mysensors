@@ -208,7 +208,7 @@ module.exports = {
         format: "table"
         items:
           type: "object"
-          required: ["name", "nodeid", "valuetype"]
+          required: ["name", "nodeid", "type"]
           properties:
             name:
               description: "Name for the corresponding attribute."
@@ -219,7 +219,10 @@ module.exports = {
             sensorid:
               description: "This is the child-sensor-id that uniquely identifies one attached sensor"
               type: "number"
-            valuetype:
+            sensortype:
+              description: "The type of the sensor"
+              type: "number"
+            type:
               description: "The type of the value."
               type: "string"
               default: "integer"

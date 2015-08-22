@@ -223,9 +223,9 @@ You should give the sensor an unique **name**
 
 The **nodeid** should be the nodeid of the MySensors sensor
 
-The **sensorid** should be the sensorid of the MySensors sensor. Don't use this if the valuetype is 'battery'. Then you should only provide a nodeid.
+The **sensorid** should be the sensorid of the MySensors sensor. Don't use this if the type is 'battery'. Then you should only provide a nodeid.
 
-The **valuetype** can be one of the following:
+The **type** can be one of the following:
 - **integer** (integers are your primary data-type for number storage)
 - **float** (datatype for floating-point numbers, a number that has a decimal point)
 - **round** (rounds the received value to the nearest integer)
@@ -233,7 +233,7 @@ The **valuetype** can be one of the following:
 - **string** (text)
 - **battery** (if you want to receive a battery percentage from a node)
 
-**booleanlabels** should only be provided if the valuetype is 'boolean'. Instead of true or false, it will use the text from this array.
+**booleanlabels** should only be provided if the type is 'boolean'. Instead of true or false, it will use the text from this array.
 
 You can provide an **acronym**, if you want to display a text before the received value.
  
@@ -254,7 +254,7 @@ When you don't set a **label**, then it uses the **name** that you have provided
               "name": "temperature",
               "nodeid": 4,
               "sensorid": 1,
-              "valuetype": "float",
+              "type": "float",
               "acronym": "T",
               "unit": "°C"
             },
@@ -262,7 +262,7 @@ When you don't set a **label**, then it uses the **name** that you have provided
               "name": "humidity",
               "nodeid": 4,
               "sensorid": 2,
-              "valuetype": "round",
+              "type": "round",
               "acronym": "H",
               "unit": "%"
             },
@@ -270,7 +270,7 @@ When you don't set a **label**, then it uses the **name** that you have provided
               "name": "moisture",
               "nodeid": 4,
               "sensorid": 0,
-              "valuetype": "integer",
+              "type": "integer",
               "acronym": "M",
               "unit": "%",
               "label": "ilikepimaticandmysensors"
@@ -279,7 +279,7 @@ When you don't set a **label**, then it uses the **name** that you have provided
               "name": "pir",
               "nodeid": 9,
               "sensorid": 2,
-              "valuetype": "boolean",
+              "type": "boolean",
               "booleanlabels": [
                 "Movement",
                 "No movement"
@@ -289,7 +289,7 @@ When you don't set a **label**, then it uses the **name** that you have provided
             {
               "name": "battery",
               "nodeid": 4,
-              "valuetype": "battery",
+              "type": "battery",
               "acronym": "Battery",
               "unit": "%"
             }
@@ -300,10 +300,10 @@ When you don't set a **label**, then it uses the **name** that you have provided
 ![MySensorsMulti example](https://raw.githubusercontent.com/PascalLaurens/pimatic-mysensors/master/screenshots/MySensorsMultiExample.png)
 
 In the example above, you can see that the MySensorsMulti class is used.
-- Temperature has a nodeid of 4 and an sensorid of 1. Because the temperature has a decimal number, I used 'float' as valuetype. 'T' is displayed before the value and '°C' after the value.
-- Humidity has a nodeid of 4 and an sensorid of 2. I used 'round' as valuetype, so the received valuetype will be rounded to the nearest integer. 'H' is displayed before the value and '%' after the value.
-- Moisture has a nodeid of 4 and an sensorid of 0. I used 'integer' as valuetype, because my MySensors sketch also sends an integer. 'M' is displayed before the value and '%' after the value. In the picture you can see that if I click the value, it displays 'ilikepimaticandmysensors', instead of 'moisture'.
-- Pir has a different nodeid. It uses 9 as nodeid and 2 as sensorid. Because it has a valuetype of 'boolean', it normally displays 'true' or 'false', but because I provided the booleanlabels, it displays 'Movement' or 'No movement'.
+- Temperature has a nodeid of 4 and an sensorid of 1. Because the temperature has a decimal number, I used 'float' as type. 'T' is displayed before the value and '°C' after the value.
+- Humidity has a nodeid of 4 and an sensorid of 2. I used 'round' as type, so the received value will be rounded to the nearest integer. 'H' is displayed before the value and '%' after the value.
+- Moisture has a nodeid of 4 and an sensorid of 0. I used 'integer' as type, because my MySensors sketch also sends an integer. 'M' is displayed before the value and '%' after the value. In the picture you can see that if I click the value, it displays 'ilikepimaticandmysensors', instead of 'moisture'.
+- Pir has a different nodeid. It uses 9 as nodeid and 2 as sensorid. Because it has a type of 'boolean', it normally displays 'true' or 'false', but because I provided the booleanlabels, it displays 'Movement' or 'No movement'.
 - Battery is the battery percentage of the battery from nodeid 4. It displays 'Battery' before the value and '%' after the value.
 
 You can also use other sensors. As long as they support the available value types (integer, float, round, boolean, string or battery). You can't for example use this device as a switch. 

@@ -690,7 +690,7 @@ module.exports = (env) ->
             acronym: attr.acronym
             label : attr.label
           }
-          switch attr.valuetype
+          switch attr.type
             when "integer"
               @attributes[name].type = "number"
             when "float"
@@ -716,14 +716,22 @@ module.exports = (env) ->
         for attr, i in @config.attributes
           do (attr) =>
             name = attr.name
-            # check if the received nodeid is the same as the nodeid in the config of the attribute
-            if result.sender is attr.nodeid
-              # check if the received sensorid is the same as the sensorid in the config of the attribute
-              if result.sensor is  attr.sensorid
+            # check if the received nodeid and sensorid are the same as the nodeid and sensorid in the config of the attribute
+            if result.sender is attr.nodeid and result.sensor is attr.sensorid
+              receiveData = false
+              # if a sensortype has been provided
+              if attr.sensortype?
+                # check if the received sensortype is the same as the sensortype in the config of the attribute
+                if result.type is attr.sensortype
+                  receiveData = true
+              else
+                receiveData = true
+
+              if (receiveData)
                 env.logger.info "<- MySensorsMulti" , result
 
-                # Adjust the received value according to the valuetype that has been set in the config
-                switch attr.valuetype
+                # Adjust the received value according to the type that has been set in the config
+                switch attr.type
                   when "integer"
                     value = parseInt(result.value)
                   when "float"
@@ -752,9 +760,9 @@ module.exports = (env) ->
         for attr, i in @config.attributes
           do (attr) =>
             name = attr.name
-            valuetype = attr.valuetype
-            # if the attribute has a valuetype of battery and the received nodeid is the same as the nodeid in the config of the attribute
-            if result.sender is attr.nodeid and valuetype is "battery"
+            type = attr.type
+            # if the attribute has a type of battery and the received nodeid is the same as the nodeid in the config of the attribute
+            if result.sender is attr.nodeid and type is "battery"
               unless result.value is null or undefined
                 value =  parseInt(result.value)
                 # If the received value is different then the current value, it should be emitted
