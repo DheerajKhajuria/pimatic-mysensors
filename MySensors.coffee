@@ -764,6 +764,10 @@ module.exports = (env) ->
             # if the attribute has a type of battery and the received nodeid is the same as the nodeid in the config of the attribute
             if result.sender is attr.nodeid and type is "battery"
               unless result.value is null or undefined
+                # When the battery is to low, battery percentages higher then 100 could be send
+                if result.value > 100
+                  result.value = 0
+
                 env.logger.debug "<- MySensorsMulti" , result
                 value =  parseInt(result.value)
                 # If the received value is different then the current value, it should be emitted
