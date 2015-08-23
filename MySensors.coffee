@@ -764,6 +764,7 @@ module.exports = (env) ->
             # if the attribute has a type of battery and the received nodeid is the same as the nodeid in the config of the attribute
             if result.sender is attr.nodeid and type is "battery"
               unless result.value is null or undefined
+                env.logger.debug "<- MySensorsMulti" , result
                 value =  parseInt(result.value)
                 # If the received value is different then the current value, it should be emitted
                 @_setAttribute name, value
