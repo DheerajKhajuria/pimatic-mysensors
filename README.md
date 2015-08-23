@@ -317,7 +317,6 @@ You can also use other sensors. As long as they support the available value type
 In the following example you can see that a lot of sensors are supported with the MySensorsMulti class. The pressure and forecast are both being send with sensorid 12, so I used the sensortype to separate them.
 
 ```
-"devices": [
     {
       "class": "MySensorsMulti",
       "id": "multi2",
