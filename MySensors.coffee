@@ -139,6 +139,10 @@ module.exports = (env) ->
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
             @_batterystat =  parseInt(result.value)
             @emit "battery" , @_batterystat
       )
@@ -192,6 +196,10 @@ module.exports = (env) ->
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
             @_batterystat =  parseInt(result.value)
             @emit "battery" , @_batterystat
       )
@@ -251,6 +259,10 @@ module.exports = (env) ->
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
             @_batterystat =  parseInt(result.value)
             @emit "battery" , @_batterystat
       )
@@ -361,6 +373,10 @@ module.exports = (env) ->
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
             @_batterystat =  parseInt(result.value)
             @emit "battery" , @_batterystat
       )
@@ -444,6 +460,10 @@ module.exports = (env) ->
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
             @_batterystat =  parseInt(result.value)
             @emit "battery" , @_batterystat
       )
@@ -545,7 +565,6 @@ module.exports = (env) ->
       env.logger.info "MySensorsLight " , @id , @name
       @attributes = {}
 
-
       @attributes.battery = {
         description: "display the Battery level of Sensor"
         type: "number"
@@ -557,10 +576,13 @@ module.exports = (env) ->
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
             @_batterystat =  parseInt(result.value)
             @emit "battery" , @_batterystat
       )
-
 
       @attributes.light = {
         description: "the messured light"
@@ -591,7 +613,6 @@ module.exports = (env) ->
       env.logger.info "MySensorsDistance " , @id , @name
       @attributes = {}
 
-
       @attributes.battery = {
         description: "display the Battery level of Sensor"
         type: "number"
@@ -603,10 +624,13 @@ module.exports = (env) ->
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
             @_batterystat =  parseInt(result.value)
             @emit "battery" , @_batterystat
       )
-
 
       @attributes.distance = {
         description: "the messured distance"
@@ -637,7 +661,6 @@ module.exports = (env) ->
       env.logger.info "MySensorsGas " , @id , @name
       @attributes = {}
 
-
       @attributes.battery = {
         description: "display the Battery level of Sensor"
         type: "number"
@@ -649,6 +672,10 @@ module.exports = (env) ->
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
             @_batterystat =  parseInt(result.value)
             @emit "battery" , @_batterystat
       )
@@ -710,6 +737,7 @@ module.exports = (env) ->
 
           @attributeValue[name] = lastState?[name]?.value
           @_createGetter name, ( => Promise.resolve @attributeValue[name] )
+
       # when a mysensors value has been received
       @board.on("rfValue", (result) =>
         # loop trough all attributes in the config
@@ -729,7 +757,6 @@ module.exports = (env) ->
 
               if (receiveData)
                 env.logger.debug "<- MySensorsMulti" , result
-
                 # Adjust the received value according to the type that has been set in the config
                 switch attr.type
                   when "integer"
@@ -754,6 +781,7 @@ module.exports = (env) ->
                 # If the received value is different then the current value, it should be emitted
                 @_setAttribute name, value
       )
+
       # when a battery percentage has been received
       @board.on("rfbattery", (result) =>
         # loop trough all attributes in the config
@@ -764,11 +792,10 @@ module.exports = (env) ->
             # if the attribute has a type of battery and the received nodeid is the same as the nodeid in the config of the attribute
             if result.sender is attr.nodeid and type is "battery"
               unless result.value is null or undefined
+                env.logger.debug "<- MySensorsMulti" , result
                 # When the battery is to low, battery percentages higher then 100 could be send
                 if result.value > 100
                   result.value = 0
-
-                env.logger.debug "<- MySensorsMulti" , result
                 value =  parseInt(result.value)
                 # If the received value is different then the current value, it should be emitted
                 @_setAttribute name, value
@@ -809,6 +836,10 @@ module.exports = (env) ->
 
       @board.on("rfbattery", (result) =>
         unless result.value is null or undefined
+          # When the battery is to low, battery percentages higher then 100 could be send
+          if result.value > 100
+            result.value = 0
+
           @_batterystat[result.sender] =  parseInt(result.value)
           @emit "batteryLevel_" + result.sender, @_batterystat[result.sender]
       )
