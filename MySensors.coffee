@@ -81,6 +81,7 @@ module.exports = (env) ->
         MySensorsPulseMeter
         MySensorsButton
         MySensorsLight
+        MySensorsLux
         MySensorsDistance
         MySensorsGas
         MySensorsMulti
@@ -601,6 +602,53 @@ module.exports = (env) ->
       super()
 
     getLight: -> Promise.resolve @_light
+    getBattery: -> Promise.resolve @_batterystat
+  
+  class MySensorsLux extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+
+      @_lux = lastState?.lux?.value
+      @_batterystat = lastState?.batterystat?.value
+      #env.logger.info "MySensorsLux " , @id , @name
+      @attributes = {}
+
+
+      @attributes.battery = {
+        description: "display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        acronym: 'BATT'
+        hidden: !@config.batterySensor
+       }
+
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
+
+
+      @attributes.lux = {
+        description: "the messured light in lux"
+        type: "number"
+        unit: 'lux'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          if result.sensor is  @config.sensorid
+            env.logger.info "<- MySensorsLux" , result
+            if result.type is V_LIGHT_LEVEL or V_LEVEL
+              @_lux = parseInt(result.value)
+              @emit "lux", @_lux
+      )
+      super()
+
+    getLux: -> Promise.resolve @_lux   
     getBattery: -> Promise.resolve @_batterystat
 
   class MySensorsDistance extends env.devices.Device
