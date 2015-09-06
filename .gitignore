@@ -1,3 +1,6 @@
 node_modules
 doc/*
 .js
+
+## JetBrains directory-based project format:
+.idea/
