@@ -9,7 +9,6 @@
   "files": [
     "MySensors.coffee",
     "serialport.coffee",
-    "board.coffee",
     "README.md",
     "device-config-schema.coffee",
     "MySensors-config-schema.coffee",
