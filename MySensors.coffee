@@ -1100,8 +1100,8 @@ module.exports = (env) ->
       super()
 
     _setAttribute: (attributeName, value) ->
-      unless @[attributeName] is value
-        @[attributeName] = value
+      unless @attributeValue[attributeName] is value
+        @attributeValue[attributeName] = value
         @emit attributeName, value
 
   class MySensorsBattery extends env.devices.Device
