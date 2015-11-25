@@ -19,9 +19,9 @@ Controllers
   * Light Sensor 
   * Lux Sensor
   * Gas Sensor ( ppm )
-  * PulseMeter ( experimental only support wattage/Ampere )
-  * Battery level  of multiple sensors
-  * support for sending IR codes to mysensor node ( using Action Provider/Handler )
+  * PulseMeter ( wattage/Ampere )
+  * Multi Sensor support in one device.
+  * support for sending Custom Value msg to mysensor node ( using Action Provider/Handler )
   * more to be add.. :)
 
 Gateways
@@ -43,7 +43,7 @@ You can load the plugin by editing your config.json to include:
 {
       "plugin": "mysensors",
       "driver": "serialport",
-      "protocols": "1.4.1",
+      "protocols": "1.5.1",
       "startingNodeId": 1,
       "driverOptions": {
       "//": "'/dev/ttyUSBx' if using serial Gateway",
@@ -55,10 +55,9 @@ You can load the plugin by editing your config.json to include:
 in the plugins section. 
 
 ### Rules
-* For sending IR hex code to mysensors node use either "send Ir" or simply "Ir" command in action text box.
-  exp. Ir nodeid: "id" sensorid: "id" cmdcode: "0x342333"
-Note: uses V_IR_SEND type code to send IR command.
-  
+* Sending custom msg i.e V_VAR1 to V_VAR5 to mysensors node using "send custom "V_VAR1" nodeid: "id" sensorid: "id" cmdcode: "value"
+* For sending IR hex code to mysensors node use send custom "V_IR_SEND"  command in action text box.
+  exp. send custom "V_IR_SEND" nodeid: "id" sensorid: "id" cmdcode: "0x342333"
 
 
 ### Devices
@@ -253,7 +252,7 @@ The **type** can be one of the following:
 
 You can provide an **acronym**, if you want to display a text before the received value.
  
-**unit** can be set to display a text after the received value (lux, %, 캜 etc).
+**unit** can be set to display a text after the received value (lux, %, 째C etc).
 
 When you don't set a **label**, then it uses the **name** that you have provided for the sensor. If you don't want that, you can provide a **label**.
 
@@ -272,7 +271,7 @@ When you don't set a **label**, then it uses the **name** that you have provided
               "sensorid": 1,
               "type": "float",
               "acronym": "T",
-              "unit": "캜"
+              "unit": "째C"
             },
             {
               "name": "humidity",
@@ -316,7 +315,7 @@ When you don't set a **label**, then it uses the **name** that you have provided
 ![MySensorsMulti example](https://raw.githubusercontent.com/PascalLaurens/pimatic-mysensors/master/screenshots/MySensorsMultiExample.png)
 
 In the example above, you can see that the MySensorsMulti class is used.
-- Temperature has a nodeid of 4 and an sensorid of 1. Because the temperature has a decimal number, I used 'float' as type. 'T' is displayed before the value and '캜' after the value.
+- Temperature has a nodeid of 4 and an sensorid of 1. Because the temperature has a decimal number, I used 'float' as type. 'T' is displayed before the value and '째C' after the value.
 - Humidity has a nodeid of 4 and an sensorid of 2. I used 'round' as type, so the received value will be rounded to the nearest integer. 'H' is displayed before the value and '%' after the value.
 - Moisture has a nodeid of 4 and an sensorid of 0. I used 'integer' as type, because my MySensors sketch also sends an integer. 'M' is displayed before the value and '%' after the value. In the picture you can see that if I click the value, it displays 'ilikepimaticandmysensors', instead of 'moisture'.
 - Pir has a different nodeid. It uses 9 as nodeid and 2 as sensorid. Because it has a type of 'boolean', it normally displays 'true' or 'false', but because I provided the booleanlabels, it displays 'Movement' or 'No movement'.
@@ -390,7 +389,7 @@ In the following example you can see that a lot of sensors are supported with th
           "sensorid": 6,
           "type": "float",
           "acronym": "TemperatureSensor: ",
-          "unit": "캜"
+          "unit": "째C"
         },
         {
           "name": "LightSensor",
