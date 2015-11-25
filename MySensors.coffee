@@ -1144,25 +1144,40 @@ module.exports = (env) ->
 
   class MySensorsActionHandler extends env.actions.ActionHandler
 
-    constructor: (@framework,@board,@nodeid,@sensorid,@cmdcode) ->
+    constructor: (@framework,@board,@nodeid,@sensorid,@cmdcode,@customvalue) ->
 
     executeAction: (simulate) =>
       Promise.all( [
         @framework.variableManager.evaluateStringExpression(@nodeid)
         @framework.variableManager.evaluateStringExpression(@sensorid)
         @framework.variableManager.evaluateStringExpression(@cmdcode)
-      ]).then( ([node, sensor, Code]) =>
+        @framework.variableManager.evaluateStringExpression(@customvalue)
+      ]).then( ([node, sensor, code ,customvalue]) =>
         if simulate
           # just return a promise fulfilled with a description about what we would do.
           return __("would send IR \"%s\"", cmdCode)
         else
           datas = {}
+
+          switch customvalue
+            when "V_VAR1"
+              type_value = V_VAR1
+            when "V_VAR2"
+              type_value = V_VAR2
+            when "V_VAR3"
+              type_value = V_VAR3
+            when "V_VAR4"
+              type_value = V_VAR4
+            when "V_VAR5"
+              type_value = V_VAR5
+            else
+              type_value = V_IR_SEND
           datas =
           {
             "destination": node,
             "sensor": sensor,
-            "type"  : V_IR_SEND,
-            "value" : Code,
+            "type"  : type_value,
+            "value" : code,
             "ack"   : 1
           }
           return @board._rfWrite(datas).then ( () =>
@@ -1180,7 +1195,9 @@ module.exports = (env) ->
       nodeid = "0"
       sensorid = "0"
       fullMatch = no
+      CustomValue = "V_IR_SEND"
 
+      setTypeValue = (m, tokens) => CustomValue = tokens
       setCmdcode = (m, tokens) => cmdcode = tokens
       setSensorid = (m, tokens) => sensorid = tokens
       setNodeid = (m, tokens) => nodeid = tokens
@@ -1188,16 +1205,16 @@ module.exports = (env) ->
       onEnd = => fullMatch = yes
 
       m = M(input, context)
-        .match('send ', optional: yes)
-        .match('Ir')
+        .match('send ')
+        .match('custom ').matchStringWithVars(setTypeValue)
 
-      next = m.match(' nodeid:').matchStringWithVars(setNodeid)
+      next = m.match(' nodeid: ').matchStringWithVars(setNodeid)
       if next.hadMatch() then m = next
 
-      next = m.match(' sensorid:').matchStringWithVars(setSensorid)
+      next = m.match(' sensorid: ').matchStringWithVars(setSensorid)
       if next.hadMatch() then m = next
 
-      next = m.match(' cmdcode:').matchStringWithVars(setCmdcode)
+      next = m.match(' cmdcode: ').matchStringWithVars(setCmdcode)
       if next.hadMatch() then m = next
 
       if m.hadMatch()
@@ -1205,7 +1222,7 @@ module.exports = (env) ->
         return {
           token: match
           nextInput: input.substring(match.length)
-          actionHandler: new MySensorsActionHandler(@framework,@board,nodeid,sensorid,cmdcode)
+          actionHandler: new MySensorsActionHandler(@framework,@board,nodeid,sensorid,cmdcode,CustomValue)
         }
       else
         return null
