@@ -401,13 +401,13 @@ module.exports = (env) ->
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
             if result.sensor is sensorid
-              env.logger.info "<- MySensorDHT " , result
+              env.logger.debug "<- MySensorDHT " , result
               if result.type is V_TEMP
-                #env.logger.info  "temp" , result.value
+                #env.logger.debug  "temp" , result.value
                 @_temperatue = parseFloat(result.value)
                 @emit "temperature", @_temperatue
               if result.type is V_HUM
-                #env.logger.info  "humidity" , result.value
+                #env.logger.debug  "humidity" , result.value
                 @_humidity = Math.round(parseFloat(result.value))
                 @emit "humidity", @_humidity
       )
@@ -474,7 +474,7 @@ module.exports = (env) ->
       @_pressure = lastState?.pressure?.value
       @_forecast = lastState?.forecast?.value
       @_batterystat = lastState?.batterystat?.value
-      env.logger.info "MySensorsBMP " , @id , @name
+      env.logger.debug "MySensorsBMP " , @id , @name
 
       @attributes = {}
 
@@ -521,17 +521,17 @@ module.exports = (env) ->
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
             if result.sensor is sensorid
-              env.logger.info "<- MySensorBMP " , result
+              env.logger.debug "<- MySensorBMP " , result
               if result.type is V_TEMP
-                #env.logger.info  "temp" , result.value
+                #env.logger.debug  "temp" , result.value
                 @_temperatue = parseInt(result.value)
                 @emit "temperature", @_temperatue
               if result.type is V_PRESSURE
-                #env.logger.info  "pressure" , result.value
+                #env.logger.debug  "pressure" , result.value
                 @_pressure = parseInt(result.value)
                 @emit "pressure", @_pressure
               if result.type is V_FORECAST
-                #env.logger.info  "forecast" , result.value
+                #env.logger.debug  "forecast" , result.value
                 @_forecast = result.value
                 @emit "forecast", @_forecast
 
@@ -556,7 +556,7 @@ module.exports = (env) ->
       @_pulsecount = lastState?.pulsecount?.value
       @_batterystat = lastState?.batterystat?.value
 
-      env.logger.info "MySensorsPulseMeter " , @id , @name
+      env.logger.debug "MySensorsPulseMeter " , @id , @name
 
       @attributes = {}
 
@@ -586,7 +586,7 @@ module.exports = (env) ->
         @_kwh = (@_avgkw * (@_tickcount * 10)) / 3600
         @_tickcount = 0
         @_totalkw  = 0
-        env.logger.info  "calculatekwh.." , @kwh
+        env.logger.debug  "calculatekwh.." , @kwh
         @emit "kWh", @_kwh
       )
 
@@ -634,7 +634,7 @@ module.exports = (env) ->
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           if result.sensor is @config.sensorid
-            env.logger.info "<- MySensorsPulseMeter" , result
+            env.logger.debug "<- MySensorsPulseMeter" , result
             if result.type is V_VAR1
               env.logger.debug "<- MySensorsPulseMeter V_VAR1"
               @_pulsecount = parseInt(result.value)
@@ -665,7 +665,7 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
       @_presence = lastState?.presence?.value or false
-      env.logger.info "MySensorsPIR " , @id , @name, @_presence
+      env.logger.debug "MySensorsPIR " , @id , @name, @_presence
 
       resetPresence = ( =>
         @_setPresence(no)
@@ -673,7 +673,7 @@ module.exports = (env) ->
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_TRIPPED and result.sensor is @config.sensorid
-          env.logger.info "<- MySensorPIR ", result
+          env.logger.debug "<- MySensorPIR ", result
           if result.value is ZERO_VALUE
             @_setPresence(no)
           else
@@ -695,7 +695,7 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
       @_contact = lastState?.contact?.value or false
-      env.logger.info "MySensorsButton" , @id , @name, @_contact
+      env.logger.debug "MySensorsButton" , @id , @name, @_contact
 
       @attributes = _.cloneDeep @attributes
 
@@ -720,7 +720,7 @@ module.exports = (env) ->
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is ( V_TRIPPED or V_STATUS ) and result.sensor is @config.sensorid
-          env.logger.info "<- MySensorsButton ", result
+          env.logger.debug "<- MySensorsButton ", result
           if result.value is ZERO_VALUE
             @_setContact(yes)
           else
@@ -736,12 +736,12 @@ module.exports = (env) ->
       @id = config.id
       @name = config.name
       @_state = lastState?.state?.value
-      env.logger.info "MySensorsSwitch " , @id , @name, @_state
+      env.logger.debug "MySensorsSwitch " , @id , @name, @_state
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_STATUS and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 1 then on else off)
-          env.logger.info "<- MySensorSwitch " , result
+          env.logger.debug "<- MySensorSwitch " , result
           @_setState(state)
         )
       super()
@@ -776,7 +776,7 @@ module.exports = (env) ->
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 0 then off else on)
           dimlevel = (result.value)
-          env.logger.info "<- MySensorDimmer " , result
+          env.logger.debug "<- MySensorDimmer " , result
           @_setState(state)
           @_setDimlevel(dimlevel)
         )
@@ -812,7 +812,7 @@ module.exports = (env) ->
 
       @_light = lastState?.light?.value
       @_batterystat = lastState?.batterystat?.value
-      env.logger.info "MySensorsLight " , @id , @name
+      env.logger.debug "MySensorsLight " , @id , @name
       @attributes = {}
 
       @attributes.battery = {
@@ -843,7 +843,7 @@ module.exports = (env) ->
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           if result.sensor is  @config.sensorid
-            env.logger.info "<- MySensorsLight" , result
+            env.logger.debug "<- MySensorsLight" , result
             if result.type is V_LIGHT_LEVEL
               @_light = parseInt(result.value)
               @emit "light", @_light
@@ -861,7 +861,7 @@ module.exports = (env) ->
 
       @_lux = lastState?.lux?.value
       @_batterystat = lastState?.batterystat?.value
-      #env.logger.info "MySensorsLux " , @id , @name
+      #env.logger.debug "MySensorsLux " , @id , @name
       @attributes = {}
 
 
@@ -890,7 +890,7 @@ module.exports = (env) ->
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           if result.sensor is  @config.sensorid
-            env.logger.info "<- MySensorsLux" , result
+            env.logger.debug "<- MySensorsLux" , result
             if result.type is V_LIGHT_LEVEL or V_LEVEL
               @_lux = parseInt(result.value)
               @emit "lux", @_lux
@@ -907,7 +907,7 @@ module.exports = (env) ->
       @name = config.name
       @_distance= lastState?.distance?.value
       @_batterystat = lastState?.batterystat?.value
-      env.logger.info "MySensorsDistance " , @id , @name
+      env.logger.debug "MySensorsDistance " , @id , @name
       @attributes = {}
 
       @attributes.battery = {
@@ -938,7 +938,7 @@ module.exports = (env) ->
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           if result.sensor is  @config.sensorid
-            env.logger.info "<- MySensorsDistance" , result
+            env.logger.debug "<- MySensorsDistance" , result
             if result.type is V_DISTANCE
               @_distance = parseInt(result.value)
               @emit "distance", @_distance
@@ -955,7 +955,7 @@ module.exports = (env) ->
       @name = config.name
       @_gas = lastState?.gas?.value
       @_batterystat = lastState?.batterystat?.value
-      env.logger.info "MySensorsGas " , @id , @name
+      env.logger.debug "MySensorsGas " , @id , @name
       @attributes = {}
 
       @attributes.battery = {
@@ -986,7 +986,7 @@ module.exports = (env) ->
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           if result.sensor is  @config.sensorid
-            env.logger.info "<- MySensorsGas" , result
+            env.logger.debug "<- MySensorsGas" , result
             if result.type is V_VAR1
               @_gas = parseInt(result.value)
               @emit "gas", @_gas
@@ -1109,7 +1109,7 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board,@framework) ->
       @id = config.id
       @name = config.name
-      env.logger.info "MySensorsBattery" , @id , @name
+      env.logger.debug "MySensorsBattery" , @id , @name
 
       @attributes = {}
       @_batterystat = {}
