@@ -328,6 +328,7 @@ module.exports = (env) ->
         MySensorsSwitch
         MySensorsDimmer
         MySensorsPulseMeter
+        MySensorsWaterMeter
         MySensorsButton
         MySensorsLight
         MySensorsLux
@@ -658,6 +659,100 @@ module.exports = (env) ->
     getKWh: -> Promise.resolve @_kwh
     getBattery: -> Promise.resolve @_batterystat
     getAmpere: -> Promise.resolve @_ampere
+
+  class MySensorsWaterMeter extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = config.id
+      @name = config.name
+
+      @_flow = lastState?.flow?.value
+      @_volume = lastState?.volume?.value
+      @_pulsecount = lastState?.pulsecount?.value
+      @_batterystat = lastState?.batterystat?.value
+
+      env.logger.debug "MySensorsWaterMeter " , @id , @name
+
+      @attributes = {}
+
+      @attributes.flow = {
+        description: "the messured water in m3 per minute"
+        type: "number"
+        unit: 'm3/m'
+        acronym: 'm3/m'
+      }
+
+      @attributes.pulsecount = {
+        description: "Measure the Pulse Count"
+        type: "number"
+        #unit: ''
+        hidden: yes
+      }
+
+      @attributes.volume = {
+        description: "the messured water in m3"
+        type: "number"
+        unit: 'm3'
+        acronym: 'm3'
+      }
+
+      @attributes.battery = {
+        description: "Display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        acronym: 'BATT'
+        hidden: !@config.batterySensor
+       }
+
+      @board.on("rfRequest", (result) =>
+        if result.sender is @config.nodeid
+          datas = {}
+          datas =
+          {
+            "destination": @config.nodeid,
+            "sensor": @config.sensorid,
+            "type"  : V_VAR1,
+            "value" : @_pulsecount,
+            "ack"   : 1
+          }
+          @board._rfWrite(datas)
+      )
+
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          if result.sensor is @config.sensorid
+              env.logger.debug "<- MySensorsWaterMeter" , result
+            if result.type is V_VAR1
+              env.logger.debug "<- MySensorsWaterMeter V_VAR1"
+              @_pulsecount = parseInt(result.value)
+              @emit "pulsecount", @_pulsecount
+            if result.type is V_FLOW
+              env.logger.debug "<- MySensorsWaterMeter V_FLOW"
+              @_flow = parseInt(result.value)
+              @emit "m3/m", @_flow
+            if result.type is V_VOLUME
+              env.logger.debug "<- MySensorsWaterMeter V_VOLUME"
+              @_volume = parseFloat(result.value)
+              @emit "m3", @_volume
+
+      )
+      super()
+
+    getFlow: -> Promise.resolve @_flow
+    getPulsecount: -> Promise.resolve @_pulsecount
+    getVolume: -> Promise.resolve @_volume
+    getBattery: -> Promise.resolve @_batterystat
 
   class MySensorsPIR extends env.devices.PresenceSensor
 
