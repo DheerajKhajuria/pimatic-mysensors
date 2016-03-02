@@ -676,7 +676,7 @@ module.exports = (env) ->
       @attributes = {}
 
       @attributes.flow = {
-        description: "the messured water in m3 per minute"
+        description: "the meassured water in liter per minute"
         type: "number"
         unit: 'l/min'
         acronym: 'Flow'
@@ -690,7 +690,7 @@ module.exports = (env) ->
       }
 
       @attributes.volume = {
-        description: "the messured water in m3"
+        description: "the meassured water in m3"
         type: "number"
         unit: 'm3'
         acronym: 'Total'
