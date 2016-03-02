@@ -740,11 +740,11 @@ module.exports = (env) ->
             if result.type is V_FLOW
               env.logger.debug "<- MySensorsWaterMeter V_FLOW"
               @_flow = parseInt(result.value)
-              @emit "m3/m", @_flow
+              @emit "flow", @_flow
             if result.type is V_VOLUME
               env.logger.debug "<- MySensorsWaterMeter V_VOLUME"
               @_volume = parseFloat(result.value)
-              @emit "m3", @_volume
+              @emit "volume", @_volume
 
       )
       super()
