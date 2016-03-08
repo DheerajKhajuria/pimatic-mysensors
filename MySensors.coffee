@@ -1063,7 +1063,7 @@ module.exports = (env) ->
                   when "round"
                     value = Math.round(parseFloat(result.value))
                   when "boolean"
-                    if result.value is "0"
+                    if parseInt(result.value) is 0
                       value = false
                     else
                       value = true
