@@ -1,4 +1,16 @@
 module.exports = {
+  MySensorsShutter: {
+    title: "MySensorsShutter config options"
+    type: "object"
+    extensions: ["xConfirm", "xLink"]
+    properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
+      sensorid:
+        description: "This is the child-sensor-id that uniquely identifies one attached sensor"
+        type: "number"
+    },
   title: "MySensors device config schemes"
   MySensorsDHT: {
     title: "MySensorsDHT config options"
