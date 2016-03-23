@@ -20,7 +20,7 @@ Controllers
   * Lux Sensor
   * Gas Sensor ( ppm )
   * PulseMeter ( wattage/Ampere )
-  * Roller Shutter Actuator
+  * Roller Shutter Actuator (https://forum.pimatic.org/topic/1294/mysensors-node-shutter-device/)
   * Multi Sensor support as one device.
   * support for sending Custom Value msg to mysensor node ( using Action Provider/Handler )
   * more to be add.. :)
