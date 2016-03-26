@@ -663,8 +663,8 @@ module.exports = (env) ->
   class MySensorsWaterMeter extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
 
       @_flow = lastState?.flow?.value
       @_volume = lastState?.volume?.value
