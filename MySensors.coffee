@@ -318,7 +318,7 @@ module.exports = (env) ->
 
       deviceConfigDef = require("./device-config-schema")
 
-      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework,@board, config)
+      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework,@board, @config)
 
       deviceClasses = [
         MySensorsDHT
@@ -549,7 +549,7 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = @config.id
       @name = @config.name
-      @voltage = config.appliedVoltage
+      @voltage = @config.appliedVoltage
 
       @_watt = lastState?.watt?.value
       @_ampere = lastState?.ampere?.value
