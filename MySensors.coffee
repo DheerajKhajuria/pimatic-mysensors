@@ -175,6 +175,7 @@ module.exports = (env) ->
       switch command
         when C_PRESENTATION
           env.logger.debug "<- Presented Node ", datas
+          @_rfpresent(sender,sensor,type)
         when C_SET
           @_rfsendtoboard(sender,sensor,type,rawpayload)
         when C_REQ
@@ -262,6 +263,15 @@ module.exports = (env) ->
         "type": type
       }
       @emit "rfRequest", result
+      
+    _rfpresent: (sender,sensor,type) ->
+      result = {}
+      result = {
+        "sender": sender,
+        "sensor": sensor,
+        "type"  : type
+      }
+      @emit "rfPresent", result
 
     _rfsendtoboard: (sender,sensor,type,rawpayload) ->
         result = {}
