@@ -318,7 +318,7 @@ module.exports = (env) ->
 
       deviceConfigDef = require("./device-config-schema")
 
-      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework,@board, config)
+      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework,@board, @config)
 
       deviceClasses = [
         MySensorsDHT
@@ -356,8 +356,8 @@ module.exports = (env) ->
   class MySensorsDHT extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_temperatue = lastState?.temperature?.value
       @_humidity = lastState?.humidity?.value
       @_batterystat = lastState?.batterystat?.value
@@ -421,8 +421,8 @@ module.exports = (env) ->
   class MySensorsDST extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_temperatue = lastState?.temperature?.value
       @_batterystat = lastState?.batterystat?.value
       env.logger.debug "MySensorsDST " , @id , @name
@@ -469,8 +469,8 @@ module.exports = (env) ->
   class MySensorsBMP extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_temperatue = lastState?.temperature?.value
       @_pressure = lastState?.pressure?.value
       @_forecast = lastState?.forecast?.value
@@ -547,9 +547,9 @@ module.exports = (env) ->
   class MySensorsPulseMeter extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
-      @voltage = config.appliedVoltage
+      @id = @config.id
+      @name = @config.name
+      @voltage = @config.appliedVoltage
 
       @_watt = lastState?.watt?.value
       @_ampere = lastState?.ampere?.value
@@ -663,8 +663,8 @@ module.exports = (env) ->
   class MySensorsWaterMeter extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
 
       @_flow = lastState?.flow?.value
       @_volume = lastState?.volume?.value
@@ -757,8 +757,8 @@ module.exports = (env) ->
   class MySensorsPIR extends env.devices.PresenceSensor
 
     constructor: (@config,lastState,@board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_presence = lastState?.presence?.value or false
       env.logger.debug "MySensorsPIR " , @id , @name, @_presence
 
@@ -787,8 +787,8 @@ module.exports = (env) ->
   class MySensorsButton extends env.devices.ContactSensor
 
     constructor: (@config,lastState,@board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_contact = lastState?.contact?.value or false
       env.logger.debug "MySensorsButton" , @id , @name, @_contact
 
@@ -828,8 +828,8 @@ module.exports = (env) ->
   class MySensorsSwitch extends env.devices.PowerSwitch
 
     constructor: (@config,lastState,@board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_state = lastState?.state?.value
       env.logger.debug "MySensorsSwitch " , @id , @name, @_state
 
@@ -861,8 +861,8 @@ module.exports = (env) ->
     _lastdimlevel: null
 
     constructor: (@config, lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_lastdimlevel = lastState?.lastdimlevel?.value or 100
       @_state = lastState?.state?.value or off
@@ -902,8 +902,8 @@ module.exports = (env) ->
   class MySensorsLight extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
 
       @_light = lastState?.light?.value
       @_batterystat = lastState?.batterystat?.value
@@ -951,8 +951,8 @@ module.exports = (env) ->
   class MySensorsLux extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
 
       @_lux = lastState?.lux?.value
       @_batterystat = lastState?.batterystat?.value
@@ -998,8 +998,8 @@ module.exports = (env) ->
   class MySensorsDistance extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_distance= lastState?.distance?.value
       @_batterystat = lastState?.batterystat?.value
       env.logger.debug "MySensorsDistance " , @id , @name
@@ -1046,8 +1046,8 @@ module.exports = (env) ->
   class MySensorsGas extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_gas = lastState?.gas?.value
       @_batterystat = lastState?.batterystat?.value
       env.logger.debug "MySensorsGas " , @id , @name
@@ -1094,8 +1094,8 @@ module.exports = (env) ->
   class MySensorsMulti extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
 
       @attributeValue = {}
       @attributes = {}
@@ -1202,8 +1202,8 @@ module.exports = (env) ->
   class MySensorsBattery extends env.devices.Device
 
     constructor: (@config,lastState, @board,@framework) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       env.logger.debug "MySensorsBattery" , @id , @name
 
       @attributes = {}
