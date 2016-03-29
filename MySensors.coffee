@@ -1265,17 +1265,17 @@ module.exports = (env) ->
               type_value = V_VAR4
             when "V_VAR5"
               type_value = V_VAR5
-			   when "V_DIMMER"
+            when "V_DIMMER"
               type_value = V_DIMMER
             when "V_LIGHT"
               type_value = V_LIGHT
- 			   when "V_UP"
-			     type_value = V_UP
-			   when "V_DOWN"
-			     type_value = V_DOWN
-			   when "V_STOP"
-			     type_value = V_STOP
-			   else
+ 			when "V_UP"
+			  type_value = V_UP
+            when "V_DOWN"
+              type_value = V_DOWN
+            when "V_STOP"
+			  type_value = V_STOP
+            else
               type_value = V_IR_SEND
 
           datas =
