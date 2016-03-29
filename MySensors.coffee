@@ -175,6 +175,7 @@ module.exports = (env) ->
       switch command
         when C_PRESENTATION
           env.logger.debug "<- Presented Node ", datas
+          @_rfpresent(sender,sensor,type)
         when C_SET
           @_rfsendtoboard(sender,sensor,type,rawpayload)
         when C_REQ
@@ -262,6 +263,15 @@ module.exports = (env) ->
         "type": type
       }
       @emit "rfRequest", result
+      
+    _rfpresent: (sender,sensor,type) ->
+      result = {}
+      result = {
+        "sender": sender,
+        "sensor": sensor,
+        "type"  : type
+      }
+      @emit "rfPresent", result
 
     _rfsendtoboard: (sender,sensor,type,rawpayload) ->
         result = {}
@@ -317,8 +327,168 @@ module.exports = (env) ->
       )
 
       deviceConfigDef = require("./device-config-schema")
+      
+      # Discover MySensor nodes
+      @framework.deviceManager.on('discover', (eventData) =>
+        
+        @framework.deviceManager.discoverMessage(
+            'pimatic-mysensors', "Searching for nodes"
+          )
+        
+        # Stop searching after configured time
+        setTimeout(( => 
+          @board.removeListener("rfPresent", discoverListener)
+        ), eventData.time)
+        
+        # Received presentation message from the gateway       
+        @board.on("rfPresent", discoverListener = (result) =>  
+          newdevice = true 
+          nodeid = result.sender
+          sensorid = result.sensor
+          sensortype = result.type
+          
+          # Check if device already exists in pimatic
+          newdevice = not @framework.deviceManager.devicesConfig.some (device, iterator) =>
+            device.sensorid is sensorid and device.nodeid is nodeid
+          
+          # Device is a new device and not a battery device
+          if newdevice is true and sensorid isnt 255
+            
+            # Temp sensor found
+            if sensortype is S_TEMP
+              config = {
+                class: 'MySensorsDST',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Temp Sensor #{nodeid}.#{sensorid}", config
+              )
+                   
+            # PIR sensor found
+            if sensortype is S_MOTION or S_SMOKE
+              config = {
+                class: 'MySensorsPIR',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "PIR Sensor #{nodeid}.#{sensorid}", config
+              )
+            
+            # Contact sensor found
+            if sensortype is S_DOOR
+              config = {
+                class: 'MySensorsButton',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Contact Sensor #{nodeid}.#{sensorid}", config
+              )
+            
+            # Shutter found
+            if sensortype is S_COVER
+              config = {
+                class: 'MySensorsShutter',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Shutter #{nodeid}.#{sensorid}", config
+              )
+            
+            # Light sensor found
+            if sensortype is S_LIGHT_LEVEL
+              config = {
+                class: 'MySensorsLight',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Light Sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Lux sensor found
+            if sensortype is S_LIGHT_LEVEL
+              config = {
+                class: 'MySensorsLux',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Lux Sensor #{nodeid}.#{sensorid}", config
+              )
+            
+            # kWh sensor found
+            if sensortype is S_POWER
+              config = {
+                class: 'MySensorsPulseMeter',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "kWh sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Water sensor found
+            if sensortype is S_WATER
+              config = {
+                class: 'MySensorsWaterMeter',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Water sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Switch found
+            if sensortype is S_LIGHT
+              config = {
+                class: 'MySensorsSwitch',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Switch #{nodeid}.#{sensorid}", config
+              )
+            
+            # Dimmer found
+            if sensortype is S_DIMMER
+              config = {
+                class: 'MySensorsDimmer',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Dimmer #{nodeid}.#{sensorid}", config
+              )
+              
+            # Distance sensor found
+            if sensortype is S_DISTANCE
+              config = {
+                class: 'MySensorsDistance',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Distance sensor #{nodeid}.#{sensorid}", config
+              )
+            
+            # Gas sensor found
+            if sensortype is S_AIR_QUALITY
+              config = {
+                class: 'MySensorsGas',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Gas sensor #{nodeid}.#{sensorid}", config
+              )
+        )
+      )
 
-      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework,@board, config)
+      @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework,@board, @config)
 
       deviceClasses = [
         MySensorsDHT
@@ -328,11 +498,13 @@ module.exports = (env) ->
         MySensorsSwitch
         MySensorsDimmer
         MySensorsPulseMeter
+        MySensorsWaterMeter
         MySensorsButton
         MySensorsLight
         MySensorsLux
         MySensorsDistance
         MySensorsGas
+        MySensorsShutter
         MySensorsMulti
       ]
 
@@ -355,8 +527,8 @@ module.exports = (env) ->
   class MySensorsDHT extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_temperatue = lastState?.temperature?.value
       @_humidity = lastState?.humidity?.value
       @_batterystat = lastState?.batterystat?.value
@@ -420,8 +592,8 @@ module.exports = (env) ->
   class MySensorsDST extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_temperatue = lastState?.temperature?.value
       @_batterystat = lastState?.batterystat?.value
       env.logger.debug "MySensorsDST " , @id , @name
@@ -468,8 +640,8 @@ module.exports = (env) ->
   class MySensorsBMP extends env.devices.TemperatureSensor
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_temperatue = lastState?.temperature?.value
       @_pressure = lastState?.pressure?.value
       @_forecast = lastState?.forecast?.value
@@ -546,9 +718,9 @@ module.exports = (env) ->
   class MySensorsPulseMeter extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
-      @voltage = config.appliedVoltage
+      @id = @config.id
+      @name = @config.name
+      @voltage = @config.appliedVoltage
 
       @_watt = lastState?.watt?.value
       @_ampere = lastState?.ampere?.value
@@ -659,11 +831,105 @@ module.exports = (env) ->
     getBattery: -> Promise.resolve @_batterystat
     getAmpere: -> Promise.resolve @_ampere
 
+  class MySensorsWaterMeter extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = @config.id
+      @name = @config.name
+
+      @_flow = lastState?.flow?.value
+      @_volume = lastState?.volume?.value
+      @_pulsecount = lastState?.pulsecount?.value
+      @_batterystat = lastState?.batterystat?.value
+
+      env.logger.debug "MySensorsWaterMeter " , @id , @name
+
+      @attributes = {}
+
+      @attributes.flow = {
+        description: "the meassured water in liter per minute"
+        type: "number"
+        unit: 'l/min'
+        acronym: 'Flow'
+      }
+
+      @attributes.pulsecount = {
+        description: "Measure the Pulse Count"
+        type: "number"
+        #unit: ''
+        hidden: yes
+      }
+
+      @attributes.volume = {
+        description: "the meassured water in m3"
+        type: "number"
+        unit: 'm3'
+        acronym: 'Total'
+      }
+
+      @attributes.battery = {
+        description: "Display the Battery level of Sensor"
+        type: "number"
+        unit: '%'
+        acronym: 'BATT'
+        hidden: !@config.batterySensor
+       }
+
+      @board.on("rfRequest", (result) =>
+        if result.sender is @config.nodeid
+          datas = {}
+          datas =
+          {
+            "destination": @config.nodeid,
+            "sensor": @config.sensorid,
+            "type"  : V_VAR1,
+            "value" : @_pulsecount,
+            "ack"   : 1
+          }
+          @board._rfWrite(datas)
+      )
+
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
+            @_batterystat =  parseInt(result.value)
+            @emit "battery" , @_batterystat
+      )
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid
+          if result.sensor is @config.sensorid
+              env.logger.debug "<- MySensorsWaterMeter" , result
+            if result.type is V_VAR1
+              env.logger.debug "<- MySensorsWaterMeter V_VAR1"
+              @_pulsecount = parseInt(result.value)
+              @emit "pulsecount", @_pulsecount
+            if result.type is V_FLOW
+              env.logger.debug "<- MySensorsWaterMeter V_FLOW"
+              @_flow = parseInt(result.value)
+              @emit "flow", @_flow
+            if result.type is V_VOLUME
+              env.logger.debug "<- MySensorsWaterMeter V_VOLUME"
+              @_volume = parseFloat(result.value)
+              @emit "volume", @_volume
+
+      )
+      super()
+
+    getFlow: -> Promise.resolve @_flow
+    getPulsecount: -> Promise.resolve @_pulsecount
+    getVolume: -> Promise.resolve @_volume
+    getBattery: -> Promise.resolve @_batterystat
+
   class MySensorsPIR extends env.devices.PresenceSensor
 
     constructor: (@config,lastState,@board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_presence = lastState?.presence?.value or false
       env.logger.debug "MySensorsPIR " , @id , @name, @_presence
 
@@ -692,8 +958,8 @@ module.exports = (env) ->
   class MySensorsButton extends env.devices.ContactSensor
 
     constructor: (@config,lastState,@board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_contact = lastState?.contact?.value or false
       env.logger.debug "MySensorsButton" , @id , @name, @_contact
 
@@ -733,8 +999,8 @@ module.exports = (env) ->
   class MySensorsSwitch extends env.devices.PowerSwitch
 
     constructor: (@config,lastState,@board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_state = lastState?.state?.value
       env.logger.debug "MySensorsSwitch " , @id , @name, @_state
 
@@ -766,8 +1032,8 @@ module.exports = (env) ->
     _lastdimlevel: null
 
     constructor: (@config, lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_lastdimlevel = lastState?.lastdimlevel?.value or 100
       @_state = lastState?.state?.value or off
@@ -807,8 +1073,8 @@ module.exports = (env) ->
   class MySensorsLight extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
 
       @_light = lastState?.light?.value
       @_batterystat = lastState?.batterystat?.value
@@ -856,8 +1122,8 @@ module.exports = (env) ->
   class MySensorsLux extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
 
       @_lux = lastState?.lux?.value
       @_batterystat = lastState?.batterystat?.value
@@ -903,8 +1169,8 @@ module.exports = (env) ->
   class MySensorsDistance extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_distance= lastState?.distance?.value
       @_batterystat = lastState?.batterystat?.value
       env.logger.debug "MySensorsDistance " , @id , @name
@@ -951,8 +1217,8 @@ module.exports = (env) ->
   class MySensorsGas extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       @_gas = lastState?.gas?.value
       @_batterystat = lastState?.batterystat?.value
       env.logger.debug "MySensorsGas " , @id , @name
@@ -996,11 +1262,57 @@ module.exports = (env) ->
     getGas: -> Promise.resolve @_gas
     getBattery: -> Promise.resolve @_batterystat
 
+  class MySensorsShutter extends env.devices.ShutterController
+
+    constructor: (@config,lastState,@board) ->
+      @id = @config.id
+      @name = @config.name
+      @_position = lastState?.position?.value
+      env.logger.debug "MySensorsShutter " , @id , @name, @_position
+
+      @board.on('rfValue', (result) =>
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid and result.type is V_UP or result.type is V_DOWN or result.type is V_STOP
+          position = (if result.type is V_UP then 'up' else if result.type is V_DOWN then 'down' else 'stopped')
+          env.logger.debug "<- MySensorsShutter " , result
+          @_setPosition(position)
+        )
+      super()
+
+    moveToPosition: (position) ->
+      # assert position is up or position is down
+      if position is 'up' then _position = V_UP  else _position = V_DOWN
+      datas = {}
+      datas =
+      {
+        "destination": @config.nodeid,
+        "sensor": @config.sensorid,
+        "type"  : _position,
+        "value" : "",
+        "ack"   : 1
+      }
+      @board._rfWrite(datas).then ( () =>
+        @_setPosition(position)
+      )
+
+    stop: () ->
+      datas = {}
+      datas =
+      {
+        "destination": @config.nodeid,
+        "sensor": @config.sensorid,
+        "type"  : V_STOP,
+        "value" : "",
+        "ack"   : 1
+      }
+      @board._rfWrite(datas).then ( () =>
+        @_setPosition('stopped')
+      )
+
   class MySensorsMulti extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
 
       @attributeValue = {}
       @attributes = {}
@@ -1063,7 +1375,7 @@ module.exports = (env) ->
                   when "round"
                     value = Math.round(parseFloat(result.value))
                   when "boolean"
-                    if result.value is "0"
+                    if parseInt(result.value) is 0
                       value = false
                     else
                       value = true
@@ -1107,8 +1419,8 @@ module.exports = (env) ->
   class MySensorsBattery extends env.devices.Device
 
     constructor: (@config,lastState, @board,@framework) ->
-      @id = config.id
-      @name = config.name
+      @id = @config.id
+      @name = @config.name
       env.logger.debug "MySensorsBattery" , @id , @name
 
       @attributes = {}
@@ -1170,8 +1482,19 @@ module.exports = (env) ->
               type_value = V_VAR4
             when "V_VAR5"
               type_value = V_VAR5
+            when "V_DIMMER"
+              type_value = V_DIMMER
+            when "V_LIGHT"
+              type_value = V_LIGHT
+            when "V_UP"
+              type_value = V_UP
+            when "V_DOWN"
+              type_value = V_DOWN
+            when "V_STOP"
+              type_value = V_STOP
             else
               type_value = V_IR_SEND
+          
           datas =
           {
             "destination": node,
