@@ -21,6 +21,7 @@ Controllers
   * Gas Sensor ( ppm )
   * Roller Shutter Actuator
   * PulseMeter ( wattage/Ampere )
+  * WaterMeter
   * Multi Sensor support as one device.
   * support for sending Custom Value msg to mysensor node ( using Action Provider/Handler )
   * more to be add.. :)
@@ -233,6 +234,18 @@ This is the basic sensor with only temperature
   }
   
 ```  
+*  Water meter
+```
+  {
+      "id": "waterMeter,
+      "name": "Water meter",
+      "class": "MySensorsWaterMeter",
+      "nodeid": 3,
+      "batterySensor": true,
+      "sensorid": 1
+  }
+  
+``` 
 * Multi sensor 
 
 This device works a little bit different then the other devices. You can add multiple (or just one, if you like to) sensors to this device, even from different nodes.
