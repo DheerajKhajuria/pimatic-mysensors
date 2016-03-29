@@ -16,7 +16,7 @@
     "icon.svg",
     "README.md",
     "MySensors-config-schema.coffee",
-    "LICENSE
+    "LICENSE"
   ],
   "version": "0.8.25",
   "homepage": "http://pimatic.org",
