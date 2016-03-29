@@ -19,6 +19,7 @@ Controllers
   * Light Sensor 
   * Lux Sensor
   * Gas Sensor ( ppm )
+  * Roller Shutter Actuator
   * PulseMeter ( wattage/Ampere )
   * Multi Sensor support as one device.
   * support for sending Custom Value msg to mysensor node ( using Action Provider/Handler )
@@ -135,6 +136,16 @@ This is the basic sensor with only temperature
       "name": "Switch",
       "class": "MySensorsSwitch",
       "nodeid": 10,
+      "sensorid": 1
+    },
+```
+* Roller-Actuator
+```
+ {
+      "id": "roller-shutter",
+      "name": "Shutter",
+      "class": "MySensorsShutter",
+      "nodeid": 1,
       "sensorid": 1
     },
 ```
