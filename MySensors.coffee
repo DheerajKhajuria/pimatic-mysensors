@@ -159,7 +159,7 @@ module.exports = (env) ->
 
     _rfReceived: (data) ->
       # decoding message
-      datas = {};
+      datas = {}
       datas = data.toString().split(";")
       sender = parseInt datas[0]
 
@@ -218,46 +218,49 @@ module.exports = (env) ->
 
 
     _rfsendTime: (destination,sensor) ->
-       date = new Date()
-       payload = Math.floor((date.getTime()) / 1000) - (date.getTimezoneOffset() * 60)
-       datas = {}
-       datas =
-       {
-          "destination": destination,
-          "sensor": sensor,
-          "type"  : I_TIME,
-          "ack"   : 0,
-          "command" : C_INTERNAL,
-          "value" : payload
-       }
-       @_rfWrite( datas)
+      payload = Math.floor((new Date().getTime())/1000)
+      datas =
+      {
+        "destination": destination,
+        "sensor": sensor,
+        "type"  : I_TIME,
+        "ack"   : 0,
+        "command" : C_INTERNAL,
+        "value" : payload
+      }
+      @_rfWrite( datas)
 
 
     _rfsendNextAvailableSensorId: ->
-       datas = {}
-       nextnodeid = @config.startingNodeId
-       if nextnodeid > 255
-        env.logger.debug "-> Error assigning Next ID, already reached maximum ID"
-        return
-       if nextnodeid is null
-          nextnodeid = 1
-       else
+      newid = false
+      nextnodeid = @config.startingNodeId
+      if nextnodeid is null
+        nextnodeid = 1
+      else 
+        nextnodeid +=1
+      while newid is false
+        newid = not @framework.deviceManager.devicesConfig.some (device, iterator) =>
+          device.nodeid is nextnodeid
+        if newid is false
           nextnodeid +=1
-       datas =
-       {
+       
+      if newid is true and nextnodeid < 255
+        datas =
+        {
           "destination": BROADCAST_ADDRESS,
           "sensor": NODE_SENSOR_ID,
           "type"  : I_ID_RESPONSE,
           "ack"   : 0,
           "command" : C_INTERNAL,
           "value" : nextnodeid
-       }
-       @config.startingNodeId = nextnodeid
-       @_rfWrite(datas)
-       @framework.saveConfig()
+        }
+        @config.startingNodeId = nextnodeid
+        @_rfWrite(datas)
+        @framework.saveConfig()
+      else
+        env.logger.error "-> Error assigning next node ID"
 
     _rfrequest: (sender,sensor,type) ->
-      result = {}
       result = {
         "sender": sender,
         "sensor": sensor,
@@ -266,7 +269,6 @@ module.exports = (env) ->
       @emit "rfRequest", result
 
     _rfpresent: (sender,sensor,type) ->
-      result = {}
       result = {
         "sender": sender,
         "sensor": sensor,
@@ -275,34 +277,31 @@ module.exports = (env) ->
       @emit "rfPresent", result
 
     _rfsendtoboard: (sender,sensor,type,rawpayload) ->
-        result = {}
-        result = {
-            "sender": sender,
-            "sensor": sensor,
-            "type"  : type,
-            "value" : rawpayload
-        }
-        @emit "rfValue", result
+      result = {
+        "sender": sender,
+        "sensor": sensor,
+        "type"  : type,
+        "value" : rawpayload
+      }
+      @emit "rfValue", result
 
     _rfsendbatterystat: (sender,rawpayload) ->
-        result = {}
-        result = {
-            "sender": sender,
-            "value" : rawpayload
-        }
-        @emit "rfbattery", result
+      result = {
+        "sender": sender,
+        "value" : rawpayload
+      }
+      @emit "rfbattery", result
 
     _rfsendConfig: (destination) ->
-        datas = {}
-        datas = {
-          "destination": destination,
-          "sensor": NODE_SENSOR_ID,
-          "type"  : I_CONFIG,
-          "ack"   : 0,
-          "command" : C_INTERNAL,
-          "value" : @config.metric
-        }
-        @_rfWrite(datas)
+      datas = {
+        "destination": destination,
+        "sensor": NODE_SENSOR_ID,
+        "type"  : I_CONFIG,
+        "ack"   : 0,
+        "command" : C_INTERNAL,
+        "value" : @config.metric
+      }
+      @_rfWrite(datas)
 
     _rfWrite: (datas) ->
       datas.command ?= C_SET
