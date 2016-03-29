@@ -334,6 +334,7 @@ module.exports = (env) ->
         MySensorsLux
         MySensorsDistance
         MySensorsGas
+        MySensorsShutter
         MySensorsMulti
       ]
 
@@ -1090,6 +1091,52 @@ module.exports = (env) ->
 
     getGas: -> Promise.resolve @_gas
     getBattery: -> Promise.resolve @_batterystat
+
+  class MySensorsShutter extends env.devices.ShutterController
+
+    constructor: (@config,lastState,@board) ->
+      @id = @config.id
+      @name = @config.name
+      @_position = lastState?.position?.value
+      env.logger.debug "MySensorsShutter " , @id , @name, @_position
+
+      @board.on('rfValue', (result) =>
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid and result.type is V_UP or result.type is V_DOWN or result.type is V_STOP
+          position = (if result.type is V_UP then 'up' else if result.type is V_DOWN then 'down' else 'stopped')
+          env.logger.debug "<- MySensorsShutter " , result
+          @_setPosition(position)
+        )
+      super()
+
+    moveToPosition: (position) ->
+      # assert position is up or position is down
+      if position is 'up' then _position = V_UP  else _position = V_DOWN
+      datas = {}
+      datas =
+      {
+        "destination": @config.nodeid,
+        "sensor": @config.sensorid,
+        "type"  : _position,
+        "value" : "",
+        "ack"   : 1
+      }
+      @board._rfWrite(datas).then ( () =>
+        @_setPosition(position)
+      )
+
+    stop: () ->
+      datas = {}
+      datas =
+      {
+        "destination": @config.nodeid,
+        "sensor": @config.sensorid,
+        "type"  : V_STOP,
+        "value" : "",
+        "ack"   : 1
+      }
+      @board._rfWrite(datas).then ( () =>
+        @_setPosition('stopped')
+      )
 
   class MySensorsMulti extends env.devices.Device
 
