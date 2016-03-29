@@ -218,7 +218,8 @@ module.exports = (env) ->
 
 
     _rfsendTime: (destination,sensor) ->
-       payload = Math.floor((new Date().getTime())/1000)
+       date = new Date()
+       payload = Math.floor((date.getTime()) / 1000) - (date.getTimezoneOffset() * 60)
        datas = {}
        datas =
        {
