@@ -327,6 +327,166 @@ module.exports = (env) ->
       )
 
       deviceConfigDef = require("./device-config-schema")
+      
+      # Discover MySensor nodes
+      @framework.deviceManager.on('discover', (eventData) =>
+        
+        @framework.deviceManager.discoverMessage(
+            'pimatic-mysensors', "Searching for nodes"
+          )
+        
+        # Stop searching after configured time
+        setTimeout(( => 
+          @board.removeListener("rfPresent", discoverListener)
+        ), eventData.time)
+        
+        # Received presentation message from the gateway       
+        @board.on("rfPresent", discoverListener = (result) =>  
+          newdevice = true 
+          nodeid = result.sender
+          sensorid = result.sensor
+          sensortype = result.type
+          
+          # Check if device already exists in pimatic
+          newdevice = not @framework.deviceManager.devicesConfig.some (device, iterator) =>
+            device.sensorid is sensorid and device.nodeid is nodeid
+          
+          # Device is a new device and not a battery device
+          if newdevice is true and sensorid isnt 255
+            
+            # Temp sensor found
+            if sensortype is S_TEMP
+              config = {
+                class: 'MySensorsDST',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Temp Sensor #{nodeid}.#{sensorid}", config
+              )
+                   
+            # PIR sensor found
+            if sensortype is S_MOTION or S_SMOKE
+              config = {
+                class: 'MySensorsPIR',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "PIR Sensor #{nodeid}.#{sensorid}", config
+              )
+            
+            # Contact sensor found
+            if sensortype is S_DOOR
+              config = {
+                class: 'MySensorsButton',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Contact Sensor #{nodeid}.#{sensorid}", config
+              )
+            
+            # Shutter found
+            if sensortype is S_COVER
+              config = {
+                class: 'MySensorsShutter',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Shutter #{nodeid}.#{sensorid}", config
+              )
+            
+            # Light sensor found
+            if sensortype is S_LIGHT_LEVEL
+              config = {
+                class: 'MySensorsLight',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Light Sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Lux sensor found
+            if sensortype is S_LIGHT_LEVEL
+              config = {
+                class: 'MySensorsLux',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Lux Sensor #{nodeid}.#{sensorid}", config
+              )
+            
+            # kWh sensor found
+            if sensortype is S_POWER
+              config = {
+                class: 'MySensorsPulseMeter',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "kWh sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Water sensor found
+            if sensortype is S_WATER
+              config = {
+                class: 'MySensorsWaterMeter',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Water sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Switch found
+            if sensortype is S_LIGHT
+              config = {
+                class: 'MySensorsSwitch',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Switch #{nodeid}.#{sensorid}", config
+              )
+            
+            # Dimmer found
+            if sensortype is S_DIMMER
+              config = {
+                class: 'MySensorsDimmer',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Dimmer #{nodeid}.#{sensorid}", config
+              )
+              
+            # Distance sensor found
+            if sensortype is S_DISTANCE
+              config = {
+                class: 'MySensorsDistance',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Distance sensor #{nodeid}.#{sensorid}", config
+              )
+            
+            # Gas sensor found
+            if sensortype is S_AIR_QUALITY
+              config = {
+                class: 'MySensorsGas',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Gas sensor #{nodeid}.#{sensorid}", config
+              )
+        )
+      )
 
       @framework.ruleManager.addActionProvider(new MySensorsActionProvider @framework,@board, @config)
 

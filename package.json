@@ -31,10 +31,10 @@
   ],
   "dependencies": {
     "bluebird": "^2.2.2",
-    "serialport": "^1.4.10"
+    "serialport": "~2.0.6"
   },
   "peerDependencies": {
-    "pimatic": "0.8.*"
+    "pimatic": ">=0.8.0 <1.0.0"
   },
   "engines": {
     "node": ">0.8.x",
