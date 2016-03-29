@@ -190,7 +190,7 @@ module.exports = (env) ->
               env.logger.debug "<- I_TIME ", data
               @_rfsendTime(sender, sensor)
             when I_VERSION
-              env.logger.debug "<- I_VERSION ", payload
+              env.logger.debug "<- I_VERSION ", rawpayload
             when I_ID_REQUEST
               env.logger.debug "<- I_ID_REQUEST ", data
               @_rfsendNextAvailableSensorId()
@@ -264,7 +264,7 @@ module.exports = (env) ->
         "type": type
       }
       @emit "rfRequest", result
-      
+
     _rfpresent: (sender,sensor,type) ->
       result = {}
       result = {
@@ -328,33 +328,33 @@ module.exports = (env) ->
       )
 
       deviceConfigDef = require("./device-config-schema")
-      
+
       # Discover MySensor nodes
       @framework.deviceManager.on('discover', (eventData) =>
-        
+
         @framework.deviceManager.discoverMessage(
             'pimatic-mysensors', "Searching for nodes"
           )
-        
+
         # Stop searching after configured time
-        setTimeout(( => 
+        setTimeout(( =>
           @board.removeListener("rfPresent", discoverListener)
         ), eventData.time)
-        
-        # Received presentation message from the gateway       
-        @board.on("rfPresent", discoverListener = (result) =>  
-          newdevice = true 
+
+        # Received presentation message from the gateway
+        @board.on("rfPresent", discoverListener = (result) =>
+          newdevice = true
           nodeid = result.sender
           sensorid = result.sensor
           sensortype = result.type
-          
+
           # Check if device already exists in pimatic
           newdevice = not @framework.deviceManager.devicesConfig.some (device, iterator) =>
             device.sensorid is sensorid and device.nodeid is nodeid
-          
+
           # Device is a new device and not a battery device
           if newdevice is true and sensorid isnt 255
-            
+
             # Temp sensor found
             if sensortype is S_TEMP
               config = {
@@ -365,7 +365,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Temp Sensor #{nodeid}.#{sensorid}", config
               )
-                   
+
             # PIR sensor found
             if sensortype is S_MOTION or S_SMOKE
               config = {
@@ -376,7 +376,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "PIR Sensor #{nodeid}.#{sensorid}", config
               )
-            
+
             # Contact sensor found
             if sensortype is S_DOOR
               config = {
@@ -387,7 +387,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Contact Sensor #{nodeid}.#{sensorid}", config
               )
-            
+
             # Shutter found
             if sensortype is S_COVER
               config = {
@@ -398,7 +398,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Shutter #{nodeid}.#{sensorid}", config
               )
-            
+
             # Light sensor found
             if sensortype is S_LIGHT_LEVEL
               config = {
@@ -409,7 +409,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Light Sensor #{nodeid}.#{sensorid}", config
               )
-              
+
             # Lux sensor found
             if sensortype is S_LIGHT_LEVEL
               config = {
@@ -420,7 +420,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Lux Sensor #{nodeid}.#{sensorid}", config
               )
-            
+
             # kWh sensor found
             if sensortype is S_POWER
               config = {
@@ -431,7 +431,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "kWh sensor #{nodeid}.#{sensorid}", config
               )
-              
+
             # Water sensor found
             if sensortype is S_WATER
               config = {
@@ -442,7 +442,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Water sensor #{nodeid}.#{sensorid}", config
               )
-              
+
             # Switch found
             if sensortype is S_LIGHT
               config = {
@@ -453,7 +453,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Switch #{nodeid}.#{sensorid}", config
               )
-            
+
             # Dimmer found
             if sensortype is S_DIMMER
               config = {
@@ -464,7 +464,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Dimmer #{nodeid}.#{sensorid}", config
               )
-              
+
             # Distance sensor found
             if sensortype is S_DISTANCE
               config = {
@@ -475,7 +475,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Distance sensor #{nodeid}.#{sensorid}", config
               )
-            
+
             # Gas sensor found
             if sensortype is S_AIR_QUALITY
               config = {
@@ -1495,7 +1495,7 @@ module.exports = (env) ->
               type_value = V_STOP
             else
               type_value = V_IR_SEND
-          
+
           datas =
           {
             "destination": node,
