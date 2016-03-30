@@ -159,7 +159,6 @@ module.exports = (env) ->
 
     _rfReceived: (data) ->
       # decoding message
-      datas = {}
       datas = data.toString().split(";")
       sender = parseInt datas[0]
 
@@ -804,7 +803,6 @@ module.exports = (env) ->
 
       @board.on("rfRequest", (result) =>
         if result.sender is @config.nodeid
-          datas = {}
           datas =
           {
             "destination": @config.nodeid,
@@ -905,7 +903,6 @@ module.exports = (env) ->
 
       @board.on("rfRequest", (result) =>
         if result.sender is @config.nodeid
-          datas = {}
           datas =
           {
             "destination": @config.nodeid,
@@ -1052,7 +1049,6 @@ module.exports = (env) ->
     changeStateTo: (state) ->
       assert state is on or state is off
       if state is true then _state = 1  else _state = 0
-      datas = {}
       datas =
       {
         "destination": @config.nodeid,
@@ -1095,7 +1091,6 @@ module.exports = (env) ->
         state = false
       unless @_dimlevel is 0
         @_lastdimlevel = @_dimlevel
-      datas = {}
       datas =
       {
         "destination": @config.nodeid,
@@ -1324,7 +1319,6 @@ module.exports = (env) ->
     moveToPosition: (position) ->
       # assert position is up or position is down
       if position is 'up' then _position = V_UP  else _position = V_DOWN
-      datas = {}
       datas =
       {
         "destination": @config.nodeid,
@@ -1338,7 +1332,6 @@ module.exports = (env) ->
       )
 
     stop: () ->
-      datas = {}
       datas =
       {
         "destination": @config.nodeid,
@@ -1515,7 +1508,6 @@ module.exports = (env) ->
           # just return a promise fulfilled with a description about what we would do.
           return __("would send IR \"%s\"", cmdCode)
         else
-          datas = {}
 
           switch customvalue
             when "V_VAR1"
