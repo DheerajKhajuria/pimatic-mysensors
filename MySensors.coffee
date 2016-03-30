@@ -1482,8 +1482,8 @@ module.exports = (env) ->
               type_value = V_VAR4
             when "V_VAR5"
               type_value = V_VAR5
-            when "V_DIMMER"
-              type_value = V_DIMMER
+            when "V_PERCENTAGE"
+              type_value = V_PERCENTAGE
             when "V_LIGHT"
               type_value = V_LIGHT
             when "V_UP"
