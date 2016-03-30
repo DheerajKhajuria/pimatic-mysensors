@@ -5,6 +5,10 @@ module.exports = {
   title: "MySensors config"
   type: "object"
   properties:
+    debug:
+      description: "Log information for debugging, including received messages"
+      type: "boolean"
+      default: true
     driver:
       description: "The diver to connect to the PiGateway"
       type: "string"
