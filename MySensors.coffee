@@ -548,7 +548,8 @@ module.exports = (env) ->
       @_temperatue = lastState?.temperature?.value
       @_humidity = lastState?.humidity?.value
       @_batterystat = lastState?.batterystat?.value
-      env.logger.info "MySensorsDHT ", @id, @name
+      if mySensors.config.debug
+        env.logger.debug "MySensorsDHT ", @id, @name
 
       @attributes = {}
 
