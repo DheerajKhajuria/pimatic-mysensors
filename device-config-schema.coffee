@@ -110,6 +110,10 @@ module.exports = {
         description: "Time after that the PIR presence value is reset to absent"
         type: "number"
         default: 6000
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no
     },
   MySensorsButton: {
     title: "MySensorsButton config options"

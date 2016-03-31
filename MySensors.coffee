@@ -968,9 +968,30 @@ module.exports = (env) ->
       @id = @config.id
       @name = @config.name
       @_presence = lastState?.presence?.value or false
+      @_batterystat = lastState?.batterystat?.value
       if mySensors.config.debug
         env.logger.debug "MySensorsPIR ", @id, @name, @_presence
+      
+      @addAttribute('battery', {
+        description: "Battery",
+        type: "number"
+        acronym: ""
+        unit: " %"
+        hidden: !@config.batterySensor
+      })
+      @['battery'] = ()-> Promise.resolve(@_batterystat)
+       
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
 
+            @_batterystat =  parseInt(result.value)
+            @emit "battery", @_batterystat
+      )
+      
       resetPresence = ( =>
         @_setPresence(no)
       )
@@ -993,6 +1014,7 @@ module.exports = (env) ->
       super()
 
     getPresence: -> Promise.resolve @_presence
+    getBattery: -> Promise.resolve @_batterystat
 
   class MySensorsButton extends env.devices.ContactSensor
 
