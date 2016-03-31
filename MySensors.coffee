@@ -576,10 +576,21 @@ module.exports = (env) ->
       }
 
       @attributes.battery = {
-        description: "Display the battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -635,10 +646,21 @@ module.exports = (env) ->
       }
 
       @attributes.battery = {
-        description: "Display the battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -699,10 +721,21 @@ module.exports = (env) ->
       }
 
       @attributes.battery = {
-        description: "Display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -796,10 +829,21 @@ module.exports = (env) ->
 
 
       @attributes.battery = {
-        description: "Display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -903,10 +947,21 @@ module.exports = (env) ->
       }
 
       @attributes.battery = {
-        description: "Display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -1039,7 +1094,7 @@ module.exports = (env) ->
       @attributes = _.cloneDeep @attributes
 
       @attributes.battery = {
-        description: "Display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
         displaySparkline: false
         unit: "%"
@@ -1054,6 +1109,7 @@ module.exports = (env) ->
               'icon-battery-fuel-5': [80, 100]
               'icon-battery-filled': 100
             }
+        hidden: !@config.batterySensor
        }
 
       @board.on("rfbattery", (result) =>
@@ -1168,7 +1224,7 @@ module.exports = (env) ->
       @attributes = {}
 
       @attributes.battery = {
-        description: "display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
         displaySparkline: false
         unit: "%"
@@ -1183,6 +1239,7 @@ module.exports = (env) ->
               'icon-battery-fuel-5': [80, 100]
               'icon-battery-filled': 100
             }
+        hidden: !@config.batterySensor
        }
 
       @board.on("rfbattery", (result) =>
@@ -1228,7 +1285,7 @@ module.exports = (env) ->
 
 
       @attributes.battery = {
-        description: "display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
         displaySparkline: false
         unit: "%"
@@ -1243,6 +1300,7 @@ module.exports = (env) ->
               'icon-battery-fuel-5': [80, 100]
               'icon-battery-filled': 100
             }
+        hidden: !@config.batterySensor
        }
 
       @board.on("rfbattery", (result) =>
@@ -1284,7 +1342,7 @@ module.exports = (env) ->
       @attributes = {}
 
       @attributes.battery = {
-        description: "display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
         displaySparkline: false
         unit: "%"
@@ -1299,6 +1357,7 @@ module.exports = (env) ->
               'icon-battery-fuel-5': [80, 100]
               'icon-battery-filled': 100
             }
+        hidden: !@config.batterySensor
        }
 
       @board.on("rfbattery", (result) =>
@@ -1343,7 +1402,7 @@ module.exports = (env) ->
       @attributes = {}
 
       @attributes.battery = {
-        description: "display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
         displaySparkline: false
         unit: "%"
@@ -1358,6 +1417,7 @@ module.exports = (env) ->
               'icon-battery-fuel-5': [80, 100]
               'icon-battery-filled': 100
             }
+        hidden: !@config.batterySensor
        }
 
       @board.on("rfbattery", (result) =>
