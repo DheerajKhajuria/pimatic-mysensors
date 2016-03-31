@@ -975,7 +975,8 @@ module.exports = (env) ->
       @addAttribute('battery', {
         description: "Battery",
         type: "number"
-        acronym: ""
+        acronym: "BATT"
+        displaySparkline: false
         unit: " %"
         hidden: !@config.batterySensor
       })
@@ -988,7 +989,7 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
+            @_batterystat = parseInt(result.value)
             @emit "battery", @_batterystat
       )
       
@@ -1236,7 +1237,7 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board) ->
       @id = @config.id
       @name = @config.name
-      @_distance= lastState?.distance?.value
+      @_distance = lastState?.distance?.value
       @_batterystat = lastState?.batterystat?.value
       if mySensors.config.debug
         env.logger.debug "MySensorsDistance ", @id, @name
