@@ -367,8 +367,7 @@ module.exports = (env) ->
             device.sensorid is sensorid and device.nodeid is nodeid
 
           # Device is a new device and not a battery device
-          if newdevice is true and sensorid isnt 255
-
+          if newdevice
             # Temp sensor found
             if sensortype is S_TEMP
               config = {
@@ -381,14 +380,24 @@ module.exports = (env) ->
               )
 
             # PIR sensor found
-            if sensortype is S_MOTION or S_SMOKE
+            if sensortype is S_MOTION
               config = {
                 class: 'MySensorsPIR',
                 nodeid: nodeid,
                 sensorid: sensorid
               }
               @framework.deviceManager.discoveredDevice(
-                'pimatic-mysensors', "PIR Sensor #{nodeid}.#{sensorid}", config
+                'pimatic-mysensors', "Motion Sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            if sensortype is S_SMOKE
+              config = {
+                class: 'MySensorsPIR',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Smoke Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Contact sensor found
@@ -443,7 +452,7 @@ module.exports = (env) ->
                 sensorid: sensorid
               }
               @framework.deviceManager.discoveredDevice(
-                'pimatic-mysensors', "kWh sensor #{nodeid}.#{sensorid}", config
+                'pimatic-mysensors', "kWh Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Water sensor found
@@ -454,7 +463,7 @@ module.exports = (env) ->
                 sensorid: sensorid
               }
               @framework.deviceManager.discoveredDevice(
-                'pimatic-mysensors', "Water sensor #{nodeid}.#{sensorid}", config
+                'pimatic-mysensors', "Water Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Switch found
@@ -487,7 +496,7 @@ module.exports = (env) ->
                 sensorid: sensorid
               }
               @framework.deviceManager.discoveredDevice(
-                'pimatic-mysensors', "Distance sensor #{nodeid}.#{sensorid}", config
+                'pimatic-mysensors', "Distance Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Gas sensor found
