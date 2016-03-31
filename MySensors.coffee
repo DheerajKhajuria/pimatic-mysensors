@@ -977,7 +977,7 @@ module.exports = (env) ->
         type: "number"
         acronym: "BATT"
         displaySparkline: false
-        unit: " %"
+        unit: "%"
         hidden: !@config.batterySensor
       })
       @['battery'] = ()-> Promise.resolve(@_batterystat)
@@ -1170,6 +1170,7 @@ module.exports = (env) ->
         description: "the messured light"
         type: "number"
         unit: '%'
+        acronym: 'LIGHT'
       }
 
       @board.on("rfValue", (result) =>
