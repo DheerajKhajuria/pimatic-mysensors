@@ -975,9 +975,19 @@ module.exports = (env) ->
       @addAttribute('battery', {
         description: "Battery",
         type: "number"
-        acronym: "BATT"
         displaySparkline: false
         unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
       })
       @['battery'] = ()-> Promise.resolve(@_batterystat)
