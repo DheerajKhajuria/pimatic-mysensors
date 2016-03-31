@@ -1041,9 +1041,19 @@ module.exports = (env) ->
       @attributes.battery = {
         description: "Display the Battery level of Sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
-        hidden: !@config.batterySensor
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
        }
 
       @board.on("rfbattery", (result) =>
@@ -1160,9 +1170,19 @@ module.exports = (env) ->
       @attributes.battery = {
         description: "display the Battery level of Sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
-        hidden: !@config.batterySensor
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
        }
 
       @board.on("rfbattery", (result) =>
@@ -1180,7 +1200,6 @@ module.exports = (env) ->
         description: "the messured light"
         type: "number"
         unit: '%'
-        acronym: 'LIGHT'
       }
 
       @board.on("rfValue", (result) =>
@@ -1211,9 +1230,19 @@ module.exports = (env) ->
       @attributes.battery = {
         description: "display the Battery level of Sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
-        hidden: !@config.batterySensor
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
        }
 
       @board.on("rfbattery", (result) =>
@@ -1257,9 +1286,19 @@ module.exports = (env) ->
       @attributes.battery = {
         description: "display the Battery level of Sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
-        hidden: !@config.batterySensor
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
        }
 
       @board.on("rfbattery", (result) =>
@@ -1306,9 +1345,19 @@ module.exports = (env) ->
       @attributes.battery = {
         description: "display the Battery level of Sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
-        hidden: !@config.batterySensor
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
        }
 
       @board.on("rfbattery", (result) =>
@@ -1518,8 +1567,20 @@ module.exports = (env) ->
           @attributes[attr] = {
             description: "the measured Battery Stat of Sensor"
             type: "number"
-            unit: '%'
-            acronym:  attrname
+            displaySparkline: false
+            unit: "%"
+            acronym: attrname
+            icon:
+                noText: true
+                mapping: {
+                  'icon-battery-empty': 0
+                  'icon-battery-fuel-1': [0, 20]
+                  'icon-battery-fuel-2': [20, 40]
+                  'icon-battery-fuel-3': [40, 60]
+                  'icon-battery-fuel-4': [60, 80]
+                  'icon-battery-fuel-5': [80, 100]
+                  'icon-battery-filled': 100
+                }
           }
           getter = ( =>  Promise.resolve @_batterystat[nodeid] )
           @_createGetter( attr, getter)
