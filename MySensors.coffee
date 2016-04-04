@@ -406,7 +406,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Motion Sensor #{nodeid}.#{sensorid}", config
               )
-              
+            # Smoke sensor found  
             if sensortype is S_SMOKE
               config = {
                 class: 'MySensorsPIR',
@@ -415,6 +415,28 @@ module.exports = (env) ->
               }
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Smoke Sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Moisture sensor found  
+            if sensortype is S_MOISTURE
+              config = {
+                class: 'MySensorsPIR',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Moisture Sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Leak sensor found
+            if sensortype is S_WATER_LEAK
+              config = {
+                class: 'MySensorsPIR',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Leak Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Contact sensor found
@@ -484,7 +506,7 @@ module.exports = (env) ->
               )
 
             # Switch found
-            if sensortype is S_LIGHT
+            if sensortype is S_LIGHT or sensortype is S_SPRINKLER
               config = {
                 class: 'MySensorsSwitch',
                 nodeid: nodeid,
