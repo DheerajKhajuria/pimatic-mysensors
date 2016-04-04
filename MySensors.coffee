@@ -81,6 +81,10 @@ module.exports = (env) ->
   I_SKETCH_NAME      = 11
   I_SKETCH_VERSION   = 12
   I_REBOOT           = 13
+  I_GATEWAY_READY    = 14
+  I_REQUEST_SIGNING  = 15
+  I_GET_NONCE        = 16
+  I_GET_NONCE_RESPONSE = 17
 
   S_DOOR             = 0
   S_MOTION           = 1
@@ -104,7 +108,20 @@ module.exports = (env) ->
   S_LOCK             = 19
   S_IR               = 20
   S_WATER            = 21
-  S_AIR_QUALITY        = 22
+  S_AIR_QUALITY      = 22
+  S_CUSTOM           = 23
+  S_DUST             = 24
+  S_SCENE_CONTROLLER = 25
+  S_RGB_LIGHT        = 26
+  S_RGBW_LIGHT       = 27
+  S_COLOR_SENSOR     = 28
+  S_HVAC             = 29
+  S_MULTIMETER       = 30
+  S_SPRINKLER        = 31
+  S_WATER_LEAK       = 32
+  S_SOUND            = 33
+  S_VIBRATION        = 34
+  S_MOISTURE         = 35
 
   ST_FIRMWARE_CONFIG_REQUEST   = 0
   ST_FIRMWARE_CONFIG_RESPONSE  = 1
@@ -1687,8 +1704,8 @@ module.exports = (env) ->
               type_value = V_VAR5
             when "V_PERCENTAGE"
               type_value = V_PERCENTAGE
-            when "V_LIGHT"
-              type_value = V_LIGHT
+            when "V_STATUS"
+              type_value = V_STATUS
             when "V_UP"
               type_value = V_UP
             when "V_DOWN"
