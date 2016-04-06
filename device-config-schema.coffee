@@ -110,6 +110,10 @@ module.exports = {
         description: "Time after that the PIR presence value is reset to absent"
         type: "number"
         default: 6000
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no
     },
   MySensorsButton: {
     title: "MySensorsButton config options"
@@ -252,7 +256,6 @@ module.exports = {
         format: "table"
         items:
           type: "object"
-          required: ["name", "nodeid", "type"]
           properties:
             name:
               description: "Name for the corresponding attribute."
@@ -263,6 +266,7 @@ module.exports = {
             sensorid:
               description: "This is the child-sensor-id that uniquely identifies one attached sensor"
               type: "number"
+              required: false
             sensortype:
               description: "The type of the sensor"
               type: "number"
@@ -274,14 +278,19 @@ module.exports = {
             booleanlabels:
               description: "The display value of a boolean valuetype"
               type: "array"
+              required: false
+              default: [true, false]
             acronym:
               description: "Acronym to show as value label in the frontend"
               type: "string"
+              required: false
             unit:
               description: "The unit to show in the frontend."
               type: "string"
+              required: false
             label:
               description: "Change the default variable name to this value."
               type: "string"
+              required: false
   }
 }   

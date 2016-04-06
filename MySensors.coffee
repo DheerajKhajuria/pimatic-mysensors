@@ -81,6 +81,10 @@ module.exports = (env) ->
   I_SKETCH_NAME      = 11
   I_SKETCH_VERSION   = 12
   I_REBOOT           = 13
+  I_GATEWAY_READY    = 14
+  I_REQUEST_SIGNING  = 15
+  I_GET_NONCE        = 16
+  I_GET_NONCE_RESPONSE = 17
 
   S_DOOR             = 0
   S_MOTION           = 1
@@ -104,7 +108,20 @@ module.exports = (env) ->
   S_LOCK             = 19
   S_IR               = 20
   S_WATER            = 21
-  S_AIR_QUALITY        = 22
+  S_AIR_QUALITY      = 22
+  S_CUSTOM           = 23
+  S_DUST             = 24
+  S_SCENE_CONTROLLER = 25
+  S_RGB_LIGHT        = 26
+  S_RGBW_LIGHT       = 27
+  S_COLOR_SENSOR     = 28
+  S_HVAC             = 29
+  S_MULTIMETER       = 30
+  S_SPRINKLER        = 31
+  S_WATER_LEAK       = 32
+  S_SOUND            = 33
+  S_VIBRATION        = 34
+  S_MOISTURE         = 35
 
   ST_FIRMWARE_CONFIG_REQUEST   = 0
   ST_FIRMWARE_CONFIG_RESPONSE  = 1
@@ -159,7 +176,6 @@ module.exports = (env) ->
 
     _rfReceived: (data) ->
       # decoding message
-      datas = {};
       datas = data.toString().split(";")
       sender = parseInt datas[0]
 
@@ -174,90 +190,108 @@ module.exports = (env) ->
 
       switch command
         when C_PRESENTATION
-          env.logger.debug "<- Presented Node ", datas
+          if @config.debug
+            env.logger.debug "<- Presented Node ", datas
           @_rfpresent(sender,sensor,type)
         when C_SET
           @_rfsendtoboard(sender,sensor,type,rawpayload)
         when C_REQ
-          env.logger.debug "<- request from  ", sender, rawpayload
+          if @config.debug
+            env.logger.debug "<- request from  ", sender, rawpayload
           @_rfrequest(sender,sensor,type)
         when C_INTERNAL
           switch type
             when I_BATTERY_LEVEL
-              env.logger.debug "<- I_BATTERY_LEVEL ", sender, rawpayload
+              if @config.debug
+                env.logger.debug "<- I_BATTERY_LEVEL ", sender, rawpayload
               @_rfsendbatterystat(sender,rawpayload)
             when I_TIME
-              env.logger.debug "<- I_TIME ", data
+              if @config.debug
+                env.logger.debug "<- I_TIME ", data
               @_rfsendTime(sender, sensor)
             when I_VERSION
-              env.logger.debug "<- I_VERSION ", rawpayload
+              if @config.debug
+                env.logger.debug "<- I_VERSION ", rawpayload
             when I_ID_REQUEST
-              env.logger.debug "<- I_ID_REQUEST ", data
+              if @config.debug
+                env.logger.debug "<- I_ID_REQUEST ", data
               @_rfsendNextAvailableSensorId()
             when I_ID_RESPONSE
-              env.logger.debug "<- I_ID_RESPONSE ", data
+              if @config.debug
+                env.logger.debug "<- I_ID_RESPONSE ", data
             when I_INCLUSION_MODE
-              env.logger.debug "<- I_INCLUSION_MODE ", data
+              if @config.debug
+                env.logger.debug "<- I_INCLUSION_MODE ", data
             when I_CONFIG
-              env.logger.debug "<- I_CONFIG ", data
+              if @config.debug
+                env.logger.debug "<- I_CONFIG ", data
               @_rfsendConfig(sender)
             when I_PING
-              env.logger.debug "<- I_PING ", data
+              if @config.debug
+                env.logger.debug "<- I_PING ", data
             when I_PING_ACK
-              env.logger.debug "<- I_PING_ACK ", data
+              if @config.debug
+                env.logger.debug "<- I_PING_ACK ", data
             when I_LOG_MESSAGE
-              env.logger.debug "<- I_LOG_MESSAGE ", data
+              if @config.debug
+                env.logger.debug "<- I_LOG_MESSAGE ", data
             when I_CHILDREN
-              env.logger.debug "<- I_CHILDREN ", data
+              if @config.debug
+                env.logger.debug "<- I_CHILDREN ", data
             when I_SKETCH_NAME
               #saveSketchName(sender, payload, db);
-              env.logger.debug "<- I_SKETCH_NAME ", data
+              if @config.debug
+                env.logger.debug "<- I_SKETCH_NAME ", data
             when I_SKETCH_VERSION
               #saveSketchVersion(sender, payload, db);
-              env.logger.debug "<- I_SKETCH_VERSION ", data
+              if @config.debug
+                env.logger.debug "<- I_SKETCH_VERSION ", data
 
 
     _rfsendTime: (destination,sensor) ->
-       date = new Date()
-       payload = Math.floor((date.getTime()) / 1000) - (date.getTimezoneOffset() * 60)
-       datas = {}
-       datas =
-       {
-          "destination": destination,
-          "sensor": sensor,
-          "type"  : I_TIME,
-          "ack"   : 0,
-          "command" : C_INTERNAL,
-          "value" : payload
-       }
-       @_rfWrite( datas)
+      payload = Math.floor((new Date().getTime())/1000)
+      datas =
+      {
+        "destination": destination,
+        "sensor": sensor,
+        "type"  : I_TIME,
+        "ack"   : 0,
+        "command" : C_INTERNAL,
+        "value" : payload
+      }
+      @_rfWrite( datas)
 
 
     _rfsendNextAvailableSensorId: ->
-       datas = {}
-       nextnodeid = @config.startingNodeId
-       if nextnodeid > 255
-        env.logger.debug "-> Error assigning Next ID, already reached maximum ID"
-        return
-       if nextnodeid is null
-          nextnodeid = 1
-       else
+      newid = false
+      nextnodeid = @config.startingNodeId
+      if nextnodeid is null
+        nextnodeid = 1
+      else 
+        nextnodeid +=1
+      while newid is false
+        newid = not @framework.deviceManager.devicesConfig.some (device, iterator) =>
+          device.nodeid is nextnodeid
+        if newid is false
           nextnodeid +=1
-       datas =
-       {
+       
+      if newid is true and nextnodeid < 255
+        datas =
+        {
           "destination": BROADCAST_ADDRESS,
           "sensor": NODE_SENSOR_ID,
           "type"  : I_ID_RESPONSE,
           "ack"   : 0,
           "command" : C_INTERNAL,
           "value" : nextnodeid
-       }
-       @config.startingNodeId = nextnodeid
-       @_rfWrite(datas)
-       @framework.saveConfig()
+        }
+        @config.startingNodeId = nextnodeid
+        @_rfWrite(datas)
+        @framework.saveConfig()
+      else
+        env.logger.error "-> Error assigning next node ID"
 
     _rfrequest: (sender,sensor,type) ->
-      result = {}
       result = {
         "sender": sender,
         "sensor": sensor,
@@ -266,7 +300,6 @@ module.exports = (env) ->
       @emit "rfRequest", result
 
     _rfpresent: (sender,sensor,type) ->
-      result = {}
       result = {
         "sender": sender,
         "sensor": sensor,
@@ -275,39 +308,37 @@ module.exports = (env) ->
       @emit "rfPresent", result
 
     _rfsendtoboard: (sender,sensor,type,rawpayload) ->
-        result = {}
-        result = {
-            "sender": sender,
-            "sensor": sensor,
-            "type"  : type,
-            "value" : rawpayload
-        }
-        @emit "rfValue", result
+      result = {
+        "sender": sender,
+        "sensor": sensor,
+        "type"  : type,
+        "value" : rawpayload
+      }
+      @emit "rfValue", result
 
     _rfsendbatterystat: (sender,rawpayload) ->
-        result = {}
-        result = {
-            "sender": sender,
-            "value" : rawpayload
-        }
-        @emit "rfbattery", result
+      result = {
+        "sender": sender,
+        "value" : rawpayload
+      }
+      @emit "rfbattery", result
 
     _rfsendConfig: (destination) ->
-        datas = {}
-        datas = {
-          "destination": destination,
-          "sensor": NODE_SENSOR_ID,
-          "type"  : I_CONFIG,
-          "ack"   : 0,
-          "command" : C_INTERNAL,
-          "value" : @config.metric
-        }
-        @_rfWrite(datas)
+      datas = {
+        "destination": destination,
+        "sensor": NODE_SENSOR_ID,
+        "type"  : I_CONFIG,
+        "ack"   : 0,
+        "command" : C_INTERNAL,
+        "value" : @config.metric
+      }
+      @_rfWrite(datas)
 
     _rfWrite: (datas) ->
       datas.command ?= C_SET
       data = @_rfencode(datas.destination,datas.sensor,datas.command,datas.ack,datas.type,datas.value)
-      env.logger.debug "-> Sending ", data
+      if @config.debug
+        env.logger.debug "-> Sending ", data
       @driver.write(data)
 
     _rfencode: (destination, sensor, command, acknowledge, type, payload) ->
@@ -353,8 +384,7 @@ module.exports = (env) ->
             device.sensorid is sensorid and device.nodeid is nodeid
 
           # Device is a new device and not a battery device
-          if newdevice is true and sensorid isnt 255
-
+          if newdevice
             # Temp sensor found
             if sensortype is S_TEMP
               config = {
@@ -367,14 +397,46 @@ module.exports = (env) ->
               )
 
             # PIR sensor found
-            if sensortype is S_MOTION or S_SMOKE
+            if sensortype is S_MOTION
               config = {
                 class: 'MySensorsPIR',
                 nodeid: nodeid,
                 sensorid: sensorid
               }
               @framework.deviceManager.discoveredDevice(
-                'pimatic-mysensors', "PIR Sensor #{nodeid}.#{sensorid}", config
+                'pimatic-mysensors', "Motion Sensor #{nodeid}.#{sensorid}", config
+              )
+            # Smoke sensor found  
+            if sensortype is S_SMOKE
+              config = {
+                class: 'MySensorsPIR',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Smoke Sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Moisture sensor found  
+            if sensortype is S_MOISTURE
+              config = {
+                class: 'MySensorsPIR',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Moisture Sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # Leak sensor found
+            if sensortype is S_WATER_LEAK
+              config = {
+                class: 'MySensorsPIR',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "Leak Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Contact sensor found
@@ -429,7 +491,7 @@ module.exports = (env) ->
                 sensorid: sensorid
               }
               @framework.deviceManager.discoveredDevice(
-                'pimatic-mysensors', "kWh sensor #{nodeid}.#{sensorid}", config
+                'pimatic-mysensors', "kWh Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Water sensor found
@@ -440,11 +502,11 @@ module.exports = (env) ->
                 sensorid: sensorid
               }
               @framework.deviceManager.discoveredDevice(
-                'pimatic-mysensors', "Water sensor #{nodeid}.#{sensorid}", config
+                'pimatic-mysensors', "Water Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Switch found
-            if sensortype is S_LIGHT
+            if sensortype is S_LIGHT or sensortype is S_SPRINKLER
               config = {
                 class: 'MySensorsSwitch',
                 nodeid: nodeid,
@@ -473,7 +535,7 @@ module.exports = (env) ->
                 sensorid: sensorid
               }
               @framework.deviceManager.discoveredDevice(
-                'pimatic-mysensors', "Distance sensor #{nodeid}.#{sensorid}", config
+                'pimatic-mysensors', "Distance Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Gas sensor found
@@ -532,8 +594,9 @@ module.exports = (env) ->
       @name = @config.name
       @_temperatue = lastState?.temperature?.value
       @_humidity = lastState?.humidity?.value
-      @_batterystat = lastState?.batterystat?.value
-      env.logger.info "MySensorsDHT " , @id , @name
+      @_battery = lastState?.battery?.value
+      if mySensors.config.debug
+        env.logger.debug "MySensorsDHT ", @id, @name
 
       @attributes = {}
 
@@ -552,10 +615,21 @@ module.exports = (env) ->
       }
 
       @attributes.battery = {
-        description: "Display the battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -566,21 +640,22 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
             if result.sensor is sensorid
-              env.logger.debug "<- MySensorDHT " , result
+              if mySensors.config.debug
+                env.logger.debug "<- MySensorDHT ", result
               if result.type is V_TEMP
-                #env.logger.debug  "temp" , result.value
+                #env.logger.debug  "temp", result.value
                 @_temperatue = parseFloat(result.value)
                 @emit "temperature", @_temperatue
               if result.type is V_HUM
-                #env.logger.debug  "humidity" , result.value
+                #env.logger.debug  "humidity", result.value
                 @_humidity = Math.round(parseFloat(result.value))
                 @emit "humidity", @_humidity
       )
@@ -588,7 +663,7 @@ module.exports = (env) ->
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsDST extends env.devices.TemperatureSensor
 
@@ -596,8 +671,9 @@ module.exports = (env) ->
       @id = @config.id
       @name = @config.name
       @_temperatue = lastState?.temperature?.value
-      @_batterystat = lastState?.batterystat?.value
-      env.logger.debug "MySensorsDST " , @id , @name
+      @_battery = lastState?.battery?.value
+      if mySensors.config.debug
+        env.logger.debug "MySensorsDST ", @id, @name
 
       @attributes = {}
 
@@ -609,10 +685,21 @@ module.exports = (env) ->
       }
 
       @attributes.battery = {
-        description: "Display the battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -623,20 +710,21 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid and result.type is V_TEMP and result.sensor is @config.sensorid
-          env.logger.debug "<- MySensorDST " , result
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorDST ", result
           @_temperatue = parseFloat(result.value)
           @emit "temperature", @_temperatue
       )
       super()
 
     getTemperature: -> Promise.resolve @_temperatue
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsBMP extends env.devices.TemperatureSensor
 
@@ -646,8 +734,9 @@ module.exports = (env) ->
       @_temperatue = lastState?.temperature?.value
       @_pressure = lastState?.pressure?.value
       @_forecast = lastState?.forecast?.value
-      @_batterystat = lastState?.batterystat?.value
-      env.logger.debug "MySensorsBMP " , @id , @name
+      @_battery = lastState?.battery?.value
+      if mySensors.config.debug
+        env.logger.debug "MySensorsBMP ", @id, @name
 
       @attributes = {}
 
@@ -671,10 +760,21 @@ module.exports = (env) ->
       }
 
       @attributes.battery = {
-        description: "Display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -686,25 +786,26 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
       @board.on("rfValue", (result) =>
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
             if result.sensor is sensorid
-              env.logger.debug "<- MySensorBMP " , result
+              if mySensors.config.debug
+                env.logger.debug "<- MySensorBMP ", result
               if result.type is V_TEMP
-                #env.logger.debug  "temp" , result.value
+                #env.logger.debug  "temp", result.value
                 @_temperatue = parseInt(result.value)
                 @emit "temperature", @_temperatue
               if result.type is V_PRESSURE
-                #env.logger.debug  "pressure" , result.value
+                #env.logger.debug  "pressure", result.value
                 @_pressure = parseInt(result.value)
                 @emit "pressure", @_pressure
               if result.type is V_FORECAST
-                #env.logger.debug  "forecast" , result.value
+                #env.logger.debug  "forecast", result.value
                 @_forecast = result.value
                 @emit "forecast", @_forecast
 
@@ -714,7 +815,7 @@ module.exports = (env) ->
     getTemperature: -> Promise.resolve @_temperatue
     getPressure: -> Promise.resolve @_pressure
     getForecast: -> Promise.resolve @_forecast
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsPulseMeter extends env.devices.Device
 
@@ -727,9 +828,10 @@ module.exports = (env) ->
       @_ampere = lastState?.ampere?.value
       @_kwh = lastState?.kWh?.value
       @_pulsecount = lastState?.pulsecount?.value
-      @_batterystat = lastState?.batterystat?.value
+      @_battery = lastState?.battery?.value
 
-      env.logger.debug "MySensorsPulseMeter " , @id , @name
+      if mySensors.config.debug
+        env.logger.debug "MySensorsPulseMeter ", @id, @name
 
       @attributes = {}
 
@@ -759,16 +861,28 @@ module.exports = (env) ->
         @_kwh = (@_avgkw * (@_tickcount * 10)) / 3600
         @_tickcount = 0
         @_totalkw  = 0
-        env.logger.debug  "calculatekwh.." , @kwh
+        if mySensors.config.debug
+          env.logger.debug  "calculatekwh..", @kwh
         @emit "kWh", @_kwh
       )
 
 
       @attributes.battery = {
-        description: "Display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -781,7 +895,6 @@ module.exports = (env) ->
 
       @board.on("rfRequest", (result) =>
         if result.sender is @config.nodeid
-          datas = {}
           datas =
           {
             "destination": @config.nodeid,
@@ -800,28 +913,31 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
       @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is @config.sensorid
-            env.logger.debug "<- MySensorsPulseMeter" , result
-            if result.type is V_VAR1
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsPulseMeter", result
+          if result.type is V_VAR1
+            if mySensors.config.debug
               env.logger.debug "<- MySensorsPulseMeter V_VAR1"
-              @_pulsecount = parseInt(result.value)
-              @emit "pulsecount", @_pulsecount
-            if result.type is V_WATT
+            @_pulsecount = parseInt(result.value)
+            @emit "pulsecount", @_pulsecount
+          if result.type is V_WATT
+            if mySensors.config.debug
               env.logger.debug "<- MySensorsPulseMeter V_WATT"
-              @_watt = parseInt(result.value)
-              @emit "watt", @_watt
-              @_ampere = @_watt / @voltage
-              @emit "ampere", @_ampere
-            if result.type is V_KWH
+            @_watt = parseInt(result.value)
+            @emit "watt", @_watt
+            @_ampere = @_watt / @voltage
+            @emit "ampere", @_ampere
+          if result.type is V_KWH
+            if mySensors.config.debug
               env.logger.debug "<- MySensorsPulseMeter V_KWH"
-              @_kwh = parseFloat(result.value)
-              @emit "kWh", @_kwh
+            @_kwh = parseFloat(result.value)
+            @emit "kWh", @_kwh
 
       )
       super()
@@ -829,7 +945,7 @@ module.exports = (env) ->
     getWatt: -> Promise.resolve @_watt
     getPulsecount: -> Promise.resolve @_pulsecount
     getKWh: -> Promise.resolve @_kwh
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
     getAmpere: -> Promise.resolve @_ampere
 
   class MySensorsWaterMeter extends env.devices.Device
@@ -841,9 +957,10 @@ module.exports = (env) ->
       @_flow = lastState?.flow?.value
       @_volume = lastState?.volume?.value
       @_pulsecount = lastState?.pulsecount?.value
-      @_batterystat = lastState?.batterystat?.value
+      @_battery = lastState?.battery?.value
 
-      env.logger.debug "MySensorsWaterMeter " , @id , @name
+      if mySensors.config.debug
+        env.logger.debug "MySensorsWaterMeter ", @id, @name
 
       @attributes = {}
 
@@ -869,16 +986,26 @@ module.exports = (env) ->
       }
 
       @attributes.battery = {
-        description: "Display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
       @board.on("rfRequest", (result) =>
         if result.sender is @config.nodeid
-          datas = {}
           datas =
           {
             "destination": @config.nodeid,
@@ -897,26 +1024,29 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
       @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is @config.sensorid
-              env.logger.debug "<- MySensorsWaterMeter" , result
-            if result.type is V_VAR1
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsWaterMeter", result
+          if result.type is V_VAR1
+            if mySensors.config.debug
               env.logger.debug "<- MySensorsWaterMeter V_VAR1"
-              @_pulsecount = parseInt(result.value)
-              @emit "pulsecount", @_pulsecount
-            if result.type is V_FLOW
+            @_pulsecount = parseInt(result.value)
+            @emit "pulsecount", @_pulsecount
+          if result.type is V_FLOW
+            if mySensors.config.debug
               env.logger.debug "<- MySensorsWaterMeter V_FLOW"
-              @_flow = parseInt(result.value)
-              @emit "flow", @_flow
-            if result.type is V_VOLUME
+            @_flow = parseInt(result.value)
+            @emit "flow", @_flow
+          if result.type is V_VOLUME
+            if mySensors.config.debug
               env.logger.debug "<- MySensorsWaterMeter V_VOLUME"
-              @_volume = parseFloat(result.value)
-              @emit "volume", @_volume
+            @_volume = parseFloat(result.value)
+            @emit "volume", @_volume
 
       )
       super()
@@ -924,23 +1054,58 @@ module.exports = (env) ->
     getFlow: -> Promise.resolve @_flow
     getPulsecount: -> Promise.resolve @_pulsecount
     getVolume: -> Promise.resolve @_volume
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsPIR extends env.devices.PresenceSensor
 
-    constructor: (@config,lastState,@board) ->
+    constructor: (@config, lastState, @board) ->
       @id = @config.id
       @name = @config.name
       @_presence = lastState?.presence?.value or false
-      env.logger.debug "MySensorsPIR " , @id , @name, @_presence
+      @_battery = lastState?.battery?.value
+      
+      if mySensors.config.debug
+        env.logger.debug "MySensorsPIR ", @id, @name, @_presence
+      
+      @addAttribute('battery', {
+        description: "Battery",
+        type: "number"
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
+        hidden: !@config.batterySensor
+      })
+      @['battery'] = ()-> Promise.resolve(@_battery)
+       
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
 
+            @_battery = parseInt(result.value)
+            @emit "battery", @_battery
+      )
+      
       resetPresence = ( =>
         @_setPresence(no)
       )
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_TRIPPED and result.sensor is @config.sensorid
-          env.logger.debug "<- MySensorPIR ", result
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorPIR ", result
           if result.value is ZERO_VALUE
             @_setPresence(no)
           else
@@ -955,6 +1120,7 @@ module.exports = (env) ->
       super()
 
     getPresence: -> Promise.resolve @_presence
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsButton extends env.devices.ContactSensor
 
@@ -962,15 +1128,27 @@ module.exports = (env) ->
       @id = @config.id
       @name = @config.name
       @_contact = lastState?.contact?.value or false
-      env.logger.debug "MySensorsButton" , @id , @name, @_contact
+      if mySensors.config.debug
+        env.logger.debug "MySensorsButton", @id, @name, @_contact
 
       @attributes = _.cloneDeep @attributes
 
       @attributes.battery = {
-        description: "Display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -981,13 +1159,14 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is ( V_TRIPPED or V_STATUS ) and result.sensor is @config.sensorid
-          env.logger.debug "<- MySensorsButton ", result
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsButton ", result
           if result.value is ZERO_VALUE
             @_setContact(yes)
           else
@@ -995,7 +1174,7 @@ module.exports = (env) ->
       )
       super()
 
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsSwitch extends env.devices.PowerSwitch
 
@@ -1003,12 +1182,14 @@ module.exports = (env) ->
       @id = @config.id
       @name = @config.name
       @_state = lastState?.state?.value
-      env.logger.debug "MySensorsSwitch " , @id , @name, @_state
+      if mySensors.config.debug
+        env.logger.debug "MySensorsSwitch ", @id, @name, @_state
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_STATUS and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 1 then on else off)
-          env.logger.debug "<- MySensorSwitch " , result
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorSwitch ", result
           @_setState(state)
         )
       super()
@@ -1016,7 +1197,6 @@ module.exports = (env) ->
     changeStateTo: (state) ->
       assert state is on or state is off
       if state is true then _state = 1  else _state = 0
-      datas = {}
       datas =
       {
         "destination": @config.nodeid,
@@ -1043,7 +1223,8 @@ module.exports = (env) ->
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 0 then off else on)
           dimlevel = (result.value)
-          env.logger.debug "<- MySensorDimmer " , result
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorDimmer ", result
           @_setState(state)
           @_setDimlevel(dimlevel)
         )
@@ -1058,7 +1239,6 @@ module.exports = (env) ->
         state = false
       unless @_dimlevel is 0
         @_lastdimlevel = @_dimlevel
-      datas = {}
       datas =
       {
         "destination": @config.nodeid,
@@ -1078,15 +1258,27 @@ module.exports = (env) ->
       @name = @config.name
 
       @_light = lastState?.light?.value
-      @_batterystat = lastState?.batterystat?.value
-      env.logger.debug "MySensorsLight " , @id , @name
+      @_battery = lastState?.battery?.value
+      if mySensors.config.debug
+        env.logger.debug "MySensorsLight ", @id, @name
       @attributes = {}
 
       @attributes.battery = {
-        description: "display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -1097,8 +1289,8 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
       @attributes.light = {
@@ -1108,17 +1300,17 @@ module.exports = (env) ->
       }
 
       @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is  @config.sensorid
-            env.logger.debug "<- MySensorsLight" , result
-            if result.type is V_LIGHT_LEVEL
-              @_light = parseInt(result.value)
-              @emit "light", @_light
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsLight", result
+          if result.type is V_LIGHT_LEVEL
+            @_light = parseInt(result.value)
+            @emit "light", @_light
       )
       super()
 
     getLight: -> Promise.resolve @_light
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsLux extends env.devices.Device
 
@@ -1127,24 +1319,35 @@ module.exports = (env) ->
       @name = @config.name
 
       @_lux = lastState?.lux?.value
-      @_batterystat = lastState?.batterystat?.value
-      #env.logger.debug "MySensorsLux " , @id , @name
+      @_battery = lastState?.battery?.value
+      #env.logger.debug "MySensorsLux ", @id, @name
       @attributes = {}
 
 
       @attributes.battery = {
-        description: "display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
       @board.on("rfbattery", (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
 
@@ -1155,33 +1358,45 @@ module.exports = (env) ->
       }
 
       @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is  @config.sensorid
-            env.logger.debug "<- MySensorsLux" , result
-            if result.type is V_LIGHT_LEVEL or V_LEVEL
-              @_lux = parseInt(result.value)
-              @emit "lux", @_lux
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsLux", result
+          if result.type is V_LIGHT_LEVEL or V_LEVEL
+            @_lux = parseInt(result.value)
+            @emit "lux", @_lux
       )
       super()
 
     getLux: -> Promise.resolve @_lux
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsDistance extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
       @id = @config.id
       @name = @config.name
-      @_distance= lastState?.distance?.value
-      @_batterystat = lastState?.batterystat?.value
-      env.logger.debug "MySensorsDistance " , @id , @name
+      @_distance = lastState?.distance?.value
+      @_battery = lastState?.battery?.value
+      if mySensors.config.debug
+        env.logger.debug "MySensorsDistance ", @id, @name
       @attributes = {}
 
       @attributes.battery = {
-        description: "display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -1192,8 +1407,8 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
       @attributes.distance = {
@@ -1203,17 +1418,17 @@ module.exports = (env) ->
       }
 
       @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is  @config.sensorid
-            env.logger.debug "<- MySensorsDistance" , result
-            if result.type is V_DISTANCE
-              @_distance = parseInt(result.value)
-              @emit "distance", @_distance
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsDistance", result
+          if result.type is V_DISTANCE
+            @_distance = parseInt(result.value)
+            @emit "distance", @_distance
       )
       super()
 
     getDistance: -> Promise.resolve @_distance
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsGas extends env.devices.Device
 
@@ -1221,15 +1436,27 @@ module.exports = (env) ->
       @id = @config.id
       @name = @config.name
       @_gas = lastState?.gas?.value
-      @_batterystat = lastState?.batterystat?.value
-      env.logger.debug "MySensorsGas " , @id , @name
+      @_battery = lastState?.battery?.value
+      if mySensors.config.debug
+        env.logger.debug "MySensorsGas ", @id, @name
       @attributes = {}
 
       @attributes.battery = {
-        description: "display the Battery level of Sensor"
+        description: "Display the battery level of sensor"
         type: "number"
-        unit: '%'
-        acronym: 'BATT'
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
         hidden: !@config.batterySensor
        }
 
@@ -1240,8 +1467,8 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_batterystat =  parseInt(result.value)
-            @emit "battery" , @_batterystat
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
       )
 
       @attributes.gas = {
@@ -1251,17 +1478,17 @@ module.exports = (env) ->
       }
 
       @board.on("rfValue", (result) =>
-        if result.sender is @config.nodeid
-          if result.sensor is  @config.sensorid
-            env.logger.debug "<- MySensorsGas" , result
-            if result.type is V_VAR1
-              @_gas = parseInt(result.value)
-              @emit "gas", @_gas
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsGas", result
+          if result.type is V_VAR1
+            @_gas = parseInt(result.value)
+            @emit "gas", @_gas
       )
       super()
 
     getGas: -> Promise.resolve @_gas
-    getBattery: -> Promise.resolve @_batterystat
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsShutter extends env.devices.ShutterController
 
@@ -1269,12 +1496,14 @@ module.exports = (env) ->
       @id = @config.id
       @name = @config.name
       @_position = lastState?.position?.value
-      env.logger.debug "MySensorsShutter " , @id , @name, @_position
+      if mySensors.config.debug
+        env.logger.debug "MySensorsShutter ", @id, @name, @_position
 
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.sensor is @config.sensorid and result.type is V_UP or result.type is V_DOWN or result.type is V_STOP
           position = (if result.type is V_UP then 'up' else if result.type is V_DOWN then 'down' else 'stopped')
-          env.logger.debug "<- MySensorsShutter " , result
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsShutter ", result
           @_setPosition(position)
         )
       super()
@@ -1282,7 +1511,6 @@ module.exports = (env) ->
     moveToPosition: (position) ->
       # assert position is up or position is down
       if position is 'up' then _position = V_UP  else _position = V_DOWN
-      datas = {}
       datas =
       {
         "destination": @config.nodeid,
@@ -1296,7 +1524,6 @@ module.exports = (env) ->
       )
 
     stop: () ->
-      datas = {}
       datas =
       {
         "destination": @config.nodeid,
@@ -1366,7 +1593,8 @@ module.exports = (env) ->
                 receiveData = true
 
               if (receiveData)
-                env.logger.debug "<- MySensorsMulti" , result
+                if mySensors.config.debug
+                  env.logger.debug "<- MySensorsMulti", result
                 # Adjust the received value according to the type that has been set in the config
                 switch attr.type
                   when "integer"
@@ -1402,7 +1630,8 @@ module.exports = (env) ->
             # if the attribute has a type of battery and the received nodeid is the same as the nodeid in the config of the attribute
             if result.sender is attr.nodeid and type is "battery"
               unless result.value is null or undefined
-                env.logger.debug "<- MySensorsMulti" , result
+                if mySensors.config.debug
+                  env.logger.debug "<- MySensorsMulti", result
                 # When the battery is to low, battery percentages higher then 100 could be send
                 if result.value > 100
                   result.value = 0
@@ -1422,10 +1651,11 @@ module.exports = (env) ->
     constructor: (@config,lastState, @board,@framework) ->
       @id = @config.id
       @name = @config.name
-      env.logger.debug "MySensorsBattery" , @id , @name
+      if mySensors.config.debug
+        env.logger.debug "MySensorsBattery", @id, @name
 
       @attributes = {}
-      @_batterystat = {}
+      @_battery = {}
       for nodeid in @config.nodeid
         do (nodeid) =>
           for device in  @framework.deviceManager.devicesConfig
@@ -1437,12 +1667,24 @@ module.exports = (env) ->
           @attributes[attr] = {
             description: "the measured Battery Stat of Sensor"
             type: "number"
-            unit: '%'
-            acronym:  attrname
+            displaySparkline: false
+            unit: "%"
+            acronym: attrname
+            icon:
+                noText: true
+                mapping: {
+                  'icon-battery-empty': 0
+                  'icon-battery-fuel-1': [0, 20]
+                  'icon-battery-fuel-2': [20, 40]
+                  'icon-battery-fuel-3': [40, 60]
+                  'icon-battery-fuel-4': [60, 80]
+                  'icon-battery-fuel-5': [80, 100]
+                  'icon-battery-filled': 100
+                }
           }
-          getter = ( =>  Promise.resolve @_batterystat[nodeid] )
+          getter = ( =>  Promise.resolve @_battery[nodeid] )
           @_createGetter( attr, getter)
-          @_batterystat[nodeid] = lastState?[attr]?.value
+          @_battery[nodeid] = lastState?[attr]?.value
 
       @board.on("rfbattery", (result) =>
         unless result.value is null or undefined
@@ -1450,8 +1692,8 @@ module.exports = (env) ->
           if result.value > 100
             result.value = 0
 
-          @_batterystat[result.sender] =  parseInt(result.value)
-          @emit "batteryLevel_" + result.sender, @_batterystat[result.sender]
+          @_battery[result.sender] =  parseInt(result.value)
+          @emit "batteryLevel_" + result.sender, @_battery[result.sender]
       )
       super()
 
@@ -1465,12 +1707,11 @@ module.exports = (env) ->
         @framework.variableManager.evaluateStringExpression(@sensorid)
         @framework.variableManager.evaluateStringExpression(@cmdcode)
         @framework.variableManager.evaluateStringExpression(@customvalue)
-      ]).then( ([node, sensor, code ,customvalue]) =>
+      ]).then( ([node, sensor, code,customvalue]) =>
         if simulate
           # just return a promise fulfilled with a description about what we would do.
           return __("would send IR \"%s\"", cmdCode)
         else
-          datas = {}
 
           switch customvalue
             when "V_VAR1"
@@ -1483,10 +1724,10 @@ module.exports = (env) ->
               type_value = V_VAR4
             when "V_VAR5"
               type_value = V_VAR5
-            when "V_DIMMER"
-              type_value = V_DIMMER
-            when "V_LIGHT"
-              type_value = V_LIGHT
+            when "V_PERCENTAGE"
+              type_value = V_PERCENTAGE
+            when "V_STATUS"
+              type_value = V_STATUS
             when "V_UP"
               type_value = V_UP
             when "V_DOWN"
