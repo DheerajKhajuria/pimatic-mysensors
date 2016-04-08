@@ -18,7 +18,7 @@
     "MySensors-config-schema.coffee",
     "LICENSE"
   ],
-  "version": "0.8.26",
+  "version": "0.8.27",
   "homepage": "http://pimatic.org",
   "repository": {
     "type": "git",
@@ -27,7 +27,6 @@
   "icon": "icon.svg",
   "license": "GPL-2.0",
   "configSchema": "MySensors-config-schema.coffee",
-  "icon": "icon.svg",
   "keywords": [
     "pimatic",
     "MySensors"
