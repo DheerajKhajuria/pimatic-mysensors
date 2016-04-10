@@ -1191,7 +1191,20 @@ module.exports = (env) ->
           if mySensors.config.debug
             env.logger.debug "<- MySensorSwitch ", result
           @_setState(state)
-        )
+      )
+      
+      @board.on("rfRequest", (result) =>
+        if result.sender is @config.nodeid and result.type is V_STATUS
+          datas =
+          {
+            "destination": @config.nodeid,
+            "sensor": @config.sensorid,
+            "type"  : V_STATUS,
+            "value" : @_state,
+            "ack"   : 1
+          }
+          @board._rfWrite(datas)
+      )
       super()
 
     changeStateTo: (state) ->
@@ -1218,7 +1231,20 @@ module.exports = (env) ->
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_lastdimlevel = lastState?.lastdimlevel?.value or 100
       @_state = lastState?.state?.value or off
-
+      
+      @board.on("rfRequest", (result) =>
+        if result.sender is @config.nodeid and result.type is V_PERCENTAGE
+          datas =
+          {
+            "destination": @config.nodeid,
+            "sensor": @config.sensorid,
+            "type"  : V_PERCENTAGE,
+            "value" : @_dimlevel,
+            "ack"   : 1
+          }
+          @board._rfWrite(datas)
+      )
+      
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 0 then off else on)
@@ -1227,7 +1253,7 @@ module.exports = (env) ->
             env.logger.debug "<- MySensorDimmer ", result
           @_setState(state)
           @_setDimlevel(dimlevel)
-        )
+      )
       super()
 
     turnOn: -> @changeDimlevelTo(@_lastdimlevel)
