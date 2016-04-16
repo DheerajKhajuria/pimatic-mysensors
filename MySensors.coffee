@@ -53,6 +53,13 @@ module.exports = (env) ->
   V_HVAC_SETPOINT_COOL = 44
   V_HVAC_SETPOINT_HEAT = 45
   V_HVAC_FLOW_MODE     = 46
+  V_TEXT               = 47
+  V_CUSTOM             = 48
+  V_POSITION           = 49
+  V_IR_RECORD          = 50
+  V_PH                 = 51
+  V_ORP                = 52
+  V_EC                 = 53
 
   ZERO_VALUE         = "0"
 
@@ -85,6 +92,12 @@ module.exports = (env) ->
   I_REQUEST_SIGNING  = 15
   I_GET_NONCE        = 16
   I_GET_NONCE_RESPONSE = 17
+  I_HEARTBEAT        = 18
+  I_PRESENTATION     = 19
+  I_DISCOVER         = 20
+  I_DISCOVER_RESPONSE = 21
+  I_HEARTBEAT_RESPONSE = 22
+  I_LOCKED           = 23
 
   S_DOOR             = 0
   S_MOTION           = 1
@@ -122,6 +135,10 @@ module.exports = (env) ->
   S_SOUND            = 33
   S_VIBRATION        = 34
   S_MOISTURE         = 35
+  S_INFO             = 36
+  S_GAS              = 37
+  S_GPS              = 38
+  S_WATER_QUALITY    = 39
 
   ST_FIRMWARE_CONFIG_REQUEST   = 0
   ST_FIRMWARE_CONFIG_RESPONSE  = 1
@@ -137,7 +154,7 @@ module.exports = (env) ->
   P_LONG32           = 4
   P_ULONG32          = 5
   P_CUSTOM           = 6
-
+  P_FLOAT32          = 7
 
   class Board extends events.EventEmitter
 
@@ -503,6 +520,17 @@ module.exports = (env) ->
               }
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Water Sensor #{nodeid}.#{sensorid}", config
+              )
+              
+            # pH sensor found
+            if sensortype is S_WATER_QUALITY
+              config = {
+                class: 'MySensorsPH',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "pH Sensor #{nodeid}.#{sensorid}", config
               )
 
             # Switch found
@@ -1109,7 +1137,7 @@ module.exports = (env) ->
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsPH", result
-          if result.type is V_VAR1
+          if result.type is V_PH or result.type is V_VAR1
             @_ph = parseInt(result.value)
             @emit "ph", @_ph
       )
