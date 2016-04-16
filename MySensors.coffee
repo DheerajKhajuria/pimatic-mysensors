@@ -1183,8 +1183,6 @@ module.exports = (env) ->
         icon:
             noText: true
             mapping: {
-              'icon-battery-empty': null
-              'icon-battery-empty': undefined
               'icon-battery-empty': 0
               'icon-battery-fuel-1': [0, 20]
               'icon-battery-fuel-2': [20, 40]
