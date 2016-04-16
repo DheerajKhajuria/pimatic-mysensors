@@ -562,6 +562,7 @@ module.exports = (env) ->
         MySensorsDimmer
         MySensorsPulseMeter
         MySensorsWaterMeter
+        MySensorsPH
         MySensorsButton
         MySensorsLight
         MySensorsLux
@@ -1054,6 +1055,67 @@ module.exports = (env) ->
     getFlow: -> Promise.resolve @_flow
     getPulsecount: -> Promise.resolve @_pulsecount
     getVolume: -> Promise.resolve @_volume
+    getBattery: -> Promise.resolve @_battery
+    
+  class MySensorsPH extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = @config.id
+      @name = @config.name
+
+      @_ph = lastState?.ph?.value
+      @_battery = lastState?.battery?.value
+      if mySensors.config.debug
+        env.logger.debug "MySensorsPH ", @id, @name
+      @attributes = {}
+
+      @attributes.battery = {
+        description: "Display the battery level of sensor"
+        type: "number"
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
+        hidden: !@config.batterySensor
+       }
+
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
+      )
+
+      @attributes.ph = {
+        description: "the meassured pH value"
+        type: "number"
+        unit: 'pH'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsPH", result
+          if result.type is V_VAR1
+            @_ph = parseInt(result.value)
+            @emit "ph", @_ph
+      )
+      super()
+
+    getPh: -> Promise.resolve @_ph
     getBattery: -> Promise.resolve @_battery
 
   class MySensorsPIR extends env.devices.PresenceSensor
