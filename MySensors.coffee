@@ -689,6 +689,9 @@ module.exports = (env) ->
                 @emit "humidity", @_humidity
       )
       super()
+      
+    destroy: ->
+      super()
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
@@ -750,6 +753,9 @@ module.exports = (env) ->
           @_temperatue = parseFloat(result.value)
           @emit "temperature", @_temperatue
       )
+      super()
+    
+    destroy: ->
       super()
 
     getTemperature: -> Promise.resolve @_temperatue
@@ -839,6 +845,9 @@ module.exports = (env) ->
                 @emit "forecast", @_forecast
 
       )
+      super()
+    
+    destroy: ->
       super()
 
     getTemperature: -> Promise.resolve @_temperatue
@@ -970,6 +979,9 @@ module.exports = (env) ->
 
       )
       super()
+      
+    destroy: ->
+      super()
 
     getWatt: -> Promise.resolve @_watt
     getPulsecount: -> Promise.resolve @_pulsecount
@@ -1079,6 +1091,9 @@ module.exports = (env) ->
 
       )
       super()
+    
+    destroy: ->
+      super()
 
     getFlow: -> Promise.resolve @_flow
     getPulsecount: -> Promise.resolve @_pulsecount
@@ -1142,6 +1157,9 @@ module.exports = (env) ->
             @emit "ph", @_ph
       )
       super()
+    
+    destroy: ->
+      super()
 
     getPh: -> Promise.resolve @_ph
     getBattery: -> Promise.resolve @_battery
@@ -1165,6 +1183,8 @@ module.exports = (env) ->
         icon:
             noText: true
             mapping: {
+              'icon-battery-empty': null
+              'icon-battery-empty': undefined
               'icon-battery-empty': 0
               'icon-battery-fuel-1': [0, 20]
               'icon-battery-fuel-2': [20, 40]
@@ -1206,7 +1226,10 @@ module.exports = (env) ->
               @_setPresence(no)
             ), @config.resetTime)
       )
-
+      
+      super()
+    
+    destroy: ->
       super()
 
     getPresence: -> Promise.resolve @_presence
@@ -1263,6 +1286,9 @@ module.exports = (env) ->
             @_setContact(no)
       )
       super()
+      
+    destroy: ->
+      super()
 
     getBattery: -> Promise.resolve @_battery
 
@@ -1311,6 +1337,9 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setState(state)
       )
+      
+    destroy: ->
+      super()
 
   class MySensorsDimmer extends env.devices.DimmerActuator
     _lastdimlevel: null
@@ -1366,6 +1395,9 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setDimlevel(level)
       )
+      
+    destroy: ->
+      super()
 
   class MySensorsLight extends env.devices.Device
 
@@ -1424,6 +1456,9 @@ module.exports = (env) ->
             @emit "light", @_light
       )
       super()
+      
+    destroy: ->
+      super()
 
     getLight: -> Promise.resolve @_light
     getBattery: -> Promise.resolve @_battery
@@ -1481,6 +1516,9 @@ module.exports = (env) ->
             @_lux = parseInt(result.value)
             @emit "lux", @_lux
       )
+      super()
+    
+    destroy: ->
       super()
 
     getLux: -> Promise.resolve @_lux
@@ -1542,6 +1580,9 @@ module.exports = (env) ->
             @emit "distance", @_distance
       )
       super()
+    
+    destroy: ->
+      super()
 
     getDistance: -> Promise.resolve @_distance
     getBattery: -> Promise.resolve @_battery
@@ -1602,6 +1643,9 @@ module.exports = (env) ->
             @emit "gas", @_gas
       )
       super()
+      
+    destroy: ->
+      super()
 
     getGas: -> Promise.resolve @_gas
     getBattery: -> Promise.resolve @_battery
@@ -1651,6 +1695,9 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
         @_setPosition('stopped')
       )
+      
+    destroy: ->
+      super()
 
   class MySensorsMulti extends env.devices.Device
 
@@ -1756,6 +1803,9 @@ module.exports = (env) ->
                 @_setAttribute name, value
       )
       super()
+    
+    destroy: ->
+      super()
 
     _setAttribute: (attributeName, value) ->
       unless @attributeValue[attributeName] is value
@@ -1811,6 +1861,9 @@ module.exports = (env) ->
           @_battery[result.sender] =  parseInt(result.value)
           @emit "batteryLevel_" + result.sender, @_battery[result.sender]
       )
+      super()
+      
+    destroy: ->
       super()
 
   class MySensorsActionHandler extends env.actions.ActionHandler
