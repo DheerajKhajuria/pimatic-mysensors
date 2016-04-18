@@ -1138,7 +1138,7 @@ module.exports = (env) ->
             if result.value > 100
               result.value = 0
 
-            @_battery =  parseInt(result.value)
+            @_battery =  parseFloat(result.value)
             @emit "battery", @_battery
       )
 
