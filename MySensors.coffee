@@ -1221,6 +1221,7 @@ module.exports = (env) ->
           if @config.autoReset is true
             clearTimeout(@_resetPresenceTimeout)
             @_resetPresenceTimeout = setTimeout(( =>
+              if @_destroyed then return
               @_setPresence(no)
             ), @config.resetTime)
       )
@@ -1228,6 +1229,7 @@ module.exports = (env) ->
       super()
     
     destroy: ->
+      clearTimeout(@_resetPresenceTimeout)
       super()
 
     getPresence: -> Promise.resolve @_presence
