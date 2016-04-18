@@ -1153,7 +1153,7 @@ module.exports = (env) ->
           if mySensors.config.debug
             env.logger.debug "<- MySensorsPH", result
           if result.type is V_PH or result.type is V_VAR1
-            @_ph = parseInt(result.value)
+            @_ph = result.value
             @emit "ph", @_ph
       )
       super()
