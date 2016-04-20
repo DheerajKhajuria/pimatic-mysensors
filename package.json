@@ -18,16 +18,14 @@
     "MySensors-config-schema.coffee",
     "LICENSE"
   ],
-  "version": "0.8.26",
+  "version": "0.8.27"
   "homepage": "http://pimatic.org",
   "repository": {
     "type": "git",
     "url": "git://github.com/DheerajKhajuria/pimatic-MySensors.git"
   },
-  "icon": "icon.svg",
   "license": "GPL-2.0",
   "configSchema": "MySensors-config-schema.coffee",
-  "icon": "icon.svg",
   "keywords": [
     "pimatic",
     "MySensors"
@@ -65,6 +63,10 @@
     {
       "name": "dheerajkhajuria",
       "email": "dheeraj.khajuria@gmail.com"
+    },
+    {
+      "name": "sweebee",
+      "email": "wiebenieuwenhuis@gmail.com"
     }
   ],
   "directories": {},

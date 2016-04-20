@@ -53,6 +53,13 @@ module.exports = (env) ->
   V_HVAC_SETPOINT_COOL = 44
   V_HVAC_SETPOINT_HEAT = 45
   V_HVAC_FLOW_MODE     = 46
+  V_TEXT               = 47
+  V_CUSTOM             = 48
+  V_POSITION           = 49
+  V_IR_RECORD          = 50
+  V_PH                 = 51
+  V_ORP                = 52
+  V_EC                 = 53
 
   ZERO_VALUE         = "0"
 
@@ -85,6 +92,12 @@ module.exports = (env) ->
   I_REQUEST_SIGNING  = 15
   I_GET_NONCE        = 16
   I_GET_NONCE_RESPONSE = 17
+  I_HEARTBEAT        = 18
+  I_PRESENTATION     = 19
+  I_DISCOVER         = 20
+  I_DISCOVER_RESPONSE = 21
+  I_HEARTBEAT_RESPONSE = 22
+  I_LOCKED           = 23
 
   S_DOOR             = 0
   S_MOTION           = 1
@@ -122,6 +135,10 @@ module.exports = (env) ->
   S_SOUND            = 33
   S_VIBRATION        = 34
   S_MOISTURE         = 35
+  S_INFO             = 36
+  S_GAS              = 37
+  S_GPS              = 38
+  S_WATER_QUALITY    = 39
 
   ST_FIRMWARE_CONFIG_REQUEST   = 0
   ST_FIRMWARE_CONFIG_RESPONSE  = 1
@@ -137,7 +154,7 @@ module.exports = (env) ->
   P_LONG32           = 4
   P_ULONG32          = 5
   P_CUSTOM           = 6
-
+  P_FLOAT32          = 7
 
   class Board extends events.EventEmitter
 
@@ -504,6 +521,17 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Water Sensor #{nodeid}.#{sensorid}", config
               )
+              
+            # pH sensor found
+            if sensortype is S_WATER_QUALITY
+              config = {
+                class: 'MySensorsPH',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "pH Sensor #{nodeid}.#{sensorid}", config
+              )
 
             # Switch found
             if sensortype is S_LIGHT or sensortype is S_SPRINKLER
@@ -562,6 +590,7 @@ module.exports = (env) ->
         MySensorsDimmer
         MySensorsPulseMeter
         MySensorsWaterMeter
+        MySensorsPH
         MySensorsButton
         MySensorsLight
         MySensorsLux
@@ -660,6 +689,9 @@ module.exports = (env) ->
                 @emit "humidity", @_humidity
       )
       super()
+      
+    destroy: ->
+      super()
 
     getTemperature: -> Promise.resolve @_temperatue
     getHumidity: -> Promise.resolve @_humidity
@@ -721,6 +753,9 @@ module.exports = (env) ->
           @_temperatue = parseFloat(result.value)
           @emit "temperature", @_temperatue
       )
+      super()
+    
+    destroy: ->
       super()
 
     getTemperature: -> Promise.resolve @_temperatue
@@ -810,6 +845,9 @@ module.exports = (env) ->
                 @emit "forecast", @_forecast
 
       )
+      super()
+    
+    destroy: ->
       super()
 
     getTemperature: -> Promise.resolve @_temperatue
@@ -941,6 +979,9 @@ module.exports = (env) ->
 
       )
       super()
+      
+    destroy: ->
+      super()
 
     getWatt: -> Promise.resolve @_watt
     getPulsecount: -> Promise.resolve @_pulsecount
@@ -1050,10 +1091,77 @@ module.exports = (env) ->
 
       )
       super()
+    
+    destroy: ->
+      super()
 
     getFlow: -> Promise.resolve @_flow
     getPulsecount: -> Promise.resolve @_pulsecount
     getVolume: -> Promise.resolve @_volume
+    getBattery: -> Promise.resolve @_battery
+    
+  class MySensorsPH extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = @config.id
+      @name = @config.name
+
+      @_ph = lastState?.ph?.value
+      @_battery = lastState?.battery?.value
+      if mySensors.config.debug
+        env.logger.debug "MySensorsPH ", @id, @name
+      @attributes = {}
+
+      @attributes.battery = {
+        description: "Display the battery level of sensor"
+        type: "number"
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
+        hidden: !@config.batterySensor
+       }
+
+      @board.on("rfbattery", (result) =>
+         if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
+      )
+
+      @attributes.ph = {
+        description: "the meassured pH value"
+        type: "number"
+        unit: 'pH'
+      }
+
+      @board.on("rfValue", (result) =>
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsPH", result
+          if result.type is V_PH or result.type is V_VAR1
+            @_ph = parseFloat(result.value)
+            @emit "ph", @_ph
+      )
+      super()
+    
+    destroy: ->
+      super()
+
+    getPh: -> Promise.resolve @_ph
     getBattery: -> Promise.resolve @_battery
 
   class MySensorsPIR extends env.devices.PresenceSensor
@@ -1113,10 +1221,15 @@ module.exports = (env) ->
           if @config.autoReset is true
             clearTimeout(@_resetPresenceTimeout)
             @_resetPresenceTimeout = setTimeout(( =>
+              if @_destroyed then return
               @_setPresence(no)
             ), @config.resetTime)
       )
-
+      
+      super()
+    
+    destroy: ->
+      clearTimeout(@_resetPresenceTimeout)
       super()
 
     getPresence: -> Promise.resolve @_presence
@@ -1173,6 +1286,9 @@ module.exports = (env) ->
             @_setContact(no)
       )
       super()
+      
+    destroy: ->
+      super()
 
     getBattery: -> Promise.resolve @_battery
 
@@ -1191,7 +1307,20 @@ module.exports = (env) ->
           if mySensors.config.debug
             env.logger.debug "<- MySensorSwitch ", result
           @_setState(state)
-        )
+      )
+      
+      @board.on("rfRequest", (result) =>
+        if result.sender is @config.nodeid and result.type is V_STATUS
+          datas =
+          {
+            "destination": @config.nodeid,
+            "sensor": @config.sensorid,
+            "type"  : V_STATUS,
+            "value" : @_state,
+            "ack"   : 1
+          }
+          @board._rfWrite(datas)
+      )
       super()
 
     changeStateTo: (state) ->
@@ -1208,6 +1337,9 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setState(state)
       )
+      
+    destroy: ->
+      super()
 
   class MySensorsDimmer extends env.devices.DimmerActuator
     _lastdimlevel: null
@@ -1218,7 +1350,20 @@ module.exports = (env) ->
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_lastdimlevel = lastState?.lastdimlevel?.value or 100
       @_state = lastState?.state?.value or off
-
+      
+      @board.on("rfRequest", (result) =>
+        if result.sender is @config.nodeid and result.type is V_PERCENTAGE
+          datas =
+          {
+            "destination": @config.nodeid,
+            "sensor": @config.sensorid,
+            "type"  : V_PERCENTAGE,
+            "value" : @_dimlevel,
+            "ack"   : 1
+          }
+          @board._rfWrite(datas)
+      )
+      
       @board.on('rfValue', (result) =>
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 0 then off else on)
@@ -1227,7 +1372,7 @@ module.exports = (env) ->
             env.logger.debug "<- MySensorDimmer ", result
           @_setState(state)
           @_setDimlevel(dimlevel)
-        )
+      )
       super()
 
     turnOn: -> @changeDimlevelTo(@_lastdimlevel)
@@ -1250,6 +1395,9 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setDimlevel(level)
       )
+      
+    destroy: ->
+      super()
 
   class MySensorsLight extends env.devices.Device
 
@@ -1308,6 +1456,9 @@ module.exports = (env) ->
             @emit "light", @_light
       )
       super()
+      
+    destroy: ->
+      super()
 
     getLight: -> Promise.resolve @_light
     getBattery: -> Promise.resolve @_battery
@@ -1365,6 +1516,9 @@ module.exports = (env) ->
             @_lux = parseInt(result.value)
             @emit "lux", @_lux
       )
+      super()
+    
+    destroy: ->
       super()
 
     getLux: -> Promise.resolve @_lux
@@ -1426,6 +1580,9 @@ module.exports = (env) ->
             @emit "distance", @_distance
       )
       super()
+    
+    destroy: ->
+      super()
 
     getDistance: -> Promise.resolve @_distance
     getBattery: -> Promise.resolve @_battery
@@ -1486,6 +1643,9 @@ module.exports = (env) ->
             @emit "gas", @_gas
       )
       super()
+      
+    destroy: ->
+      super()
 
     getGas: -> Promise.resolve @_gas
     getBattery: -> Promise.resolve @_battery
@@ -1535,6 +1695,9 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
         @_setPosition('stopped')
       )
+      
+    destroy: ->
+      super()
 
   class MySensorsMulti extends env.devices.Device
 
@@ -1640,6 +1803,9 @@ module.exports = (env) ->
                 @_setAttribute name, value
       )
       super()
+    
+    destroy: ->
+      super()
 
     _setAttribute: (attributeName, value) ->
       unless @attributeValue[attributeName] is value
@@ -1695,6 +1861,9 @@ module.exports = (env) ->
           @_battery[result.sender] =  parseInt(result.value)
           @emit "batteryLevel_" + result.sender, @_battery[result.sender]
       )
+      super()
+      
+    destroy: ->
       super()
 
   class MySensorsActionHandler extends env.actions.ActionHandler
