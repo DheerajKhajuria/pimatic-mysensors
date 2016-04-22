@@ -1716,6 +1716,7 @@ module.exports = (env) ->
             unit : attr.unit
             acronym: attr.acronym
             label : attr.label
+            displaySparkline: false
           }
           switch attr.type
             when "integer"
