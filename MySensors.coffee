@@ -1733,6 +1733,19 @@ module.exports = (env) ->
               @attributes[name].type = "string"
             when "battery"
               @attributes[name].type = "number"
+              @attributes[name].unit = "%"
+              @attributes[name].icon = {
+                  noText: true
+                  mapping: {
+                    'icon-battery-empty': 0
+                    'icon-battery-fuel-1': [0, 20]
+                    'icon-battery-fuel-2': [20, 40]
+                    'icon-battery-fuel-3': [40, 60]
+                    'icon-battery-fuel-4': [60, 80]
+                    'icon-battery-fuel-5': [80, 100]
+                    'icon-battery-filled': 100
+                  }
+              }
             else
               throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
 
