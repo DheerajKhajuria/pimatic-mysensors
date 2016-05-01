@@ -1638,7 +1638,7 @@ module.exports = (env) ->
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsGas", result
-          if result.type is V_VAR1
+          if result.type is V_LEVEL
             @_gas = parseInt(result.value)
             @emit "gas", @_gas
       )
@@ -1716,6 +1716,7 @@ module.exports = (env) ->
             unit : attr.unit
             acronym: attr.acronym
             label : attr.label
+            displaySparkline: false
           }
           switch attr.type
             when "integer"
@@ -1732,6 +1733,19 @@ module.exports = (env) ->
               @attributes[name].type = "string"
             when "battery"
               @attributes[name].type = "number"
+              @attributes[name].unit = "%"
+              @attributes[name].icon = {
+                  noText: true
+                  mapping: {
+                    'icon-battery-empty': 0
+                    'icon-battery-fuel-1': [0, 20]
+                    'icon-battery-fuel-2': [20, 40]
+                    'icon-battery-fuel-3': [40, 60]
+                    'icon-battery-fuel-4': [60, 80]
+                    'icon-battery-fuel-5': [80, 100]
+                    'icon-battery-filled': 100
+                  }
+              }
             else
               throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
 
