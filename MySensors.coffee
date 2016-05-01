@@ -1638,7 +1638,7 @@ module.exports = (env) ->
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsGas", result
-          if result.type is V_VAR1
+          if result.type is V_LEVEL
             @_gas = parseInt(result.value)
             @emit "gas", @_gas
       )
