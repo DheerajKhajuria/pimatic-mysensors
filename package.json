@@ -18,7 +18,7 @@
     "MySensors-config-schema.coffee",
     "LICENSE"
   ],
-  "version": "0.8.32",
+  "version": "0.8.33",
   "homepage": "http://pimatic.org",
   "repository": {
     "type": "git",
