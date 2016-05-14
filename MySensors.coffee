@@ -1006,8 +1006,8 @@ module.exports = (env) ->
           @_createGetter( attr, getter)
           @_watt[sensorid] = lastState?[attr]?.value
 
-      @_kwh = lastState?.kWh?.value
-      @_rate = lastState?.rate?.value
+      @_kwh = lastState?.kWh?.value or 0
+      @_rate = lastState?.rate?.value or 0
       @_battery = lastState?.battery?.value
 
       @attributes.kWh = {
