@@ -997,7 +997,7 @@ module.exports = (env) ->
           @attributes[attr] = {
             description: "this measure wattage"
             type: "number"
-            displaySparkline: true
+            displaySparkline: false
             unit: "W"
             acronym: attr
           }
@@ -1007,8 +1007,17 @@ module.exports = (env) ->
           @_watt[sensorid] = lastState?[attr]?.value
 
       @_kwh = lastState?.kWh?.value or 0
+      @_totalPower = lastState?.totalPower?.value or 0
       @_rate = lastState?.rate?.value or 0
       @_battery = lastState?.battery?.value
+
+      @attributes.totalPower = {
+        description: "Total Watt"
+        type: "number"
+        unit: 'W'
+        displaySparkline: false
+        acronym: 'Total'
+      }
 
       @attributes.kWh = {
         description: "this measure kWh"
@@ -1021,6 +1030,7 @@ module.exports = (env) ->
         description: "Electricity Cost"
         type: "number"
         unit: ""
+        displaySparkline: false
         acronym: @config.currency
       }
 
@@ -1059,29 +1069,59 @@ module.exports = (env) ->
           if result.sensor in @config.sensorid and result.type is V_WATT
             if mySensors.config.debug
               env.logger.debug "<- MySensorsEnergyMeter", result
-
-            currdate = new Date()
-            if currdate > new Date(currdate.getFullYear(), currdate.getMonth() + 1, 1)
-              @_kwh = 0
-              @_rate = 0
-            @_watt[result.sensor] =  Math.floor(parseInt(result.value) * ((100 - @config.correction)/100))
-            @emit "Phase_" + result.sensor, @_watt[result.sensor]
-            intKwh = ((@_watt[result.sensor] / 1000) * ( currdate - @kWhlastTime[result.sensor] ) / 3600000)
-            @_kwh = @_kwh + intKwh
-            @kWhlastTime[result.sensor] = currdate
-            @_rate = @_rate + intKwh * @config.rate
-            if mySensors.config.debug
-              env.logger.debug "<- MySensorsEnergyMeter V_KWH", @_kwh , @_rate
-            @emit "kWh", @_kwh
-            @emit "rate", @_rate
+            @calculatePower(result)
       )
+
+      @_resetWattage = setInterval(( =>
+        env.logger.debug "<- MySensorsEnergyMeter setinterval"
+        for sensorid in @config.sensorid
+          if (new Date()) - @kWhlastTime[sensorid]  > @config.resetTime
+            result = {}
+            result =
+            {
+              sender: @config.nodeid,
+              sensor: sensorid,
+              type  : V_WATT,
+              value : 0
+            }
+            @calculatePower(result)
+        ), 30000)
       super()
 
+    calculatePower:(result) ->
+      currdate = new Date()
+
+      if currdate > new Date(currdate.getFullYear(), currdate.getMonth() + 1, 1)
+         @_kwh = 0
+         @_rate = 0
+
+      diffTime = currdate - @kWhlastTime[result.sensor]
+
+      @_watt[result.sensor] =  Math.floor(parseInt(result.value))
+      calibratedWattage = (@_watt[result.sensor] * (100 - @config.correction)/100)
+      intKwh = ((calibratedWattage / 1000 ) * ( diffTime ) / 3600000)
+      @_totalPower = 0
+      for sensorid in @config.sensorid
+        @_totalPower += @_watt[sensorid]
+
+      @_kwh = @_kwh + intKwh
+      @kWhlastTime[result.sensor] = currdate
+      @_rate = @_rate + intKwh * @config.rate
+      if mySensors.config.debug
+        env.logger.debug "<- MySensorsEnergyMeter V_KWH", @_kwh , @_rate
+
+      @emit "Phase_" + result.sensor, @_watt[result.sensor]
+      @emit "totalPower" , @_totalPower
+      @emit "kWh", @_kwh
+      @emit "rate", @_rate
+
     destroy: ->
+      clearInterval(@_resetWattage)
       super()
 
     getKWh: -> Promise.resolve @_kwh
     getRate: -> Promise.resolve @_rate
+    getTotalPower: -> Promise.resolve @_totalPower
     getBattery: -> Promise.resolve @_battery
 
   class MySensorsWaterMeter extends env.devices.Device

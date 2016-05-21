@@ -259,6 +259,10 @@ module.exports = {
         description: "% correction on  phase power 0-100%"
         default: 20
         type: "number"
+      resetTime:
+        description: "reset wattage counters after Reset time"
+        default: 60000
+        type: "number"
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
