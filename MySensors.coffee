@@ -1928,8 +1928,7 @@ module.exports = (env) ->
                   else
                     throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
 
-                # If the received value is different then the current value, it should be emitted
-                @_setAttribute name, value
+                @emit name, value
       )
 
       # when a battery percentage has been received
@@ -1949,17 +1948,12 @@ module.exports = (env) ->
                   result.value = 0
                 value =  parseInt(result.value)
                 # If the received value is different then the current value, it should be emitted
-                @_setAttribute name, value
+                @emit name, value
       )
       super()
 
     destroy: ->
       super()
-
-    _setAttribute: (attributeName, value) ->
-      unless @attributeValue[attributeName] is value
-        @attributeValue[attributeName] = value
-        @emit attributeName, value
 
   class MySensorsBattery extends env.devices.Device
 
