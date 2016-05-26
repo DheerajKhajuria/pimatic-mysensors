@@ -180,10 +180,17 @@ This is the basic sensor with only temperature
       "id": "Battery",
       "name": "Batterylevel",
       "class": "MySensorsBattery",
-      "nodeid": [
-      11,
-      12,
-      13
+      "nodes": [
+      {
+        "nodeid": 11
+      },
+      {
+        "nodeid": 12
+      },
+      {
+        "name": "weatherstation",
+        "nodeid" 13
+      }
       ]
   },
   
