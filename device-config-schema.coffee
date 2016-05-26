@@ -224,13 +224,21 @@ module.exports = {
    type: "object"
    extensions: ["xLink", "xAttributeOptions"]
    properties:
-      nodeid:
+      nodes:
         description: "The unique id of the node that sends or should receive the message"
         type: "array"
         default: []
         format: "table"
         items:
-          type: "number"
+          type: "object"
+          properties:
+            name:
+              description: "Name for the node."
+              type: "string"
+              required: false
+            nodeid:
+              description: "The unique id of the node."
+              type: "number"
     },
 
   MySensorsEnergyMeter: {

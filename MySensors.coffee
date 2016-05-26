@@ -1965,35 +1965,37 @@ module.exports = (env) ->
 
       @attributes = {}
       @_battery = {}
-      for nodeid in @config.nodeid
-        do (nodeid) =>
-          for device in  @framework.deviceManager.devicesConfig
-            if device?.nodeid and device?.nodeid is nodeid
+      for nodes in @config.nodes
+        if not nodes.name
+          for device in @framework.deviceManager.devicesConfig
+            if device?.nodeid and device?.nodeid is nodes.nodeid
               attrname = device?.name
               break
+        else
+          attrname = nodes.name
 
-          attr = "batteryLevel_" + nodeid
-          @attributes[attr] = {
-            description: "the measured Battery Stat of Sensor"
-            type: "number"
-            displaySparkline: false
-            unit: "%"
-            acronym: attrname
-            icon:
-                noText: true
-                mapping: {
-                  'icon-battery-empty': 0
-                  'icon-battery-fuel-1': [0, 20]
-                  'icon-battery-fuel-2': [20, 40]
-                  'icon-battery-fuel-3': [40, 60]
-                  'icon-battery-fuel-4': [60, 80]
-                  'icon-battery-fuel-5': [80, 100]
-                  'icon-battery-filled': 100
-                }
-          }
-          getter = ( =>  Promise.resolve @_battery[nodeid] )
-          @_createGetter( attr, getter)
-          @_battery[nodeid] = lastState?[attr]?.value
+        attr = "batteryLevel_" + nodes.nodeid
+        @attributes[attr] = {
+          description: "the measured Battery Stat of Sensor"
+          type: "number"
+          displaySparkline: false
+          unit: "%"
+          acronym: attrname
+          icon:
+              noText: true
+              mapping: {
+                'icon-battery-empty': 0
+                'icon-battery-fuel-1': [0, 20]
+                'icon-battery-fuel-2': [20, 40]
+                'icon-battery-fuel-3': [40, 60]
+                'icon-battery-fuel-4': [60, 80]
+                'icon-battery-fuel-5': [80, 100]
+                'icon-battery-filled': 100
+              }
+        }
+        getter = ( =>  Promise.resolve @_battery[nodes.nodeid] )
+        @_createGetter( attr, getter)
+        @_battery[nodes.nodeid] = lastState?[attr]?.value
 
       @board.on("rfbattery", (result) =>
         unless result.value is null or undefined
