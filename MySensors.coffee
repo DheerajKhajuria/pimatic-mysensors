@@ -1948,12 +1948,16 @@ module.exports = (env) ->
                   result.value = 0
                 value =  parseInt(result.value)
                 # If the received value is different then the current value, it should be emitted
-                @emit name, value
+                @_setAttribute name, value
       )
       super()
 
     destroy: ->
       super()
+      
+    _setAttribute: (attributeName, value) ->
+      @attributeValue[attributeName] = value
+      @emit attributeName, value
 
   class MySensorsBattery extends env.devices.Device
 
