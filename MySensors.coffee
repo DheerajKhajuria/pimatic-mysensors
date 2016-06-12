@@ -1928,7 +1928,7 @@ module.exports = (env) ->
                   else
                     throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
 
-                @emit name, value
+                @_setAttribute name, value
       )
 
       # when a battery percentage has been received
@@ -1943,7 +1943,7 @@ module.exports = (env) ->
               unless result.value is null or undefined
                 if mySensors.config.debug
                   env.logger.debug "<- MySensorsMulti", result
-                # When the battery is to low, battery percentages higher then 100 could be send
+                # When the battery is too low, battery percentages higher then 100 could be sent
                 if result.value > 100
                   result.value = 0
                 value =  parseInt(result.value)
