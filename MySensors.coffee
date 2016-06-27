@@ -285,14 +285,14 @@ module.exports = (env) ->
       nextnodeid = @config.startingNodeId
       if nextnodeid is null
         nextnodeid = 1
-      else 
+      else
         nextnodeid +=1
       while newid is false
         newid = not @framework.deviceManager.devicesConfig.some (device, iterator) =>
           device.nodeid is nextnodeid
         if newid is false
           nextnodeid +=1
-       
+
       if newid is true and nextnodeid < 255
         datas =
         {
@@ -424,7 +424,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Motion Sensor #{nodeid}.#{sensorid}", config
               )
-            # Smoke sensor found  
+            # Smoke sensor found
             if sensortype is S_SMOKE
               config = {
                 class: 'MySensorsPIR',
@@ -434,8 +434,8 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Smoke Sensor #{nodeid}.#{sensorid}", config
               )
-              
-            # Moisture sensor found  
+
+            # Moisture sensor found
             if sensortype is S_MOISTURE
               config = {
                 class: 'MySensorsPIR',
@@ -445,7 +445,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Moisture Sensor #{nodeid}.#{sensorid}", config
               )
-              
+
             # Leak sensor found
             if sensortype is S_WATER_LEAK
               config = {
@@ -522,7 +522,7 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Water Sensor #{nodeid}.#{sensorid}", config
               )
-              
+
             # pH sensor found
             if sensortype is S_WATER_QUALITY
               config = {
@@ -590,6 +590,7 @@ module.exports = (env) ->
         MySensorsSwitch
         MySensorsDimmer
         MySensorsPulseMeter
+        MySensorsEnergyMeter
         MySensorsWaterMeter
         MySensorsPH
         MySensorsButton
@@ -631,14 +632,14 @@ module.exports = (env) ->
       @attributes = {}
 
       @attributes.temperature = {
-        description: "the messured temperature"
+        description: "the measured temperature"
         type: "number"
         unit: '°C'
         acronym: 'T'
       }
 
       @attributes.humidity = {
-        description: "the messured humidity"
+        description: "the measured humidity"
         type: "number"
         unit: '%'
         acronym: 'RH'
@@ -663,8 +664,8 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
        }
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -674,7 +675,7 @@ module.exports = (env) ->
             @emit "battery", @_battery
       )
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
             if result.sensor is sensorid
@@ -689,9 +690,13 @@ module.exports = (env) ->
                 @_humidity = Math.round(parseFloat(result.value))
                 @emit "humidity", @_humidity
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-      
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getTemperature: -> Promise.resolve @_temperatue
@@ -711,7 +716,7 @@ module.exports = (env) ->
       @attributes = {}
 
       @attributes.temperature = {
-        description: "the messured temperature"
+        description: "the measured temperature"
         type: "number"
         unit: '°C'
         acronym: 'T'
@@ -736,8 +741,8 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
        }
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -747,16 +752,20 @@ module.exports = (env) ->
             @emit "battery", @_battery
       )
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_TEMP and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorDST ", result
           @_temperatue = parseFloat(result.value)
           @emit "temperature", @_temperatue
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-    
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getTemperature: -> Promise.resolve @_temperatue
@@ -777,14 +786,14 @@ module.exports = (env) ->
       @attributes = {}
 
       @attributes.temperature = {
-        description: "the messured temperature"
+        description: "the measured temperature"
         type: "number"
         unit: '°C'
         acronym: 'T'
       }
 
       @attributes.pressure = {
-          description: "the messured pressure"
+          description: "the measured pressure"
           type: "number"
           unit: 'hPa'
           acronym: 'mbar'
@@ -815,8 +824,8 @@ module.exports = (env) ->
        }
 
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -826,7 +835,7 @@ module.exports = (env) ->
             @emit "battery", @_battery
       )
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid
           for sensorid in @config.sensorid
             if result.sensor is sensorid
@@ -846,9 +855,13 @@ module.exports = (env) ->
                 @emit "forecast", @_forecast
 
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-    
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getTemperature: -> Promise.resolve @_temperatue
@@ -875,7 +888,7 @@ module.exports = (env) ->
       @attributes = {}
 
       @attributes.watt = {
-        description: "the messured Wattage"
+        description: "the measured Wattage"
         type: "number"
         unit: 'W'
         acronym: 'Watt'
@@ -889,22 +902,11 @@ module.exports = (env) ->
       }
 
       @attributes.kWh = {
-        description: "the messured kWh"
+        description: "the measured kWh"
         type: "number"
         unit: 'kWh'
         acronym: 'kWh'
       }
-
-      calculatekwh = ( =>
-        @_avgkw =  @_totalkw / @_tickcount
-        @_kwh = (@_avgkw * (@_tickcount * 10)) / 3600
-        @_tickcount = 0
-        @_totalkw  = 0
-        if mySensors.config.debug
-          env.logger.debug  "calculatekwh..", @kwh
-        @emit "kWh", @_kwh
-      )
-
 
       @attributes.battery = {
         description: "Display the battery level of sensor"
@@ -926,13 +928,13 @@ module.exports = (env) ->
        }
 
       @attributes.ampere = {
-        description: "the messured Ampere"
+        description: "the measured Ampere"
         type: "number",
         unit: "A"
         acronym: 'Ampere'
        }
 
-      @board.on("rfRequest", (result) =>
+      @rfRequestEventHandler = ( (result) =>
         if result.sender is @config.nodeid
           datas =
           {
@@ -945,8 +947,8 @@ module.exports = (env) ->
           @board._rfWrite(datas)
       )
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -956,7 +958,7 @@ module.exports = (env) ->
             @emit "battery", @_battery
       )
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsPulseMeter", result
@@ -977,11 +979,16 @@ module.exports = (env) ->
               env.logger.debug "<- MySensorsPulseMeter V_KWH"
             @_kwh = parseFloat(result.value)
             @emit "kWh", @_kwh
-
       )
+      @board.on("rfRequest", @rfRequestEventHandler)
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-      
+
     destroy: ->
+      @board.removeListener "rfRequest", @rfRequestEventHandler
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getWatt: -> Promise.resolve @_watt
@@ -989,6 +996,155 @@ module.exports = (env) ->
     getKWh: -> Promise.resolve @_kwh
     getBattery: -> Promise.resolve @_battery
     getAmpere: -> Promise.resolve @_ampere
+
+  class MySensorsEnergyMeter extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = @config.id
+      @name = @config.name
+      if mySensors.config.debug
+        env.logger.debug "MySensorsEnergyMeter ", @id, @name
+
+      @kWhlastTime = {}
+      @attributes = {}
+      @_watt = {}
+      for sensorid in @config.sensorid
+        do(sensorid) =>
+          attr = "Phase_" + sensorid
+
+          @attributes[attr] = {
+            description: "this measure wattage"
+            type: "number"
+            displaySparkline: false
+            unit: "W"
+            acronym: attr
+          }
+          @kWhlastTime[sensorid] = Date.now()
+          getter = ( =>  Promise.resolve @_watt[sensorid] )
+          @_createGetter( attr, getter)
+          @_watt[sensorid] = lastState?[attr]?.value
+
+      @_kwh = lastState?.kWh?.value or 0
+      @_totalPower = lastState?.totalPower?.value or 0
+      @_rate = lastState?.rate?.value or 0
+      @_battery = lastState?.battery?.value
+
+      @attributes.totalPower = {
+        description: "Total Watt"
+        type: "number"
+        unit: 'W'
+        displaySparkline: false
+        acronym: 'Total'
+      }
+
+      @attributes.kWh = {
+        description: "this measure kWh"
+        type: "number"
+        unit: 'kWh'
+        acronym: 'kWh'
+      }
+
+      @attributes.rate = {
+        description: "Electricity Cost"
+        type: "number"
+        unit: ""
+        displaySparkline: false
+        acronym: @config.currency
+      }
+
+      @attributes.battery = {
+        description: "Display the battery level of sensor"
+        type: "number"
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
+        hidden: !@config.batterySensor
+       }
+
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
+      )
+
+      @rfValueEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
+          if result.sensor in @config.sensorid and result.type is V_WATT
+            if mySensors.config.debug
+              env.logger.debug "<- MySensorsEnergyMeter", result
+            @calculatePower(result)
+      )
+
+      @_resetWattage = setInterval(( =>
+        env.logger.debug "<- MySensorsEnergyMeter setinterval"
+        for sensorid in @config.sensorid
+          if (new Date()) - @kWhlastTime[sensorid]  > @config.resetTime
+            result = {}
+            result =
+            {
+              sender: @config.nodeid,
+              sensor: sensorid,
+              type  : V_WATT,
+              value : 0
+            }
+            @calculatePower(result)
+        ), 30000)
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
+      super()
+
+    calculatePower:(result) ->
+      currdate = new Date()
+
+      if currdate > new Date(currdate.getFullYear(), currdate.getMonth() + 1, 1)
+         @_kwh = 0
+         @_rate = 0
+
+      diffTime = currdate - @kWhlastTime[result.sensor]
+
+      @_watt[result.sensor] =  Math.floor(parseInt(result.value))
+      calibratedWattage = (@_watt[result.sensor] * (100 - @config.correction)/100)
+      intKwh = ((calibratedWattage / 1000 ) * ( diffTime ) / 3600000)
+      @_totalPower = 0
+      for sensorid in @config.sensorid
+        @_totalPower += @_watt[sensorid]
+
+      @_kwh = @_kwh + intKwh
+      @kWhlastTime[result.sensor] = currdate
+      @_rate = @_rate + intKwh * @config.rate
+      if mySensors.config.debug
+        env.logger.debug "<- MySensorsEnergyMeter V_KWH", @_kwh , @_rate
+
+      @emit "Phase_" + result.sensor, @_watt[result.sensor]
+      @emit "totalPower" , @_totalPower
+      @emit "kWh", @_kwh
+      @emit "rate", @_rate
+
+    destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
+      clearInterval(@_resetWattage)
+      super()
+
+    getKWh: -> Promise.resolve @_kwh
+    getRate: -> Promise.resolve @_rate
+    getTotalPower: -> Promise.resolve @_totalPower
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsWaterMeter extends env.devices.Device
 
@@ -1007,7 +1163,7 @@ module.exports = (env) ->
       @attributes = {}
 
       @attributes.flow = {
-        description: "the meassured water in liter per minute"
+        description: "the measured water in liter per minute"
         type: "number"
         unit: 'l/min'
         acronym: 'Flow'
@@ -1021,7 +1177,7 @@ module.exports = (env) ->
       }
 
       @attributes.volume = {
-        description: "the meassured water in m3"
+        description: "the measured water in m3"
         type: "number"
         unit: 'm3'
         acronym: 'Total'
@@ -1046,7 +1202,7 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
        }
 
-      @board.on("rfRequest", (result) =>
+      @rfRequestEventHandler = ( (result) =>
         if result.sender is @config.nodeid
           datas =
           {
@@ -1059,8 +1215,8 @@ module.exports = (env) ->
           @board._rfWrite(datas)
       )
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -1070,7 +1226,7 @@ module.exports = (env) ->
             @emit "battery", @_battery
       )
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsWaterMeter", result
@@ -1091,16 +1247,22 @@ module.exports = (env) ->
             @emit "volume", @_volume
 
       )
+      @board.on("rfRequest", @rfRequestEventHandler)
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-    
+
     destroy: ->
+      @board.removeListener "rfRequest", @rfRequestEventHandler
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getFlow: -> Promise.resolve @_flow
     getPulsecount: -> Promise.resolve @_pulsecount
     getVolume: -> Promise.resolve @_volume
     getBattery: -> Promise.resolve @_battery
-    
+
   class MySensorsPH extends env.devices.Device
 
     constructor: (@config,lastState, @board) ->
@@ -1132,8 +1294,8 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
        }
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -1144,12 +1306,12 @@ module.exports = (env) ->
       )
 
       @attributes.ph = {
-        description: "the meassured pH value"
+        description: "the measured pH value"
         type: "number"
         unit: 'pH'
       }
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsPH", result
@@ -1157,9 +1319,13 @@ module.exports = (env) ->
             @_ph = parseFloat(result.value)
             @emit "ph", @_ph
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-    
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getPh: -> Promise.resolve @_ph
@@ -1172,10 +1338,10 @@ module.exports = (env) ->
       @name = @config.name
       @_presence = lastState?.presence?.value or false
       @_battery = lastState?.battery?.value
-      
+
       if mySensors.config.debug
         env.logger.debug "MySensorsPIR ", @id, @name, @_presence
-      
+
       @addAttribute('battery', {
         description: "Battery",
         type: "number"
@@ -1195,9 +1361,9 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
       })
       @['battery'] = ()-> Promise.resolve(@_battery)
-       
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -1206,12 +1372,12 @@ module.exports = (env) ->
             @_battery = parseInt(result.value)
             @emit "battery", @_battery
       )
-      
+
       resetPresence = ( =>
         @_setPresence(no)
       )
 
-      @board.on('rfValue', (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_TRIPPED and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorPIR ", result
@@ -1226,11 +1392,15 @@ module.exports = (env) ->
               @_setPresence(no)
             ), @config.resetTime)
       )
-      
+
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-    
+
     destroy: ->
       clearTimeout(@_resetPresenceTimeout)
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getPresence: -> Promise.resolve @_presence
@@ -1266,8 +1436,8 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
        }
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -1277,7 +1447,7 @@ module.exports = (env) ->
             @emit "battery", @_battery
       )
 
-      @board.on('rfValue', (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is ( V_TRIPPED or V_STATUS ) and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsButton ", result
@@ -1286,9 +1456,13 @@ module.exports = (env) ->
           else
             @_setContact(no)
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-      
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getBattery: -> Promise.resolve @_battery
@@ -1302,15 +1476,15 @@ module.exports = (env) ->
       if mySensors.config.debug
         env.logger.debug "MySensorsSwitch ", @id, @name, @_state
 
-      @board.on('rfValue', (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_STATUS and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 1 then on else off)
           if mySensors.config.debug
             env.logger.debug "<- MySensorSwitch ", result
           @_setState(state)
       )
-      
-      @board.on("rfRequest", (result) =>
+
+      @rfRequestEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_STATUS
           datas =
           {
@@ -1322,6 +1496,8 @@ module.exports = (env) ->
           }
           @board._rfWrite(datas)
       )
+      @board.on("rfValue", @rfValueEventHandler)
+      @board.on("rfRequest", @rfRequestEventHandler)
       super()
 
     changeStateTo: (state) ->
@@ -1338,8 +1514,10 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setState(state)
       )
-      
+
     destroy: ->
+      @board.removeListener "rfValue", @rfValueEventHandler
+      @board.removeListener "rfRequest", @rfRequestEventHandler
       super()
 
   class MySensorsDimmer extends env.devices.DimmerActuator
@@ -1351,8 +1529,8 @@ module.exports = (env) ->
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_lastdimlevel = lastState?.lastdimlevel?.value or 100
       @_state = lastState?.state?.value or off
-      
-      @board.on("rfRequest", (result) =>
+
+      @rfRequestEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE
           datas =
           {
@@ -1364,8 +1542,8 @@ module.exports = (env) ->
           }
           @board._rfWrite(datas)
       )
-      
-      @board.on('rfValue', (result) =>
+
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 0 then off else on)
           dimlevel = (result.value)
@@ -1374,6 +1552,8 @@ module.exports = (env) ->
           @_setState(state)
           @_setDimlevel(dimlevel)
       )
+      @board.on("rfRequest", @rfRequestEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
 
     turnOn: -> @changeDimlevelTo(@_lastdimlevel)
@@ -1396,8 +1576,10 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
          @_setDimlevel(level)
       )
-      
+
     destroy: ->
+      @board.removeListener "rfRequest", @rfRequestEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
   class MySensorsLight extends env.devices.Device
@@ -1431,8 +1613,8 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
        }
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -1443,12 +1625,12 @@ module.exports = (env) ->
       )
 
       @attributes.light = {
-        description: "the messured light"
+        description: "the measured light"
         type: "number"
         unit: '%'
       }
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsLight", result
@@ -1456,9 +1638,13 @@ module.exports = (env) ->
             @_light = parseInt(result.value)
             @emit "light", @_light
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-      
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getLight: -> Promise.resolve @_light
@@ -1495,8 +1681,8 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
        }
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             @_battery =  parseInt(result.value)
             @emit "battery", @_battery
@@ -1504,12 +1690,12 @@ module.exports = (env) ->
 
 
       @attributes.lux = {
-        description: "the messured light in lux"
+        description: "the measured light in lux"
         type: "number"
         unit: 'lux'
       }
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsLux", result
@@ -1517,9 +1703,13 @@ module.exports = (env) ->
             @_lux = parseInt(result.value)
             @emit "lux", @_lux
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-    
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getLux: -> Promise.resolve @_lux
@@ -1555,7 +1745,7 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
        }
 
-      @board.on("rfbattery", (result) =>
+      @rfbatteryEventHandler = ( (result) =>
          if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
@@ -1567,12 +1757,12 @@ module.exports = (env) ->
       )
 
       @attributes.distance = {
-        description: "the messured distance"
+        description: "the measured distance"
         type: "number"
         unit: 'cm'
       }
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsDistance", result
@@ -1580,9 +1770,13 @@ module.exports = (env) ->
             @_distance = parseInt(result.value)
             @emit "distance", @_distance
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-    
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getDistance: -> Promise.resolve @_distance
@@ -1618,8 +1812,8 @@ module.exports = (env) ->
         hidden: !@config.batterySensor
        }
 
-      @board.on("rfbattery", (result) =>
-         if result.sender is @config.nodeid
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
           unless result.value is null or undefined
             # When the battery is to low, battery percentages higher then 100 could be send
             if result.value > 100
@@ -1630,12 +1824,12 @@ module.exports = (env) ->
       )
 
       @attributes.gas = {
-        description: "the messured gas presence in ppm"
+        description: "the measured gas presence in ppm"
         type: "number"
         unit: 'ppm'
       }
 
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.sensor is @config.sensorid
           if mySensors.config.debug
             env.logger.debug "<- MySensorsGas", result
@@ -1643,9 +1837,13 @@ module.exports = (env) ->
             @_gas = parseInt(result.value)
             @emit "gas", @_gas
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
       super()
-      
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
     getGas: -> Promise.resolve @_gas
@@ -1660,13 +1858,14 @@ module.exports = (env) ->
       if mySensors.config.debug
         env.logger.debug "MySensorsShutter ", @id, @name, @_position
 
-      @board.on('rfValue', (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.sensor is @config.sensorid and result.type is V_UP or result.type is V_DOWN or result.type is V_STOP
           position = (if result.type is V_UP then 'up' else if result.type is V_DOWN then 'down' else 'stopped')
           if mySensors.config.debug
             env.logger.debug "<- MySensorsShutter ", result
           @_setPosition(position)
-        )
+      )
+      @board.on("rfValue", @rfValueEventHandler)
       super()
 
     moveToPosition: (position) ->
@@ -1696,8 +1895,9 @@ module.exports = (env) ->
       @board._rfWrite(datas).then ( () =>
         @_setPosition('stopped')
       )
-      
+
     destroy: ->
+      @board.removeListener "rfValue", @rfValueEventHandler
       super()
 
   class MySensorsMulti extends env.devices.Device
@@ -1754,7 +1954,7 @@ module.exports = (env) ->
           @_createGetter name, ( => Promise.resolve @attributeValue[name] )
 
       # when a mysensors value has been received
-      @board.on("rfValue", (result) =>
+      @rfValueEventHandler = ( (result) =>
         # loop trough all attributes in the config
         for attr, i in @config.attributes
           do (attr) =>
@@ -1794,12 +1994,11 @@ module.exports = (env) ->
                   else
                     throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
 
-                # If the received value is different then the current value, it should be emitted
                 @_setAttribute name, value
       )
 
       # when a battery percentage has been received
-      @board.on("rfbattery", (result) =>
+      @rfbatteryEventHandler = ( (result) =>
         # loop trough all attributes in the config
         for attr, i in @config.attributes
           do (attr) =>
@@ -1810,22 +2009,25 @@ module.exports = (env) ->
               unless result.value is null or undefined
                 if mySensors.config.debug
                   env.logger.debug "<- MySensorsMulti", result
-                # When the battery is to low, battery percentages higher then 100 could be send
+                # When the battery is too low, battery percentages higher then 100 could be sent
                 if result.value > 100
                   result.value = 0
                 value =  parseInt(result.value)
                 # If the received value is different then the current value, it should be emitted
                 @_setAttribute name, value
       )
-      super()
-    
-    destroy: ->
+      @board.on("rfValue", @rfValueEventHandler)
+      @board.on("rfbattery", @rfbatteryEventHandler)
       super()
 
+    destroy: ->
+      @board.removeListener "rfValue", @rfValueEventHandler
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      super()
+      
     _setAttribute: (attributeName, value) ->
-      unless @attributeValue[attributeName] is value
-        @attributeValue[attributeName] = value
-        @emit attributeName, value
+      @attributeValue[attributeName] = value
+      @emit attributeName, value
 
   class MySensorsBattery extends env.devices.Device
 
@@ -1837,37 +2039,39 @@ module.exports = (env) ->
 
       @attributes = {}
       @_battery = {}
-      for nodeid in @config.nodeid
-        do (nodeid) =>
-          for device in  @framework.deviceManager.devicesConfig
-            if device?.nodeid and device?.nodeid is nodeid
+      for nodes in @config.nodes
+        if not nodes.name
+          for device in @framework.deviceManager.devicesConfig
+            if device?.nodeid and device?.nodeid is nodes.nodeid
               attrname = device?.name
               break
+        else
+          attrname = nodes.name
 
-          attr = "batteryLevel_" + nodeid
-          @attributes[attr] = {
-            description: "the measured Battery Stat of Sensor"
-            type: "number"
-            displaySparkline: false
-            unit: "%"
-            acronym: attrname
-            icon:
-                noText: true
-                mapping: {
-                  'icon-battery-empty': 0
-                  'icon-battery-fuel-1': [0, 20]
-                  'icon-battery-fuel-2': [20, 40]
-                  'icon-battery-fuel-3': [40, 60]
-                  'icon-battery-fuel-4': [60, 80]
-                  'icon-battery-fuel-5': [80, 100]
-                  'icon-battery-filled': 100
-                }
-          }
-          getter = ( =>  Promise.resolve @_battery[nodeid] )
-          @_createGetter( attr, getter)
-          @_battery[nodeid] = lastState?[attr]?.value
+        attr = "batteryLevel_" + nodes.nodeid
+        @attributes[attr] = {
+          description: "the measured Battery Stat of Sensor"
+          type: "number"
+          displaySparkline: false
+          unit: "%"
+          acronym: attrname
+          icon:
+              noText: true
+              mapping: {
+                'icon-battery-empty': 0
+                'icon-battery-fuel-1': [0, 20]
+                'icon-battery-fuel-2': [20, 40]
+                'icon-battery-fuel-3': [40, 60]
+                'icon-battery-fuel-4': [60, 80]
+                'icon-battery-fuel-5': [80, 100]
+                'icon-battery-filled': 100
+              }
+        }
+        getter = ( =>  Promise.resolve @_battery[nodes.nodeid] )
+        @_createGetter( attr, getter)
+        @_battery[nodes.nodeid] = lastState?[attr]?.value
 
-      @board.on("rfbattery", (result) =>
+      @rfbatteryEventHandler = ( (result) =>
         unless result.value is null or undefined
           # When the battery is to low, battery percentages higher then 100 could be send
           if result.value > 100
@@ -1876,9 +2080,11 @@ module.exports = (env) ->
           @_battery[result.sender] =  parseInt(result.value)
           @emit "batteryLevel_" + result.sender, @_battery[result.sender]
       )
+      @board.on("rfbattery", @rfbatteryEventHandler)
       super()
-      
+
     destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
       super()
 
   class MySensorsActionHandler extends env.actions.ActionHandler

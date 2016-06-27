@@ -54,7 +54,7 @@ module.exports = {
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
-         default: no    
+         default: no
     },
   MySensorsPulseMeter: {
     title: "MySensorsPulseMeter config options"
@@ -73,7 +73,7 @@ module.exports = {
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
-         default: no    
+         default: no
     },
   MySensorsWaterMeter: {
     title: "MySensorsWaterMeter config options"
@@ -89,7 +89,7 @@ module.exports = {
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
-         default: no    
+         default: no
     },
   MySensorsPH: {
     title: "MySensorsPH config options"
@@ -105,8 +105,8 @@ module.exports = {
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
-         default: no  
-    },  
+         default: no
+    },
   MySensorsPIR: {
     title: "MySensorsPIR config options"
     type: "object"
@@ -145,7 +145,7 @@ module.exports = {
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
-         default: no  
+         default: no
     },
   MySensorsSwitch: {
     title: "MySensorsSwitch config options"
@@ -158,7 +158,7 @@ module.exports = {
       sensorid:
         description: "This is the child-sensor-id that uniquely identifies one attached sensor"
         type: "number"
-    }, 
+    },
   MySensorsDimmer: {
     title: "MySensorsDimmer config options"
     type: "object"
@@ -185,7 +185,7 @@ module.exports = {
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
-         default: no  
+         default: no
     },
   MySensorsLux: {
     title: "MySensorsLux config options"
@@ -201,7 +201,7 @@ module.exports = {
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
-         default: no  
+         default: no
     },
   MySensorsDistance: {
     title: "MySensorsDistance config options"
@@ -224,13 +224,57 @@ module.exports = {
    type: "object"
    extensions: ["xLink", "xAttributeOptions"]
    properties:
-      nodeid:
+      nodes:
         description: "The unique id of the node that sends or should receive the message"
         type: "array"
         default: []
         format: "table"
         items:
+          type: "object"
+          properties:
+            name:
+              description: "Name for the node."
+              type: "string"
+              required: false
+            nodeid:
+              description: "The unique id of the node."
+              type: "number"
+    },
+
+  MySensorsEnergyMeter: {
+   title: "MySensorsEnergyMeter config options"
+   type: "object"
+   extensions: ["xLink", "xAttributeOptions"]
+   properties:
+      nodeid:
+        description: "The unique id of the node that sends or should receive the message"
+        type: "number"
+      sensorid:
+        description: "The sensor id of the node that sends or should receive the message"
+        type: "array"
+        default: []
+        format: "table"
+        items:
           type: "number"
+      rate:
+        description: "rate per unit"
+        type: "number"
+      currency:
+        description: "currency"
+        default: "euro"
+        type: "string"
+      correction:
+        description: "% correction on  phase power 0-100%"
+        default: 20
+        type: "number"
+      resetTime:
+        description: "reset wattage counters after Reset time"
+        default: 60000
+        type: "number"
+      batterySensor:
+         description: "Show battery level with Sensors"
+         type: "boolean"
+         default: no
     },
   MySensorsGas:  {
     title: "MySensorsGas config options"
@@ -246,7 +290,7 @@ module.exports = {
       batterySensor:
          description: "Show battery level with Sensors"
          type: "boolean"
-         default: no  
+         default: no
     },
   MySensorsShutter: {
     title: "MySensorsShutter config options"
@@ -309,4 +353,4 @@ module.exports = {
               type: "string"
               required: false
   }
-}   
+}
