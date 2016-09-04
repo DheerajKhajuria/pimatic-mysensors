@@ -167,6 +167,9 @@ module.exports = (env) ->
         when "serialport"
           SerialPortDriver = require './serialport'
           @driver = new SerialPortDriver(@config.driverOptions)
+        when "ethernet"
+          EthernetDriver = require './ethernet'
+          @driver = new EthernetDriver(@config.driverOptions)
 
       @driver.on('error', (error) => @emit('error', error) )
       @driver.on('reconnect', (error) => @emit('reconnect', error) )

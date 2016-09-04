@@ -12,7 +12,7 @@ module.exports = {
     driver:
       description: "The diver to connect to the PiGateway"
       type: "string"
-      enum: ["serialport"]
+      enum: ["serialport", "ethernet"]
       default: "serialport"
     driverOptions:
       description: "Options for the driver"
@@ -20,6 +20,8 @@ module.exports = {
       default: {
         "serialDevice": '/dev/ttyUSB0', #"/dev/ttyUSB0",
         "baudrate": 115200
+        "host": "192.168.1.100"
+        "port": 5003
       }
     protocols: 
       description: "MySensors protrocol version"
