@@ -161,7 +161,7 @@ module.exports = (env) ->
     constructor: (framework,config) ->
       @config = config
       @framework = framework
-      assert @config.driver in ["serialport", "gpio"]
+      assert @config.driver in ["serialport", "gpio", "ethernet"]
       # setup a new driver
       switch @config.driver
         when "serialport"
