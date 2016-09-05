@@ -40,6 +40,14 @@ class EthernetDriver extends events.EventEmitter
     return Promise.resolve()
 
   write: (data) -> 
-    @connection.write(data, 'utf-8')
+    if not @connection.write(data, 'utf-8', () =>
+      @emit "done"
+    )
+      @emit "error"
+
+    return new Promise( (resolve, reject) =>
+      @once("done", resolve)
+      @once("error", reject)
+    )
 
 module.exports = EthernetDriver
