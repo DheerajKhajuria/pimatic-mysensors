@@ -5,24 +5,30 @@ Promise = require 'bluebird'
 class EthernetDriver extends events.EventEmitter
   
   constructor: (protocolOptions)->
-    port = protocolOptions.port
-    host = protocolOptions.host
-    @connection = net.createConnection port, host
+    @port = protocolOptions.port
+    @host = protocolOptions.host
+    
   connect: (timeout, retries) ->
+    
+    # Create connection
+    @connection = net.createConnection @port, @host
+    
     # cleanup
     @ready = no
 
-    # reject promise on error
-    @connection.on('error', (error) => @emit('error', error) )
-    @connection.on('close', => @emit 'close' )
+     # reject promise on close
+    @connection.on 'close', () =>
+      @emit('close')
     
-    # setup data listner
+    # setup data listener
     @connection.on 'data', (data) => 
       # Sanitize data
-
-      line = data.slice(0, data.length - 1)
-      
+      line = data.slice(0, data.length - 1)      
       @emit('line', line)
+    
+    # reject promise on error
+    @connection.on 'error', (error) =>
+      @emit('error', error)
     
     #resolve promise on connect
     @connection.on 'connect', () =>
