@@ -24,8 +24,7 @@ class EthernetDriver extends events.EventEmitter
     @connection.on 'data', (data) => 
       # Sanitize data
       data = data.toString()
-      data = data.replace(/(\r\n|\n|\r)/gm,"")
-      line = data.slice(0, data.length - 1)      
+      line = data.replace(/(\r\n|\n|\r)/gm,"")
       @emit('line', line)
     
     # reject promise on error
