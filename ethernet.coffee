@@ -23,6 +23,8 @@ class EthernetDriver extends events.EventEmitter
     # setup data listener
     @connection.on 'data', (data) => 
       # Sanitize data
+      data = data.toString()
+      data = data.replace(/(\r\n|\n|\r)/gm,"")
       line = data.slice(0, data.length - 1)      
       @emit('line', line)
     
