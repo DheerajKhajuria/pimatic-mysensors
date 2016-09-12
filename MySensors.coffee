@@ -161,7 +161,7 @@ module.exports = (env) ->
     constructor: (framework,config) ->
       @config = config
       @framework = framework
-      assert @config.driver in ["serialport", "gpio"]
+      assert @config.driver in ["serialport", "ethernet"]
       # setup a new driver
       switch @config.driver
         when "serialport"
@@ -171,10 +171,13 @@ module.exports = (env) ->
           EthernetDriver = require './ethernet'
           @driver = new EthernetDriver(@config.driverOptions)
 
-      @driver.on('error', (error) => @emit('error', error) )
-      @driver.on('reconnect', (error) => @emit('reconnect', error) )
+      @driver.on('error', (error) => 
+        env.logger.error error
+      )
+      @driver.on('reconnect', (error) =>
+        @emit('reconnect', error)
+      )
       @driver.on('close', =>
-
         @emit('close')
       )
       @driver.on("data", (data) =>
@@ -186,7 +189,7 @@ module.exports = (env) ->
       )
 
 
-    connect: (timeout = 20000, retries = 3) ->
+    connect: (timeout = 2500, retries = 3) ->
 
       return @pendingConnect = @driver.connect(timeout, retries)
 
