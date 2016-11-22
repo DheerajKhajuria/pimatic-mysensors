@@ -31,7 +31,6 @@
     "MySensors"
   ],
   "dependencies": {
-    "bluebird": "^2.2.2",
     "serialport": "~2.0.6"
   },
   "peerDependencies": {
