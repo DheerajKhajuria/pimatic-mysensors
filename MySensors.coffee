@@ -165,7 +165,7 @@ module.exports = (env) ->
       # setup a new driver
       switch @config.driver
         when "serialport"
-          SerialPortDriver = require './serialport'
+          SerialPortDriver = require('./serialport')(env)
           @driver = new SerialPortDriver(@config.driverOptions)
 
       @driver.on('error', (error) => @emit('error', error) )

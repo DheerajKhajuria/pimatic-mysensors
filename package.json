@@ -18,7 +18,7 @@
     "MySensors-config-schema.coffee",
     "LICENSE"
   ],
-  "version": "0.8.34",
+  "version": "0.8.35",
   "homepage": "http://pimatic.org",
   "repository": {
     "type": "git",
@@ -31,7 +31,6 @@
     "MySensors"
   ],
   "dependencies": {
-    "bluebird": "^2.2.2",
     "serialport": "~2.0.6"
   },
   "peerDependencies": {
