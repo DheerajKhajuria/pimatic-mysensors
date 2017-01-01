@@ -24,7 +24,7 @@ module.exports = {
     protocols: 
       description: "MySensors protrocol version"
       type: "string"
-      default: "1.4.1"
+      default: "1.5.1"
     metric: 
       description: "(M)etric or (I)mperal"
       type: "string"
@@ -33,4 +33,8 @@ module.exports = {
       description: "Mysensors starting node id"
       type: "number"
       default: 1 
+    time:
+      description: "use 'local' or 'utc' time"
+      type: "string"
+      default: "local"  
 }
