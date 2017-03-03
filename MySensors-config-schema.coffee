@@ -10,15 +10,42 @@ module.exports = {
       type: "boolean"
       default: true
     driver:
-      description: "The diver to connect to the PiGateway"
+      description: "The driver to connect to the gateway"
       type: "string"
-      enum: ["serialport"]
+      enum: ["serialport", "ethernet"]
       default: "serialport"
+      defines:
+        property: "driverOptions"
+        options:
+          serialport:
+            title: "serialport driver options"
+            type: "object"
+            properties:
+              serialDevice:
+                description: "The name of the serial device to use"
+                type: "string"
+                default: "/dev/ttyUSB0"
+              baudrate:
+                description: "The baudrate to use for serial communication"
+                type: "integer"
+                default: 115200
+          ethernet:
+            title: "ethernet driver options"
+            type: "object"
+            properties:
+              host:
+                description: "The IP address of the gateway"
+                type: "string"
+                default: "192.168.1.100"
+              port:
+                description: "The port of the gateway"
+                type: "integer"
+                default: 5003
     driverOptions:
       description: "Options for the driver"
       type: "object"
       default: {
-        "serialDevice": '/dev/ttyUSB0', #"/dev/ttyUSB0",
+        "serialDevice": "/dev/ttyUSB0",
         "baudrate": 115200
       }
     protocols: 

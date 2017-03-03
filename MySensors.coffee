@@ -161,23 +161,31 @@ module.exports = (env) ->
     constructor: (framework,config) ->
       @config = config
       @framework = framework
-      assert  @config.time in ["utc", "local"]
-      assert @config.driver in ["serialport", "gpio"]
 
+      assert  @config.time in ["utc", "local"]
+      assert @config.driver in ["serialport", "ethernet"]
+      
       @timeOffset = 0
       if @config.time is "local"
         @timeOffset = ((new Date()).getTimezoneOffset() * 60 )
         env.logger.debug "<- TimeOffset ", @timeOffset
+        
       # setup a new driver
       switch @config.driver
         when "serialport"
           SerialPortDriver = require('./serialport')(env)
           @driver = new SerialPortDriver(@config.driverOptions)
+        when "ethernet"
+          EthernetDriver = require './ethernet'
+          @driver = new EthernetDriver(@config.driverOptions)
 
-      @driver.on('error', (error) => @emit('error', error) )
-      @driver.on('reconnect', (error) => @emit('reconnect', error) )
+      @driver.on('error', (error) => 
+        env.logger.error error
+      )
+      @driver.on('reconnect', (error) =>
+        @emit('reconnect', error)
+      )
       @driver.on('close', =>
-
         @emit('close')
       )
       @driver.on("data", (data) =>
@@ -189,7 +197,7 @@ module.exports = (env) ->
       )
 
 
-    connect: (timeout = 20000, retries = 3) ->
+    connect: (timeout = 2500, retries = 3) ->
 
       return @pendingConnect = @driver.connect(timeout, retries)
 
@@ -1544,7 +1552,7 @@ module.exports = (env) ->
           @board._rfWrite(datas)
       )
 
-      @rfValueEventHandlerx = ( (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 0 then off else on)
           dimlevel = (result.value)
