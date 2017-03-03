@@ -1552,7 +1552,7 @@ module.exports = (env) ->
           @board._rfWrite(datas)
       )
 
-      @rfValueEventHandlerx = ( (result) =>
+      @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 0 then off else on)
           dimlevel = (result.value)
