@@ -161,7 +161,13 @@ module.exports = (env) ->
     constructor: (framework,config) ->
       @config = config
       @framework = framework
+      assert  @config.time in ["utc", "local"]
       assert @config.driver in ["serialport", "gpio"]
+
+      @timeOffset = 0
+      if @config.time is "local"
+        @timeOffset = ((new Date()).getTimezoneOffset() * 60 )
+        env.logger.debug "<- TimeOffset ", @timeOffset
       # setup a new driver
       switch @config.driver
         when "serialport"
@@ -267,7 +273,7 @@ module.exports = (env) ->
 
     _rfsendTime: (destination,sensor) ->
       date = new Date()
-      payload = Math.floor( ( date.getTime() ) / 1000 ) - ( date.getTimezoneOffset() * 60 )
+      payload = Math.floor( ( date.getTime() ) / 1000 ) - @timeOffset
       datas =
       {
         "destination": destination,
@@ -371,7 +377,6 @@ module.exports = (env) ->
 
     init: (app, @framework, @config) =>
       @board = new Board(@framework, @config)
-
       @board.connect().then( =>
         env.logger.info("Connected to MySensors Gateway.")
       )
@@ -1111,10 +1116,6 @@ module.exports = (env) ->
     calculatePower:(result) ->
       currdate = new Date()
 
-      if currdate > new Date(currdate.getFullYear(), currdate.getMonth() + 1, 1)
-         @_kwh = 0
-         @_rate = 0
-
       diffTime = currdate - @kWhlastTime[result.sensor]
 
       @_watt[result.sensor] =  Math.floor(parseInt(result.value))
@@ -1543,7 +1544,7 @@ module.exports = (env) ->
           @board._rfWrite(datas)
       )
 
-      @rfValueEventHandler = ( (result) =>
+      @rfValueEventHandlerx = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 0 then off else on)
           dimlevel = (result.value)
@@ -1574,6 +1575,7 @@ module.exports = (env) ->
         "ack"   : 1
       }
       @board._rfWrite(datas).then ( () =>
+        if level in [0-100]
          @_setDimlevel(level)
       )
 
@@ -2024,7 +2026,7 @@ module.exports = (env) ->
       @board.removeListener "rfValue", @rfValueEventHandler
       @board.removeListener "rfbattery", @rfbatteryEventHandler
       super()
-      
+
     _setAttribute: (attributeName, value) ->
       @attributeValue[attributeName] = value
       @emit attributeName, value
