@@ -35,6 +35,8 @@ Gateways
     ( SPI core clock changes and never works. if pi is  overclock , so avoid it )
     
   * Serial Gateway (http://mysensors.org/build/serial_gateway)
+  
+  * Ethernet Gateway (https://www.mysensors.org/build/esp8266_gateway or https://www.mysensors.org/build/ethernet_gateway)
 
 Pimatic Configuration changes   
 -----------------------------
@@ -42,6 +44,7 @@ Pimatic Configuration changes
 ### Configuration
 
 You can load the plugin by editing your config.json to include:
+
 ```
 {
       "plugin": "mysensors",
@@ -55,6 +58,20 @@ You can load the plugin by editing your config.json to include:
       }
 }
 ```
+or for ethernet config:
+```
+{
+      "plugin": "mysensors",
+      "driver": "ethernet",
+      "protocols": "1.5.1",
+      "startingNodeId": 1,
+      "driverOptions": {
+        "host": "192.168.1.100",
+        "port": 5003
+      }
+},
+```
+
 in the plugins section. 
 
 ### Rules
