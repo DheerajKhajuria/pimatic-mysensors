@@ -336,10 +336,16 @@ module.exports = {
               default: "integer"
               enum: ["integer", "float", "round", "boolean", "string", "battery"]
             booleanlabels:
-              description: "The display value of a boolean valuetype"
+              description: "The display values for a boolean value type. Instead of true/false the given labels will be used"
               type: "array"
               required: false
-              default: [true, false]
+              default: ["true", "false"]
+              format: "table"
+              items:
+                type: "string"
+              minItems: 2
+              maxItems: 2
+              uniqueItems: true
             acronym:
               description: "Acronym to show as value label in the frontend"
               type: "string"
