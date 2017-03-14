@@ -1938,7 +1938,7 @@ module.exports = (env) ->
               @attributes[name].type = "number"
             when "boolean"
               @attributes[name].type = "boolean"
-              if _.isArray attr.booleanlabels
+              if _.isArray attr.booleanlabels and attr.booleanlabels.length is 2
                 @attributes[name].labels = attr.booleanlabels
             when "string"
               @attributes[name].type = "string"
