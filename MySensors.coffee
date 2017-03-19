@@ -590,6 +590,17 @@ module.exports = (env) ->
               @framework.deviceManager.discoveredDevice(
                 'pimatic-mysensors', "Gas sensor #{nodeid}.#{sensorid}", config
               )
+            
+            # IR sensor found
+            if sensortype is S_IR
+              config = {
+                class: 'MySensorsIR',
+                nodeid: nodeid,
+                sensorid: sensorid
+              }
+              @framework.deviceManager.discoveredDevice(
+                'pimatic-mysensors', "IR sensor #{nodeid}.#{sensorid}", config
+              )
         )
       )
 
@@ -613,6 +624,7 @@ module.exports = (env) ->
         MySensorsGas
         MySensorsShutter
         MySensorsMulti
+        MySensorsIR
       ]
 
       for Cl in deviceClasses
@@ -2096,6 +2108,74 @@ module.exports = (env) ->
     destroy: ->
       @board.removeListener "rfbattery", @rfbatteryEventHandler
       super()
+  
+  class MySensorsIR extends env.devices.Device
+
+    constructor: (@config,lastState, @board) ->
+      @id = @config.id
+      @name = @config.name
+
+      @_code = lastState?.code?.value
+      @_battery = lastState?.battery?.value
+      if mySensors.config.debug
+        env.logger.debug "MySensorsIR ", @id, @name
+      @attributes = {}
+
+      @attributes.battery = {
+        description: "Display the battery level of sensor"
+        type: "number"
+        displaySparkline: false
+        unit: "%"
+        icon:
+            noText: true
+            mapping: {
+              'icon-battery-empty': 0
+              'icon-battery-fuel-1': [0, 20]
+              'icon-battery-fuel-2': [20, 40]
+              'icon-battery-fuel-3': [40, 60]
+              'icon-battery-fuel-4': [60, 80]
+              'icon-battery-fuel-5': [80, 100]
+              'icon-battery-filled': 100
+            }
+        hidden: !@config.batterySensor
+       }
+
+      @rfbatteryEventHandler = ( (result) =>
+        if result.sender is @config.nodeid
+          unless result.value is null or undefined
+            # When the battery is to low, battery percentages higher then 100 could be send
+            if result.value > 100
+              result.value = 0
+
+            @_battery =  parseInt(result.value)
+            @emit "battery", @_battery
+      )
+
+      @attributes.code = {
+        description: "the received IR code"
+        type: "string"
+        unit: ''
+      }
+
+      @rfValueEventHandler = ( (result) =>
+        if result.sender is @config.nodeid and result.sensor is @config.sensorid
+          if mySensors.config.debug
+            env.logger.debug "<- MySensorsIR", result
+          if result.type is V_IR_RECEIVE
+            @_code = result.value
+            @emit "code", @_code
+      )
+      @board.on("rfbattery", @rfbatteryEventHandler)
+      @board.on("rfValue", @rfValueEventHandler)
+      super()
+
+    destroy: ->
+      @board.removeListener "rfbattery", @rfbatteryEventHandler
+      @board.removeListener "rfValue", @rfValueEventHandler
+      super()
+
+    getCode: -> Promise.resolve @_code
+    getBattery: -> Promise.resolve @_battery
 
   class MySensorsActionHandler extends env.actions.ActionHandler
 
