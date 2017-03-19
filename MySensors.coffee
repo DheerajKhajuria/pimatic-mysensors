@@ -1881,7 +1881,9 @@ module.exports = (env) ->
         env.logger.debug "MySensorsShutter ", @id, @name, @_position
 
       @rfValueEventHandler = ( (result) =>
-        if result.sender is @config.nodeid and result.sensor is @config.sensorid and result.type is V_UP or result.type is V_DOWN or result.type is V_STOP
+        if result.sender is @config.nodeid and
+           result.sensor is @config.sensorid and
+           (result.type is V_UP or result.type is V_DOWN or result.type is V_STOP)
           position = (if result.type is V_UP then 'up' else if result.type is V_DOWN then 'down' else 'stopped')
           if mySensors.config.debug
             env.logger.debug "<- MySensorsShutter ", result
