@@ -332,8 +332,6 @@ module.exports = {
               type: "number"
             type:
               description: "The type of the value."
-              type: "string"
-              default: "integer"
               enum: ["integer", "float", "round", "boolean", "string", "battery"]
             booleanlabels:
               description: "The display values for a boolean value type. Instead of true/false the given labels will be used"

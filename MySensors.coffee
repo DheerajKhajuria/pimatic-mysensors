@@ -1972,7 +1972,7 @@ module.exports = (env) ->
                   }
               }
             else
-              throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
+              throw new Error("Illegal type for attribute #{name}: " + attr.type + " in MySensorsMulti.")
 
           @attributeValue[name] = lastState?[name]?.value
           @_createGetter name, ( => Promise.resolve @attributeValue[name] )
@@ -2016,7 +2016,7 @@ module.exports = (env) ->
                     # You should not set a sensorid for a battery sensor
                     throw new Error("A battery doesn't need a sensorid: #{name} in MySensorsMulti.")
                   else
-                    throw new Error("Illegal unit for attribute type: #{name} in MySensorsMulti.")
+                    throw new Error("Illegal type for attribute #{name}: " + attr.type + " in MySensorsMulti.")
 
                 @_setAttribute name, value
       )
