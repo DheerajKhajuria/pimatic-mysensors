@@ -2189,10 +2189,10 @@ module.exports = (env) ->
         @framework.variableManager.evaluateStringExpression(@sensorid)
         @framework.variableManager.evaluateStringExpression(@cmdcode)
         @framework.variableManager.evaluateStringExpression(@customvalue)
-      ]).then( ([node, sensor, code,customvalue]) =>
+      ]).then( ([node, sensor, code, customvalue]) =>
         if simulate
           # just return a promise fulfilled with a description about what we would do.
-          return __("would send IR \"%s\"", cmdCode)
+          return __("would send custom message \"%s\"", customvalue)
         else
 
           switch customvalue
