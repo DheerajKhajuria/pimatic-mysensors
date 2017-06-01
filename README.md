@@ -13,7 +13,7 @@ Controllers
   * Motion ( http://mysensors.org/build/motion )
   * Relay-Actuator ( http://www.mysensors.org/build/relay )
   * TimeAware Sensor support ( Unix time seconds ) 
-  * Binary buttom ( http://www.mysensors.org/build/binary )
+  * Binary button ( http://www.mysensors.org/build/binary )
   * Dimmer 
   * Distance
   * Light Sensor 
@@ -83,7 +83,7 @@ in the plugins section.
 ### Devices
 
  Note:  To enable battery level with  sensor. set ["batterystat"] to true. see temp & Hum exp.
-        support is enable for all sensor except PIR,Switch. for PIR or switch use configure seperate battery devices.
+        support is enable for all sensor except PIR,Switch. for PIR or switch use configure separate battery devices.
 
 * Temperature and Humidity
 

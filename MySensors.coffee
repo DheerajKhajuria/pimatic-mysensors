@@ -2228,7 +2228,7 @@ module.exports = (env) ->
             "ack"   : 1
           }
           return @board._rfWrite(datas).then ( () =>
-            __("IR message sent successfully")
+            __("custom message sent successfully")
           )
           )
 
