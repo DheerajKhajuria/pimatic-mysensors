@@ -4,3 +4,4 @@ doc/*
 
 ## JetBrains directory-based project format:
 .idea/
+npm-debug.log
