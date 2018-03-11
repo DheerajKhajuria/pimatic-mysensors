@@ -1567,7 +1567,7 @@ module.exports = (env) ->
       @rfValueEventHandler = ( (result) =>
         if result.sender is @config.nodeid and result.type is V_PERCENTAGE and result.sensor is @config.sensorid
           state = (if parseInt(result.value) is 0 then off else on)
-          dimlevel = (result.value)
+          dimlevel = Math.min(Math.max(result.value, 0), 100)
           if mySensors.config.debug
             env.logger.debug "<- MySensorDimmer ", result
           @_setState(state)
