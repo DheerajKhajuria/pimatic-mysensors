@@ -179,8 +179,9 @@ module.exports = (env) ->
           EthernetDriver = require './ethernet'
           @driver = new EthernetDriver(@config.driverOptions)
 
-      @driver.on('error', (error) => 
+      @driver.on('error', (error) =>
         env.logger.error error
+        @emit('error', error)
       )
       @driver.on('reconnect', (error) =>
         @emit('reconnect', error)
@@ -388,6 +389,14 @@ module.exports = (env) ->
       @board.connect().then( =>
         env.logger.info("Connected to MySensors Gateway.")
       )
+
+      @board.on('error', (error) =>
+        setTimeout(( =>
+          @board.connect()
+        ), 10000)
+      )
+
+
 
       deviceConfigDef = require("./device-config-schema")
 
