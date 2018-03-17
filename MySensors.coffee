@@ -180,7 +180,7 @@ module.exports = (env) ->
           @driver = new EthernetDriver(@config.driverOptions)
 
       @driver.on('error', (error) =>
-        env.logger.error error
+        env.logger.error('Disconnected from gateway')
         @emit('error', error)
       )
       @driver.on('reconnect', (error) =>
@@ -391,11 +391,11 @@ module.exports = (env) ->
       )
 
       @board.on('error', (error) =>
+        env.logger.info("Trying to reconnect in 10s")
         setTimeout(( =>
           @board.connect()
         ), 10000)
       )
-
 
 
       deviceConfigDef = require("./device-config-schema")
