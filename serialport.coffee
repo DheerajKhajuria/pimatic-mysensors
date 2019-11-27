@@ -3,7 +3,8 @@ module.exports = (env) ->
   events = require 'events'
 
   serialport = require("serialport")
-  SerialPort = serialport.SerialPort
+  SerialPort = require 'serialport'
+  Readline = require('@serialport/parser-readline')
 
   Promise = env.require 'bluebird'
   Promise.promisifyAll(SerialPort.prototype)
@@ -15,8 +16,8 @@ module.exports = (env) ->
       env.logger.debug "initializing SerialPortDriver"
       @serialPort = new SerialPort(protocolOptions.serialDevice, {
         baudRate: protocolOptions.baudrate,
-        parser: serialport.parsers.readline("\n")
-      }, openImmediately = no)
+        autoOpen: false
+      })
 
     connect: (timeout, retries) ->
       # cleanup
@@ -32,7 +33,8 @@ module.exports = (env) ->
         #resolver = null
 
         # setup data listener
-        @serialPort.on("data", (data) =>
+        @parser = @serialPort.pipe(new Readline("\n"));
+        @parser.on("data", (data) =>
           # Sanitize data
           line = data.replace(/\0/g, '').trim()
           @emit('data', data)
