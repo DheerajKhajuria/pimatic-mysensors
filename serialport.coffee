@@ -4,7 +4,7 @@ module.exports = (env) ->
 
   serialport = require("serialport")
   SerialPort = require 'serialport'
-  Readline = require('@serialport/parser-readline')
+  Readline = SerialPort.parser.Readline #require('@serialport/parser-readline')
 
   Promise = env.require 'bluebird'
   Promise.promisifyAll(SerialPort.prototype)
